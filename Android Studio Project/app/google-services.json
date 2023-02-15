@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "446044188068",
+    "project_id": "discord-mdp",
+    "storage_bucket": "discord-mdp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:446044188068:android:775c288223bbb170982531",
+        "android_client_info": {
+          "package_name": "com.example.androidstudioproject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "446044188068-g6a67i5m87jb21un1p9b1ei7a4pgo9bq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAbCov9WYms-GdIRB5fyuoAJmBymes9Wbc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "446044188068-g6a67i5m87jb21un1p9b1ei7a4pgo9bq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
