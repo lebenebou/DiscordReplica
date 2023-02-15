@@ -44,6 +44,7 @@ class SignUp : AppCompatActivity() {
                     if (task.isSuccessful) {
                         //code for jumping to home
                         val  intent=Intent(this@SignUp,MainActivity::class.java)
+                        finish()
                         startActivity(intent)
                     } else {
                         Toast.makeText(this@SignUp,"Some error occured",Toast.LENGTH_SHORT).show()
