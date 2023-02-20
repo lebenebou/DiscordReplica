@@ -16,6 +16,7 @@
 
     <EditText
         android:id="@+id/edt_email"
+        android:textIsSelectable="true"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_below="@+id/app_logo"
@@ -29,6 +30,7 @@
     <EditText
         android:id="@+id/edt_password"
         android:layout_width="match_parent"
+        android:textIsSelectable="true"
         android:layout_height="50dp"
         android:layout_below="@+id/edt_email"
         android:paddingLeft="13dp"
@@ -37,6 +39,15 @@
         android:background="@drawable/edt_background"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"/>
+    <ImageView
+        android:id="@+id/imgShowHidePassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/edt_password"
+        android:layout_alignBottom="@+id/edt_password"
+        android:layout_marginEnd="7dp"
+        android:layout_marginBottom="10dp"
+        android:src="@drawable/ic_baseline_visibility_24"/>
 
     <Button
         android:id="@+id/btnLogin"
@@ -60,5 +71,6 @@
     android:textColor="@color/white"
     android:textSize="20sp"
     android:layout_marginTop="10dp"/>
+
 
 </RelativeLayout>

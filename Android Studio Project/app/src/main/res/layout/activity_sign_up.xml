@@ -15,6 +15,7 @@
         android:layout_marginTop="70dp"/>
     <EditText
         android:id="@+id/edt_name"
+        android:textIsSelectable="true"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_below="@+id/app_logo"
@@ -23,9 +24,11 @@
         android:background="@drawable/edt_background"
         android:paddingLeft="13dp"
         android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"/>
+        android:layout_marginRight="20dp"
+        android:inputType="textEmailAddress"/>
     <EditText
         android:id="@+id/edt_email"
+        android:textIsSelectable="true"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_below="@+id/edt_name"
@@ -34,10 +37,12 @@
         android:background="@drawable/edt_background"
         android:paddingLeft="13dp"
         android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"/>
+        android:layout_marginRight="20dp"
+        android:inputType="textEmailAddress"/>
 
     <EditText
         android:id="@+id/edt_password"
+        android:textIsSelectable="true"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_below="@+id/edt_email"
@@ -46,7 +51,8 @@
         android:hint="Password"
         android:background="@drawable/edt_background"
         android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"/>
+        android:layout_marginRight="20dp"
+        android:inputType="textPassword"/>
 
     <Button
         android:id="@+id/btnSignUp"
@@ -60,4 +66,26 @@
         android:textSize="20sp"
         android:layout_marginTop="10dp"/>
 
+    <ImageView
+        android:id="@+id/imgShowHidePassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/edt_password"
+        android:layout_alignBottom="@+id/edt_password"
+        android:layout_marginEnd="7dp"
+        android:layout_marginBottom="10dp"
+        android:src="@drawable/ic_baseline_visibility_24"/>
+
+    <TextView
+        android:id="@+id/text_login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btnSignUp"
+        android:layout_marginTop="12dp"
+        android:autoLink="web"
+        android:clickable="true"
+        android:onClick="onLoginClick"
+        android:text="Don't have an account? Login"
+        android:layout_marginStart="120dp"
+        android:textColor="@color/purple_700" />
 </RelativeLayout>
