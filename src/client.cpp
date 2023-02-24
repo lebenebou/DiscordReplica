@@ -31,16 +31,22 @@ int main(int argc, char const *argv[])
         cout << "Couldn't connect to server. Server might not be online." << endl;
         return 1;
     }
+    cout << "Successfully connected to Server." << endl;
 
     char buf[4096];
     string userInput;
+    bool first_message = true;
+    string username = "Client";
 
     while(true){
 
-        cout << "Type a message> ";
+        if(first_message) cout << "Your username: ";
+        else cout << "Type a message> ";
+
         getline(cin, userInput); // get input from user
+
         if(userInput == "/quit"){
-            close(clientSocket);
+            close(clientSocket); // disconnect
             return 0;
         }
 
@@ -54,10 +60,11 @@ int main(int argc, char const *argv[])
         int bytesReceived = recv(clientSocket, buf, 4096, 0); // receive bytes from the server
 
         if (bytesReceived == -1){
-            cout << "Couldn't get response back from server" << endl;
+            cout << "Couldn't get a response back from the server" << endl;
         }
-        else{
-            cout << "SERVER> " << string(buf, 0, bytesReceived) << endl;
+        else if(first_message){
+            cout << string(buf, 0, bytesReceived) << endl; // display the servers response
+            first_message = false;
         }
     }
 

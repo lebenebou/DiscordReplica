@@ -73,7 +73,9 @@ int main(int argc, char const *argv[]){
     // Connection established
     const size_t buffer_size = 4096;
     char buffer[buffer_size];
-    string received_message;
+
+    string client_username = "Client";
+    bool first_message = true;
 
     while(true){
 
@@ -89,9 +91,22 @@ int main(int argc, char const *argv[]){
             break;
         }
         
-        received_message = string(buffer, 0, bytesReceived);
-        cout << "Received: " << received_message << endl;
-        send(clientSocket, buffer, bytesReceived+1, 0); // send back to client
+        string received_message = string(buffer, 0, bytesReceived);
+
+        if(first_message){
+            
+            client_username = received_message;
+            cout << "Username of connected user: " << client_username << endl;
+            string reply = "Welcome "+client_username+"!";
+            memcpy(buffer, reply.c_str(), reply.length()+1);
+            send(clientSocket, buffer, reply.length()+1, 0);
+            first_message = false;
+        }
+        else { // not the first message the client sends
+
+            cout << client_username << ": " << received_message << endl;
+            send(clientSocket, buffer, bytesReceived+1, 0); // send back to client
+        }
     }
 
     close(clientSocket);
