@@ -21,7 +21,8 @@ int main(int argc, char const *argv[]){
     }
     cout << "Created socket" << endl;
 
-    const int port = 54000;
+    int port = 0;
+    cout << "Choose port number: "; cin>>port;
 
     sockaddr_in hint;
     hint.sin_family = AF_INET;
@@ -38,13 +39,13 @@ int main(int argc, char const *argv[]){
         cout << "Couldn't listen" << endl;
         return -3;
     }
-    cout << "Listening..." << endl;
 
     sockaddr_in client;
     socklen_t clientSize = sizeof(client);
     char host[NI_MAXHOST];
     char svc[NI_MAXSERV];
 
+    cout << "Listening..." << endl;
     int clientSocket = accept(listening, (struct sockaddr*)&client, &clientSize);
 
     if(clientSocket == -1){
@@ -52,7 +53,7 @@ int main(int argc, char const *argv[]){
         cout << "Couldn't connect with client" << endl;
         return -4;
     }
-    cout << "Connected to client" << endl;
+    cout << "A client just connected" << endl;
 
     close(listening);
 

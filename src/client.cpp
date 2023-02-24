@@ -10,7 +10,7 @@
 
 using namespace std;
 
-int main()
+int main(int argc, char const *argv[])
 {
     int clientSocket= socket(AF_INET, SOCK_STREAM, 0);
     if (clientSocket== -1){
@@ -18,7 +18,7 @@ int main()
         return 1;
     }
 
-    int port = 54000;
+    const int port = 54000;
     string ipAddress = "127.0.0.1";
 
     sockaddr_in hint;
@@ -28,7 +28,7 @@ int main()
 
     int result = connect(clientSocket, (sockaddr*)&hint, sizeof(hint));
     if (result == -1){
-        cout << "Couldn't connect to server. Server might not be online" << endl;
+        cout << "Couldn't connect to server. Server might not be online." << endl;
         return 1;
     }
 
@@ -37,8 +37,12 @@ int main()
 
     while(true){
 
-        cout << "> ";
+        cout << "Type a message> ";
         getline(cin, userInput); // get input from user
+        if(userInput == "/quit"){
+            close(clientSocket);
+            return 0;
+        }
 
         int result = send(clientSocket, userInput.c_str(), userInput.size() + 1, 0);
         if (result == -1){
@@ -50,14 +54,14 @@ int main()
         int bytesReceived = recv(clientSocket, buf, 4096, 0); // receive bytes from the server
 
         if (bytesReceived == -1){
-            cout << "Couldn't get response from server" << endl;
+            cout << "Couldn't get response back from server" << endl;
         }
         else{
             cout << "SERVER> " << string(buf, 0, bytesReceived) << endl;
         }
     }
 
-    close(clientSocket);
+    close(clientSocket); // disconnect
 
     return 0;
 }
