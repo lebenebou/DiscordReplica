@@ -71,7 +71,7 @@ int main(int argc, char const *argv[]){
 
     if(argc != 2){
         cout << "Must run file with one argument: <PortNumber>" << endl;
-        cout << "Syntax example: g++ filename.cpp -o runnable.exe && ./runnable.exe 8080" << endl;
+        cout << "Syntax example: g++ server.cpp -o runnable.exe && ./runnable.exe 8080" << endl;
         return 1;
     }
 

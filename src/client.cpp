@@ -10,16 +10,21 @@
 
 using namespace std;
 
-int main(int argc, char const *argv[])
-{
+int main(int argc, char const *argv[]){
+
+    if(argc != 2){
+        cout << "Must run file with one argument: <PortNumber>" << endl;
+        cout << "Syntax example: g++ client.cpp -o runnable.exe && ./runnable.exe 8080" << endl;
+        return 1;
+    }
+
     int clientSocket= socket(AF_INET, SOCK_STREAM, 0);
     if (clientSocket== -1){
         cout << "Couldn't create socket" << endl;
         return 1;
     }
 
-    int port = -1;
-    cout << "Connect to port: "; cin>>port;
+    int port = stoi(argv[1]);
     const string ipAddress = "127.0.0.1";
 
     sockaddr_in hint;
