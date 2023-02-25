@@ -18,7 +18,7 @@ int main(int argc, char const *argv[])
         return 1;
     }
 
-    const int port = 5400;
+    const int port = 8080;
     string ipAddress = "127.0.0.1";
 
     sockaddr_in hint;
@@ -35,13 +35,10 @@ int main(int argc, char const *argv[])
 
     char buf[4096];
     string userInput;
-    bool first_message = true;
-    string username = "Client";
 
     while(true){
 
-        if(first_message) cout << "Your username: ";
-        else cout << "Type a message> ";
+        cout << "Type a message> ";
 
         getline(cin, userInput); // get input from user
 
@@ -62,9 +59,8 @@ int main(int argc, char const *argv[])
         if (bytesReceived == -1){
             cout << "Couldn't get a response back from the server" << endl;
         }
-        else if(first_message){
-            cout << string(buf, 0, bytesReceived) << endl; // display the servers response
-            first_message = false;
+        else{
+            cout << string(buf, 0, bytesReceived) << endl; // print server's response
         }
     }
 

@@ -9,9 +9,14 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+
+#include <thread>
+#include <atomic>
+#include <set>
+
 using namespace std;
 
-void handleClient(int clientSocket, sockaddr_in& clientAddr) {
+void handleClient(int clientSocket, const sockaddr_in& clientAddr) {
     
     char host[NI_MAXHOST];
     char svc[NI_MAXSERV];
@@ -32,9 +37,6 @@ void handleClient(int clientSocket, sockaddr_in& clientAddr) {
     const size_t buffer_size = 4096;
     char buffer[buffer_size];
 
-    string client_username = "Client";
-    bool first_message = true;
-
     while(true){
 
         memset(buffer, 0, buffer_size); // clear buffer array
@@ -50,21 +52,8 @@ void handleClient(int clientSocket, sockaddr_in& clientAddr) {
         }
 
         string received_message = string(buffer, 0, bytesReceived);
-
-        if(first_message){
-
-            client_username = received_message;
-            cout << "Username of connected user: " << client_username << endl;
-            string reply = "Welcome "+client_username+"!";
-            memcpy(buffer, reply.c_str(), reply.length()+1);
-            send(clientSocket, buffer, reply.length()+1, 0);
-            first_message = false;
-        }
-        else { // not the first message the client sends
-
-            cout << client_username << ": " << received_message << endl;
-            send(clientSocket, buffer, bytesReceived+1, 0); // send back to client
-        }
+        cout << "Client: " << received_message << endl;
+        send(clientSocket, buffer, bytesReceived+1, 0); // echo message back to the client
     }
 
     close(clientSocket);
