@@ -69,6 +69,12 @@ void handleClient(int clientSocket, const sockaddr_in& clientAddr) {
 
 int main(int argc, char const *argv[]){
 
+    if(argc != 2){
+        cout << "Must run file with one argument: <PortNumber>" << endl;
+        cout << "Syntax example: g++ filename.cpp -o runnable.exe && ./runnable.exe 8080" << endl;
+        return 1;
+    }
+
     int listening = socket(AF_INET, SOCK_STREAM, 0);
     if(listening < 0){
         cout << "Error when creating socket" << endl;
@@ -76,8 +82,8 @@ int main(int argc, char const *argv[]){
     }
     cout << "Created socket" << endl;
 
-    int port = -1;
-    cout << "Run this server on port: "; cin>>port;
+    int port = stoi(argv[1]);
+    cout << "Attempting to run on port " << port << endl;
 
     sockaddr_in hint;
     hint.sin_family = AF_INET;
