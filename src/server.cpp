@@ -16,6 +16,8 @@
 #include <set>
 #include <mutex>
 
+#include "thread_pool.cpp"
+
 using namespace std;
 
 set<int> connectedClients; // set containing the sockets of connected clients
@@ -94,7 +96,7 @@ int main(int argc, char const *argv[]){
     }
 
     cout << "Listening..." << endl;
-    vector<thread> threads;
+    ThreadPool pool(128);
 
     while(true){ // keep listening for incoming connections
 
@@ -111,10 +113,8 @@ int main(int argc, char const *argv[]){
         cout << "A client just connected" << endl;
         
         connectedClients.insert(clientSocket);
-        threads.emplace_back(handleClient, clientSocket, client);
+        pool.enqueue( [clientSocket, client]() -> void { handleClient(clientSocket, client); });
     }
-
-    for(auto& t : threads) t.join();
 
     close(listening);
     return 0;
