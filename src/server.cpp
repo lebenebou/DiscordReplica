@@ -10,11 +10,15 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
+#include <vector>
 #include <thread>
 #include <atomic>
 #include <set>
+#include <mutex>
 
 using namespace std;
+
+set<int> connectedClients; // set containing the sockets of connected clients
 
 void handleClient(int clientSocket, const sockaddr_in& clientAddr) {
     
@@ -34,7 +38,7 @@ void handleClient(int clientSocket, const sockaddr_in& clientAddr) {
     }
     cout << endl;
 
-    const size_t buffer_size = 4096;
+    const short buffer_size = 4096;
     char buffer[buffer_size];
 
     while(true){
@@ -52,10 +56,12 @@ void handleClient(int clientSocket, const sockaddr_in& clientAddr) {
         }
 
         string received_message = string(buffer, 0, bytesReceived);
-        cout << "Client: " << received_message << endl;
+        cout << "Message received: " << received_message << endl;
         send(clientSocket, buffer, bytesReceived+1, 0); // echo message back to the client
     }
 
+    // client was disconnected
+    connectedClients.erase(clientSocket);
     close(clientSocket);
 }
 
@@ -68,8 +74,8 @@ int main(int argc, char const *argv[]){
     }
     cout << "Created socket" << endl;
 
-    int port = 0;
-    cout << "Choose port number: "; cin>>port;
+    int port = -1;
+    cout << "Run this server on port: "; cin>>port;
 
     sockaddr_in hint;
     hint.sin_family = AF_INET;
@@ -87,22 +93,29 @@ int main(int argc, char const *argv[]){
         return -3;
     }
 
-    sockaddr_in client;
-    socklen_t clientSize = sizeof(client);
-
     cout << "Listening..." << endl;
-    int clientSocket = accept(listening, (struct sockaddr*)&client, &clientSize);
+    vector<thread> threads;
 
-    if(clientSocket == -1){
+    while(true){ // keep listening for incoming connections
 
-        cout << "Couldn't connect with client" << endl;
-        return -4;
+        sockaddr_in client;
+        socklen_t clientSize = sizeof(client);
+        
+        int clientSocket = accept(listening, (struct sockaddr*)&client, &clientSize);
+
+        if(clientSocket == -1){
+
+            cout << "Couldn't connect to client" << endl;
+            return -4;
+        }
+        cout << "A client just connected" << endl;
+        
+        connectedClients.insert(clientSocket);
+        threads.emplace_back(handleClient, clientSocket, client);
     }
-    cout << "A client just connected" << endl;
+
+    for(auto& t : threads) t.join();
 
     close(listening);
-
-    // start client connection
-    handleClient(clientSocket, client);
     return 0;
 }
