@@ -19,7 +19,7 @@ int main(int argc, char const *argv[])
     }
 
     const int port = 8080;
-    string ipAddress = "127.0.0.1";
+    const string ipAddress = "127.0.0.1";
 
     sockaddr_in hint;
     hint.sin_family = AF_INET;
