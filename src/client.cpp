@@ -18,7 +18,8 @@ int main(int argc, char const *argv[])
         return 1;
     }
 
-    const int port = 8080;
+    int port = -1;
+    cout << "Connect to port: "; cin>>port;
     const string ipAddress = "127.0.0.1";
 
     sockaddr_in hint;
