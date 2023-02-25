@@ -32,16 +32,19 @@ void handleClient(int clientSocket, const sockaddr_in& clientAddr) {
 
     int result = getnameinfo((struct sockaddr*)&clientAddr, sizeof(clientAddr), host, NI_MAXHOST, svc, NI_MAXSERV, 0);
     if(result > 0){
-        cout << host << " connected on " << svc << endl;
+        // cout << host << " connected on " << svc << endl;
     }
     else{ // result == 0
         inet_ntop(AF_INET, &clientAddr.sin_addr, host, NI_MAXHOST);
-        cout << host << " connected on " << ntohs(clientAddr.sin_port) << endl;
+        // cout << host << " connected with " << ntohs(clientAddr.sin_port) << endl;
     }
     cout << endl;
 
     const short buffer_size = 4096;
     char buffer[buffer_size];
+    
+    bool first_message = true;
+    string username = "UnknownClient";
 
     while(true){
 
@@ -49,17 +52,27 @@ void handleClient(int clientSocket, const sockaddr_in& clientAddr) {
         int bytesReceived = recv(clientSocket, buffer, buffer_size, 0);
 
         if(bytesReceived == -1){
-            cout << "Connection issue: couldn't receive bytes" << endl;
+            cout << "!Connection issue with " + username << endl;
             break;
         }
         else if(bytesReceived == 0){
-            cout << "Client diconnected" << endl;
+            cout << "> " << username << " left the chat.\n" << endl;
             break;
         }
-
+        
         string received_message = string(buffer, 0, bytesReceived);
-        cout << "Message received: " << received_message << endl;
-        send(clientSocket, buffer, bytesReceived+1, 0); // echo message back to the client
+        string output = "";
+
+        if(first_message){ // the received message is the client username
+
+            first_message = false;
+            username = received_message; // set client's username
+            output = "> " + username + " joined the chat.\n";
+        }
+        else output = username + ": " + received_message;
+
+        cout << output << endl;
+        send(clientSocket, output.c_str(), output.length()+1, 0); // echo output back to the client
     }
 
     // client was disconnected
@@ -77,13 +90,13 @@ int main(int argc, char const *argv[]){
 
     int listening = socket(AF_INET, SOCK_STREAM, 0);
     if(listening < 0){
-        cout << "Error when creating socket" << endl;
+        cout << "!Error when creating socket" << endl;
         return -1;
     }
-    cout << "Created socket" << endl;
+    cout << "Successfully created socket." << endl;
 
     int port = stoi(argv[1]);
-    cout << "Attempting to run on port " << port << endl;
+    cout << "Attempting to run on port " << port << "..." << endl;
 
     sockaddr_in hint;
     hint.sin_family = AF_INET;
@@ -91,13 +104,13 @@ int main(int argc, char const *argv[]){
     inet_pton(AF_INET, "0.0.0.0", &hint.sin_addr); // 0.0.0.0 is to get any address
 
     if(bind(listening, (struct sockaddr*)&hint, sizeof(hint))){
-        cout << "Couldn't bind to IP/port" << endl;
+        cout << "!Couldn't bind to IP/port" << endl;
         return -2;
     }
-    cout << "Binded IP/Port" << endl;
+    cout << "Successfully bound IP/Port." << endl;
 
     if(listen(listening, SOMAXCONN) == -1){
-        cout << "Couldn't listen" << endl;
+        cout << "!Couldn't listen" << endl;
         return -3;
     }
 
@@ -113,10 +126,10 @@ int main(int argc, char const *argv[]){
 
         if(clientSocket == -1){
 
-            cout << "Couldn't connect to client" << endl;
+            cout << "!Couldn't connect to client" << endl;
             return -4;
         }
-        cout << "A client just connected" << endl;
+        // cout << "A client just connected" << endl;
         
         connectedClients.insert(clientSocket);
         pool.enqueue( [clientSocket, client]() -> void { handleClient(clientSocket, client); });

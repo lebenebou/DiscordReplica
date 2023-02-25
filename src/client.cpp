@@ -42,9 +42,13 @@ int main(int argc, char const *argv[]){
     char buf[4096];
     string userInput;
 
+    bool first_message = true;
+    string username = "UnknownClient";
+
     while(true){
 
-        cout << "Type a message> ";
+        if(first_message) cout << "Input your username: ";
+        else cout << ">Type a message: ";
 
         getline(cin, userInput); // get input from user
 
@@ -53,7 +57,7 @@ int main(int argc, char const *argv[]){
             return 0;
         }
 
-        int result = send(clientSocket, userInput.c_str(), userInput.size() + 1, 0);
+        int result = send(clientSocket, userInput.c_str(), userInput.length() + 1, 0);
         if (result == -1){
             cout << "Could not send to server.";
             continue;
@@ -62,11 +66,15 @@ int main(int argc, char const *argv[]){
         memset(buf, 0, 4096); // clear buffer array
         int bytesReceived = recv(clientSocket, buf, 4096, 0); // receive bytes from the server
 
-        if (bytesReceived == -1){
-            cout << "Couldn't get a response back from the server" << endl;
+        if (bytesReceived == -1) cout << "Couldn't get a response back from the server" << endl;
+        else if(first_message){
+            
+            first_message = false;
+            username = userInput;
+            cout << "Welcome, " << username << '!' << endl;
         }
-        else{
-            cout << string(buf, 0, bytesReceived) << endl; // print server's response
+        else{ // normal response from server
+            // cout << string(buf, 0, bytesReceived) << endl; // print server's response (echo)
         }
     }
 
