@@ -1,2 +1,2 @@
 
-An android app that allows the creation of chat and voice call rooms. Built with Aandroid Studio IDE.
+An android app built in Android Studio that allows the creation of chat and voice call rooms. Communication made possible through C++ servers.
