@@ -18,7 +18,7 @@ int main(int argc, char const *argv[])
         return 1;
     }
 
-    const int port = 54000;
+    const int port = 5400;
     string ipAddress = "127.0.0.1";
 
     sockaddr_in hint;

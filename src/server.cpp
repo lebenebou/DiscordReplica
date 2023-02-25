@@ -9,8 +9,66 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-
 using namespace std;
+
+void handleClient(int clientSocket, sockaddr_in& clientAddr) {
+    
+    char host[NI_MAXHOST];
+    char svc[NI_MAXSERV];
+
+    memset(host, 0, NI_MAXHOST); // clear array
+    memset(svc, 0, NI_MAXSERV); // clear array
+
+    int result = getnameinfo((struct sockaddr*)&clientAddr, sizeof(clientAddr), host, NI_MAXHOST, svc, NI_MAXSERV, 0);
+    if(result > 0){
+        cout << host << " connected on " << svc << endl;
+    }
+    else{ // result == 0
+        inet_ntop(AF_INET, &clientAddr.sin_addr, host, NI_MAXHOST);
+        cout << host << " connected on " << ntohs(clientAddr.sin_port) << endl;
+    }
+    cout << endl;
+
+    const size_t buffer_size = 4096;
+    char buffer[buffer_size];
+
+    string client_username = "Client";
+    bool first_message = true;
+
+    while(true){
+
+        memset(buffer, 0, buffer_size); // clear buffer array
+        int bytesReceived = recv(clientSocket, buffer, buffer_size, 0);
+
+        if(bytesReceived == -1){
+            cout << "Connection issue: couldn't receive bytes" << endl;
+            break;
+        }
+        else if(bytesReceived == 0){
+            cout << "Client diconnected" << endl;
+            break;
+        }
+
+        string received_message = string(buffer, 0, bytesReceived);
+
+        if(first_message){
+
+            client_username = received_message;
+            cout << "Username of connected user: " << client_username << endl;
+            string reply = "Welcome "+client_username+"!";
+            memcpy(buffer, reply.c_str(), reply.length()+1);
+            send(clientSocket, buffer, reply.length()+1, 0);
+            first_message = false;
+        }
+        else { // not the first message the client sends
+
+            cout << client_username << ": " << received_message << endl;
+            send(clientSocket, buffer, bytesReceived+1, 0); // send back to client
+        }
+    }
+
+    close(clientSocket);
+}
 
 int main(int argc, char const *argv[]){
 
@@ -42,8 +100,6 @@ int main(int argc, char const *argv[]){
 
     sockaddr_in client;
     socklen_t clientSize = sizeof(client);
-    char host[NI_MAXHOST];
-    char svc[NI_MAXSERV];
 
     cout << "Listening..." << endl;
     int clientSocket = accept(listening, (struct sockaddr*)&client, &clientSize);
@@ -57,58 +113,7 @@ int main(int argc, char const *argv[]){
 
     close(listening);
 
-    memset(host, 0, NI_MAXHOST); // clear array
-    memset(svc, 0, NI_MAXSERV); // clear array
-
-    int result = getnameinfo((struct sockaddr*)&client, sizeof(client), host, NI_MAXHOST, svc, NI_MAXSERV, 0);
-    if(result > 0){
-        cout << host << " connected on " << svc << endl;
-    }
-    else{ // result == 0
-        inet_ntop(AF_INET, &client.sin_addr, host, NI_MAXHOST);
-        cout << host << " connected on " << ntohs(client.sin_port) << endl;
-    }
-    cout << endl;
-    
-    // Connection established
-    const size_t buffer_size = 4096;
-    char buffer[buffer_size];
-
-    string client_username = "Client";
-    bool first_message = true;
-
-    while(true){
-
-        memset(buffer, 0, buffer_size); // clear buffer array
-        int bytesReceived = recv(clientSocket, buffer, buffer_size, 0);
-
-        if(bytesReceived == -1){
-            cout << "Connection issue: couldn't receive bytes" << endl;
-            break;
-        }
-        else if(bytesReceived == 0){
-            cout << "Client diconnected" << endl;
-            break;
-        }
-        
-        string received_message = string(buffer, 0, bytesReceived);
-
-        if(first_message){
-            
-            client_username = received_message;
-            cout << "Username of connected user: " << client_username << endl;
-            string reply = "Welcome "+client_username+"!";
-            memcpy(buffer, reply.c_str(), reply.length()+1);
-            send(clientSocket, buffer, reply.length()+1, 0);
-            first_message = false;
-        }
-        else { // not the first message the client sends
-
-            cout << client_username << ": " << received_message << endl;
-            send(clientSocket, buffer, bytesReceived+1, 0); // send back to client
-        }
-    }
-
-    close(clientSocket);
+    // start client connection
+    handleClient(clientSocket, client);
     return 0;
 }
