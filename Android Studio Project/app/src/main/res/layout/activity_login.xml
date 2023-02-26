@@ -23,9 +23,11 @@
         android:layout_marginTop="10dp"
         android:hint="Email"
         android:background="@drawable/edt_background"
-        android:paddingLeft="13dp"
+        android:drawableLeft="@drawable/baseline_email_24"
+        android:paddingLeft="15dp"
         android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"/>
+        android:layout_marginRight="20dp"
+        android:inputType="textEmailAddress"/>
 
     <EditText
         android:id="@+id/edt_password"
@@ -33,12 +35,14 @@
         android:textIsSelectable="true"
         android:layout_height="50dp"
         android:layout_below="@+id/edt_email"
-        android:paddingLeft="13dp"
+        android:drawableLeft="@drawable/baseline_security_24"
+        android:paddingLeft="15dp"
         android:layout_marginTop="10dp"
         android:hint="Password"
         android:background="@drawable/edt_background"
         android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"/>
+        android:layout_marginRight="20dp"
+        android:inputType="textPassword"/>
     <ImageView
         android:id="@+id/imgShowHidePassword"
         android:layout_width="wrap_content"
@@ -60,17 +64,28 @@
         android:textColor="@color/white"
         android:textSize="20sp"
         android:layout_marginTop="10dp"/>
-<Button
-    android:id="@+id/btnSignUp"
-    android:layout_width="150dp"
-    android:layout_height="wrap_content"
-    android:layout_below="@+id/btnLogin"
-    android:text="Sign up"
-    android:background="@drawable/btn_background"
-    android:layout_centerHorizontal="true"
-    android:textColor="@color/white"
-    android:textSize="20sp"
-    android:layout_marginTop="10dp"/>
+<!--<Button-->
+<!--    android:id="@+id/btnSignUp"-->
+<!--    android:layout_width="150dp"-->
+<!--    android:layout_height="wrap_content"-->
+<!--    android:layout_below="@+id/btnLogin"-->
+<!--    android:text="Sign up"-->
+<!--    android:background="@drawable/btn_background"-->
+<!--    android:layout_centerHorizontal="true"-->
+<!--    android:textColor="@color/white"-->
+<!--    android:textSize="20sp"-->
+<!--    android:layout_marginTop="10dp"/>-->
+    <TextView
+        android:id="@+id/text_signup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btnLogin"
+        android:layout_marginTop="12dp"
+        android:autoLink="web"
+        android:clickable="true"
+        android:text="Don't have an account? SignUp"
+        android:layout_marginStart="120dp"
+        android:textColor="@color/purple_700" />
 
 
 </RelativeLayout>

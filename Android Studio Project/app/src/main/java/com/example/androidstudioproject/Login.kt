@@ -5,17 +5,16 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.Toast
+import android.view.View
+import android.widget.*
 import com.google.firebase.auth.FirebaseAuth
 
 class Login : AppCompatActivity() {
     private lateinit var edtEmail: EditText
     private lateinit var edtPassword: EditText
     private lateinit var btnLogin: Button
-    private lateinit var btnSignUp: Button
+//    private lateinit var btnSignUp: Button
+    private lateinit var text_signup:EditText
     private lateinit var imgShowHidePassword: ImageView
 
     //firebase auth
@@ -32,11 +31,16 @@ class Login : AppCompatActivity() {
         edtEmail = findViewById(R.id.edt_email)
         edtPassword = findViewById(R.id.edt_password)
         btnLogin = findViewById(R.id.btnLogin)
-        btnSignUp = findViewById(R.id.btnSignUp)
+//        btnSignUp = findViewById(R.id.btnSignUp)
+        val text_signup=findViewById<TextView>(R.id.text_signup)
         imgShowHidePassword = findViewById(R.id.imgShowHidePassword)
 
         //to when signup btn press go to signup w zabatet l inten bl manifest  hatyta b login ta y2ale3 login msh main activity
-        btnSignUp.setOnClickListener {
+//        text_login.setOnClickListener {
+//            val intent = Intent(this, SignUp::class.java)
+//            startActivity(intent)
+//        }
+        text_signup.setOnClickListener {
             val intent = Intent(this, SignUp::class.java)
             startActivity(intent)
         }
@@ -85,5 +89,7 @@ class Login : AppCompatActivity() {
                     }
                 }
         }
+
+
     }
 }

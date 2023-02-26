@@ -8,7 +8,7 @@
 
     <Button
         android:id="@+id/btnJoinChannel"
-        android:layout_width="match_parent"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:text="Join a Channel"
         android:background="@drawable/btn_background"
@@ -16,38 +16,27 @@
         android:textColor="@color/white"
         android:textSize="20sp"
         android:paddingLeft="20dp"
+        android:paddingRight="40dp"
         android:drawableLeft="@drawable/baseline_join_inner_24"
+        android:onClick="showPopupjn"
         android:layout_marginTop="280dp"/>
 
     <Button
         android:id="@+id/btnCreateChannel"
-        android:layout_width="match_parent"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="Create a Channel"
-        android:paddingLeft="20dp"
-        android:background="@drawable/btn_background"
         android:layout_below="@+id/btnJoinChannel"
-        android:layout_centerHorizontal="true"
-        android:textColor="@color/white"
-        android:drawableLeft="@drawable/baseline_add_24"
-        android:textSize="20sp"
-        android:drawablePadding="20dp"
-        android:onClick="showPopup"
-        android:layout_marginTop="10dp"/>
-
-    <Button
-        android:id="@+id/btnSignOut"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Sign Out"
+        android:layout_marginTop="21dp"
         android:background="@drawable/btn_background"
-        android:drawableLeft="@drawable/baseline_logout_24"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/btnCreateChannel"
-        android:textColor="@color/white"
+        android:drawableLeft="@drawable/baseline_add_24"
+        android:drawablePadding="20dp"
+        android:onClick="showPopupcr"
         android:paddingLeft="20dp"
-        android:textSize="20sp"
-        android:layout_marginTop="10dp"/>
+        android:paddingRight="40dp"
+        android:text="Create a Channel"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/white"
+        android:textSize="20sp" />
 
 
 </RelativeLayout>
