@@ -40,8 +40,8 @@ class SignUp : AppCompatActivity() {
 
             val client = OkHttpClient()
 
-            val url = "https://eu-central-1.aws.data.mongodb-api.com/app/data-wzbfu/endpoint/data/v1/action/insertOne"
-            val apiKey = "uCwaxiYcpBTaoZcL3zI0DuvHBM7gw9zl5crNPsLgzvmJJ3VEHxJPxxILOcygssFm"
+            val url = "https://eu-central-1.aws.data.mongodb-api.com/app/data-wzbfu/endpoint/data/v1/action/findOne"
+            val apiKey = "9ePKtGdpSn9HvDED5ZQNOutFYO0KcCgtzDC7reH2rHCMmmAqYY2g5t3GtsSrIyBE"
 
 
             val mediaType = "application/json".toMediaType()
@@ -57,10 +57,6 @@ class SignUp : AppCompatActivity() {
             val response = client.newCall(request).execute()
             println(response.toString())
         }
-
-
-
-
 
         edtName=findViewById(R.id.edt_name)
         edtEmail=findViewById(R.id.edt_email)
