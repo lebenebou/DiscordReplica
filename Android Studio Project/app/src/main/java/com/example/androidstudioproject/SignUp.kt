@@ -21,6 +21,7 @@ import org.json.JSONObject
 import java.io.IOException
 
 class SignUp : AppCompatActivity() {
+
     private lateinit var edtName: EditText
     private lateinit var edtEmail: EditText
     private lateinit var edtPassword: EditText
@@ -34,28 +35,17 @@ class SignUp : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_up)
 
-        supportActionBar?.hide()//to hide actionbar
+        supportActionBar?.hide() // to hide actionbar
 
-        GlobalScope.launch(Dispatchers.IO){
+        // Testing MongoDB for find one
+        GlobalScope.launch(Dispatchers.IO) {
 
-            val client = OkHttpClient()
+            val apiKey = "9qpyQhdqGAHnWLPlK1Cl9zYEVTsjmuAJy8yNDyj54M9AS0VP8ZLVA8VWrMz4DvMR"
+            val databaseName = "DiscordReplica"
+            val collectionName = "UserInformation"
 
-            val url = "https://eu-central-1.aws.data.mongodb-api.com/app/data-wzbfu/endpoint/data/v1/action/findOne"
-            val apiKey = "9ePKtGdpSn9HvDED5ZQNOutFYO0KcCgtzDC7reH2rHCMmmAqYY2g5t3GtsSrIyBE"
-
-
-            val mediaType = "application/json".toMediaType()
-            val body = "{\n    \"collection\":\"UserInformation\",\n    \"database\":\"DiscordReplica\",\n    \"dataSource\":\"Cluster1\",\n    \"projection\": {\"_id\": 1}\n\n}".toRequestBody(mediaType)
-            val request = Request.Builder()
-                .url(url)
-                .method("POST", body)
-                .addHeader("Content-Type", "application/json")
-                .addHeader("Access-Control-Request-Headers", "*")
-                .addHeader("api-key", apiKey)
-                .build()
-
-            val response = client.newCall(request).execute()
-            println(response.toString())
+            val data = JSONObject().put("username","Youfi")
+            println(findOne(apiKey, databaseName, collectionName, JSONObject().put("username", "Youssef")))
         }
 
         edtName=findViewById(R.id.edt_name)
@@ -78,8 +68,6 @@ class SignUp : AppCompatActivity() {
                 edtPassword.error = passwordError
                 return@setOnClickListener
             }
-
-            signUp(name, email, password)
         }
 
         imgShowHidePassword.setOnClickListener {
@@ -99,8 +87,34 @@ class SignUp : AppCompatActivity() {
         val intent = Intent(this, Login::class.java)
         startActivity(intent)
     }
-    private fun signUp(name: String, email:String, password:String) {
-        //logic of creating user
 
+    private fun findOne(apiKey: String, databaseName: String, collectionName: String, filter: JSONObject): JSONObject {
+
+        println(filter.toString())
+        val client = OkHttpClient()
+        val url = "https://eu-central-1.aws.data.mongodb-api.com/app/data-wzbfu/endpoint/data/v1/action/findOne"
+
+        val mediaType = "application/json".toMediaType()
+        val body = """
+                {
+                    "collection": "$collectionName",
+                    "database": "$databaseName",
+                    "dataSource": "Cluster1",
+                    "filter": ${filter.toString()}
+                }
+            """.trimIndent()
+
+        val request = Request.Builder()
+            .url(url)
+            .method("POST", body.toRequestBody(mediaType))
+            .addHeader("Content-Type", "application/json")
+            .addHeader("Access-Control-Request-Headers", "*")
+            .addHeader("api-key", apiKey)
+            .build()
+
+        val response = client.newCall(request).execute()
+
+        val responseBody = response.body?.string() ?: ""
+        return JSONObject(responseBody)
     }
 }
