@@ -10,8 +10,15 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import okhttp3.*
+
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
+import java.io.IOException
 
 class SignUp : AppCompatActivity() {
     private lateinit var edtName: EditText
@@ -20,16 +27,40 @@ class SignUp : AppCompatActivity() {
     private lateinit var btnSignUp: Button
     private lateinit var imgShowHidePassword: ImageView
     //firebase auth
-    private lateinit var mAuth: FirebaseAuth
     private var isPasswordShown = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_up)
 
         supportActionBar?.hide()//to hide actionbar
 
-        mAuth = FirebaseAuth.getInstance()//firebase authentication
+        GlobalScope.launch(Dispatchers.IO){
+
+            val client = OkHttpClient()
+
+            val url = "https://eu-central-1.aws.data.mongodb-api.com/app/data-wzbfu/endpoint/data/v1/action/insertOne"
+            val apiKey = "uCwaxiYcpBTaoZcL3zI0DuvHBM7gw9zl5crNPsLgzvmJJ3VEHxJPxxILOcygssFm"
+
+
+            val mediaType = "application/json".toMediaType()
+            val body = "{\n    \"collection\":\"UserInformation\",\n    \"database\":\"DiscordReplica\",\n    \"dataSource\":\"Cluster1\",\n    \"projection\": {\"_id\": 1}\n\n}".toRequestBody(mediaType)
+            val request = Request.Builder()
+                .url(url)
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Access-Control-Request-Headers", "*")
+                .addHeader("api-key", apiKey)
+                .build()
+
+            val response = client.newCall(request).execute()
+            println(response.toString())
+        }
+
+
+
+
 
         edtName=findViewById(R.id.edt_name)
         edtEmail=findViewById(R.id.edt_email)
@@ -74,21 +105,6 @@ class SignUp : AppCompatActivity() {
     }
     private fun signUp(name: String, email:String, password:String) {
         //logic of creating user
-        mAuth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    //code for jumping to home
-                    val  intent=Intent(this@SignUp,HomePage::class.java)
-                    finish()
-                    startActivity(intent)
-                } else {
-                    // If the user already exists, display a notification
-                    if (task.exception is FirebaseAuthUserCollisionException) {
-                        Toast.makeText(this@SignUp, "User already exists", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(this@SignUp, "Some error occurred", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
+
     }
 }
