@@ -1,22 +1,20 @@
 package com.example.androidstudioproject
 
-import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
-import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import okhttp3.*
-
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
+import java.nio.charset.StandardCharsets
 
 class SignUp : AppCompatActivity() {
 
@@ -38,13 +36,15 @@ class SignUp : AppCompatActivity() {
 
         supportActionBar?.hide() // to hide actionbar
 
+        GlobalScope.launch(Dispatchers.IO){
 
-        GlobalScope.launch(Dispatchers.IO) {
+            val user = JSONObject().put("username", "YoussefTest")
 
-            val myFilter = JSONObject().put("username", "Lebenebou")
-            val user = findOne("Users", myFilter)
-
-            println(user) // print returned json
+            // Testing CRUD operations
+            println(insertOne("Users", user))
+            println(findOne("Users", user))
+            println(updateOne("Users", user, JSONObject().put("username", "Lebenebou")))
+            println(deleteOne("Users", JSONObject().put("username", "Lebenebou")))
         }
 
         edtName=findViewById(R.id.edt_name)
@@ -88,7 +88,7 @@ class SignUp : AppCompatActivity() {
 
         var requestBuilder = Request.Builder()
             .url(endpoint)
-            .method("POST", body.toString().trimIndent().toRequestBody(mediaType))
+            .post(body.toString().toByteArray(StandardCharsets.UTF_8).toRequestBody(mediaType))
 
         // add headers from JSONObject
         headers.keys().forEach { key ->
