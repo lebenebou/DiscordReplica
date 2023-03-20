@@ -9,7 +9,6 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.Toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -18,16 +17,18 @@ import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
-import java.io.IOException
 
 class SignUp : AppCompatActivity() {
+
+    private val httpClient = OkHttpClient()
+    private val apiKey = "9qpyQhdqGAHnWLPlK1Cl9zYEVTsjmuAJy8yNDyj54M9AS0VP8ZLVA8VWrMz4DvMR"
 
     private lateinit var edtName: EditText
     private lateinit var edtEmail: EditText
     private lateinit var edtPassword: EditText
     private lateinit var btnSignUp: Button
     private lateinit var imgShowHidePassword: ImageView
-    //firebase auth
+
     private var isPasswordShown = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,15 +38,13 @@ class SignUp : AppCompatActivity() {
 
         supportActionBar?.hide() // to hide actionbar
 
-        // Testing MongoDB for find one
+
         GlobalScope.launch(Dispatchers.IO) {
 
-            val apiKey = "9qpyQhdqGAHnWLPlK1Cl9zYEVTsjmuAJy8yNDyj54M9AS0VP8ZLVA8VWrMz4DvMR"
-            val databaseName = "DiscordReplica"
-            val collectionName = "UserInformation"
+            val myFilter = JSONObject().put("username", "Lebenebou")
+            val user = findOne("Users", myFilter)
 
-            val data = JSONObject().put("username","Youfi")
-            println(findOne(apiKey, databaseName, collectionName, JSONObject().put("username", "Youssef")))
+            println(user) // print returned json
         }
 
         edtName=findViewById(R.id.edt_name)
@@ -82,39 +81,97 @@ class SignUp : AppCompatActivity() {
             edtPassword.setSelection(edtPassword.text.length)
         }
     }
-    fun onLoginClick(view: View) {
-        // Handle the click event here, e.g. launch the login activity
-        val intent = Intent(this, Login::class.java)
-        startActivity(intent)
-    }
 
-    private fun findOne(apiKey: String, databaseName: String, collectionName: String, filter: JSONObject): JSONObject {
-
-        println(filter.toString())
-        val client = OkHttpClient()
-        val url = "https://eu-central-1.aws.data.mongodb-api.com/app/data-wzbfu/endpoint/data/v1/action/findOne"
+    private fun makeAPIRequest(endpoint: String, headers: JSONObject, body: JSONObject) : JSONObject {
 
         val mediaType = "application/json".toMediaType()
-        val body = """
-                {
-                    "collection": "$collectionName",
-                    "database": "$databaseName",
-                    "dataSource": "Cluster1",
-                    "filter": ${filter.toString()}
-                }
-            """.trimIndent()
 
-        val request = Request.Builder()
-            .url(url)
-            .method("POST", body.toRequestBody(mediaType))
-            .addHeader("Content-Type", "application/json")
-            .addHeader("Access-Control-Request-Headers", "*")
-            .addHeader("api-key", apiKey)
-            .build()
+        var requestBuilder = Request.Builder()
+            .url(endpoint)
+            .method("POST", body.toString().trimIndent().toRequestBody(mediaType))
 
-        val response = client.newCall(request).execute()
+        // add headers from JSONObject
+        headers.keys().forEach { key ->
+            requestBuilder.addHeader(key, headers.getString(key))
+        }
+
+        val request = requestBuilder.build()
+        val response = httpClient.newCall(request).execute()
 
         val responseBody = response.body?.string() ?: ""
         return JSONObject(responseBody)
+    }
+    private fun insertOne(collectionName: String, document: JSONObject) : JSONObject {
+
+        return makeAPIRequest(
+
+            endpoint = "https://eu-central-1.aws.data.mongodb-api.com/app/data-wzbfu/endpoint/data/v1/action/insertOne",
+
+            headers = JSONObject()
+                .put("content-type", "application/json")
+                .put("apiKey", apiKey),
+
+            body = JSONObject()
+                .put("dataSource", "Cluster1")
+                .put("database", "DiscordReplica")
+                .put("collection", collectionName)
+                .put("document", document)
+        )
+    }
+    private fun findOne(collectionName: String, filter: JSONObject) : JSONObject {
+
+        // returns {document:null} if no matches
+        return makeAPIRequest(
+
+            endpoint = "https://eu-central-1.aws.data.mongodb-api.com/app/data-wzbfu/endpoint/data/v1/action/findOne",
+
+            headers = JSONObject()
+                .put("content-type", "application/json")
+                .put("Access-Control-Request-Headers", "*")
+                .put("api-key", apiKey),
+
+            body = JSONObject()
+                .put("dataSource", "Cluster1")
+                .put("database", "DiscordReplica")
+                .put("collection", collectionName)
+                .put("filter", filter)
+        )
+    }
+    private fun deleteOne(collectionName: String, filter: JSONObject) : JSONObject {
+
+        return makeAPIRequest(
+
+            endpoint = "https://eu-central-1.aws.data.mongodb-api.com/app/data-wzbfu/endpoint/data/v1/action/deleteOne",
+
+            headers = JSONObject()
+                .put("content-type", "application/json")
+                .put("apiKey", apiKey),
+
+            body = JSONObject()
+                .put("dataSource", "Cluster1")
+                .put("database", "DiscordReplica")
+                .put("collection", collectionName)
+                .put("filter", filter)
+        )
+    }
+    private fun updateOne(collectionName: String, filter: JSONObject, updates: JSONObject) : JSONObject {
+
+        return makeAPIRequest(
+
+            endpoint = "https://eu-central-1.aws.data.mongodb-api.com/app/data-wzbfu/endpoint/data/v1/action/updateOne",
+
+            headers = JSONObject()
+                .put("content-type", "application/json")
+                .put("apiKey", apiKey),
+
+            body = JSONObject()
+                .put("dataSource", "Cluster1")
+                .put("database", "DiscordReplica")
+                .put("collection", collectionName)
+                .put("filter", filter)
+                .put("update", JSONObject()
+                    .put("\$set", updates)
+                )
+        )
     }
 }
