@@ -1,8 +1,10 @@
 package com.example.androidstudioproject
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -36,16 +38,16 @@ class SignUp : AppCompatActivity() {
 
         supportActionBar?.hide() // to hide actionbar
 
-        GlobalScope.launch(Dispatchers.IO){
-
-            val user = JSONObject().put("username", "YoussefTest")
-
-            // Testing CRUD operations
-            println(insertOne("Users", user))
-            println(findOne("Users", user))
-            println(updateOne("Users", user, JSONObject().put("username", "Lebenebou")))
-            println(deleteOne("Users", JSONObject().put("username", "Lebenebou")))
-        }
+//        GlobalScope.launch(Dispatchers.IO){
+//
+//            val user = JSONObject().put("username", "YoussefTest")
+//
+//            // Testing CRUD operations
+//            println(insertOne("Users", user))
+//            println(findOne("Users", user))
+//            println(updateOne("Users", user, JSONObject().put("username", "Lebenebou")))
+//            println(deleteOne("Users", JSONObject().put("username", "Lebenebou")))
+//        }
 
         edtName=findViewById(R.id.edt_name)
         edtEmail=findViewById(R.id.edt_email)
@@ -57,16 +59,25 @@ class SignUp : AppCompatActivity() {
         val passwordPattern = Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@\$!%*?&])[A-Za-z\\d@\$!%*?&]{8,}\$")
         val passwordError = "Password must contain at least 8 characters, including 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character."
 
-        btnSignUp.setOnClickListener{
+        btnSignUp.setOnClickListener {
             val name = edtName.text.toString()
             val email = edtEmail.text.toString()
             val password = edtPassword.text.toString()
 
             // Check if password meets requirements
-            if (!passwordPattern.matches(password)) {
-                edtPassword.error = passwordError
-                return@setOnClickListener
-            }
+//            if (!passwordPattern.matches(password)) {
+//                edtPassword.error = passwordError
+//                return@setOnClickListener
+//            }
+            GlobalScope.launch(Dispatchers.IO){
+
+            val nameRes = findOne("Users", JSONObject().put("username", name))
+            val emailRes = findOne("Users", JSONObject().put("email", email))
+            println(nameRes.get("document"))
+            println(emailRes.get("document"))
+        }
+
+
         }
 
         imgShowHidePassword.setOnClickListener {
@@ -81,6 +92,13 @@ class SignUp : AppCompatActivity() {
             edtPassword.setSelection(edtPassword.text.length)
         }
     }
+
+     fun onLoginClick(view:View){
+         val intent = Intent(this, Login::class.java)
+         startActivity(intent)
+     }
+
+
 
     private fun makeAPIRequest(endpoint: String, headers: JSONObject, body: JSONObject) : JSONObject {
 
