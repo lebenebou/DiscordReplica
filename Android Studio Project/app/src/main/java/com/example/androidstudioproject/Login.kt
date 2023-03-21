@@ -7,43 +7,41 @@ import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
 import android.view.View
 import android.widget.*
-import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
 
 class Login : AppCompatActivity() {
     private lateinit var edtEmail: EditText
     private lateinit var edtPassword: EditText
     private lateinit var btnLogin: Button
-//    private lateinit var btnSignUp: Button
-    private lateinit var text_signup:EditText
     private lateinit var imgShowHidePassword: ImageView
+    private lateinit var signupText: TextView
 
-    //firebase auth
-    private lateinit var mAuth: FirebaseAuth
+
     private var isPasswordShown = false
 
+    private val databaseClient = MongoClient()
+
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
         supportActionBar?.hide()//to hide actionbar
-        mAuth = FirebaseAuth.getInstance()//firebase authentication
+
+        signupText = findViewById(R.id.text_signup)
+        signupText.setOnClickListener{
+            startActivity(Intent(this, SignUp::class.java))
+        }
 
         edtEmail = findViewById(R.id.edt_email)
         edtPassword = findViewById(R.id.edt_password)
         btnLogin = findViewById(R.id.btnLogin)
-//        btnSignUp = findViewById(R.id.btnSignUp)
-        val text_signup=findViewById<TextView>(R.id.text_signup)
-        imgShowHidePassword = findViewById(R.id.imgShowHidePassword)
 
-        //to when signup btn press go to signup w zabatet l inten bl manifest  hatyta b login ta y2ale3 login msh main activity
-//        text_login.setOnClickListener {
-//            val intent = Intent(this, SignUp::class.java)
-//            startActivity(intent)
-//        }
-        text_signup.setOnClickListener {
-            val intent = Intent(this, SignUp::class.java)
-            startActivity(intent)
-        }
+        imgShowHidePassword = findViewById(R.id.imgShowHidePassword)
 
         imgShowHidePassword.setOnClickListener {
             isPasswordShown = !isPasswordShown
@@ -57,39 +55,40 @@ class Login : AppCompatActivity() {
             edtPassword.setSelection(edtPassword.text.length)
         }
 
-        //shubdo ysir onclicking login
+        // Login button is pressed
         btnLogin.setOnClickListener {
-            val email = edtEmail.text.toString()
-            val password = edtPassword.text.toString()
 
-            mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this) { task ->
-                    if (task.isSuccessful) {
-                        //code for loging in user
-                        val intent = Intent(this@Login, HomePage::class.java)
-                        finish()
-                        startActivity(intent)
-                    } else {
-                        // get the exception message
-                        val errorMessage = task.exception?.message
-                        // check if the error message contains "no user" or "password"
-                        if (errorMessage?.contains("no user") == true) {
-                            Toast.makeText(this@Login, "User does not exist", Toast.LENGTH_SHORT)
-                                .show()
-                        } else if (errorMessage?.contains("password") == true) {
-                            Toast.makeText(this@Login, "Incorrect password", Toast.LENGTH_SHORT)
-                                .show()
-                        } else {
-                            Toast.makeText(
-                                this@Login,
-                                "Login failed: $errorMessage",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
+            val userInput = JSONObject()
+                .put("first_input", edtEmail.text.toString())
+                .put("password", edtPassword.text.toString())
+
+            GlobalScope.launch(Dispatchers.IO){
+
+                val usernameResult = databaseClient.findOne("Users", JSONObject().put("username", userInput.getString("first_input")))
+                val emailResult = databaseClient.findOne("Users", JSONObject().put("email", userInput.getString("first_input")))
+
+                withContext(Dispatchers.Main){
+
+                    handleLogin(userInput, usernameResult, emailResult)
                 }
+            }
+        }
+    }
+
+    private fun handleLogin(userInput: JSONObject, usernameResult: JSONObject, emailResult: JSONObject){
+
+        if(usernameResult.length()==0 && emailResult.length()==0){
+            Toast.makeText(this, "Invalid username or email", Toast.LENGTH_SHORT).show()
+            return
         }
 
+        val validResult = if(usernameResult.length() > 0) usernameResult else emailResult
 
+        if(userInput.getString("password") != validResult.getString("password")){
+            Toast.makeText(this, "Incorrect Password", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        startActivity(Intent(this, HomePage::class.java))
     }
 }
