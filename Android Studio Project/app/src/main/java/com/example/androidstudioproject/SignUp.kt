@@ -24,7 +24,7 @@ class SignUp : AppCompatActivity() {
 
     private lateinit var signUpButton: Button
 
-    private lateinit var imgShowHidePassword: ImageView
+    private lateinit var passwordEye: ImageView
 
     private var isPasswordShown = false
     private val databaseClient = MongoClient()
@@ -40,20 +40,41 @@ class SignUp : AppCompatActivity() {
         passwordInput = findViewById(R.id.passwordInput)
         signUpButton = findViewById(R.id.signUpButton)
 
-        imgShowHidePassword = findViewById(R.id.imgShowHidePassword)
+        passwordEye = findViewById(R.id.imgShowHidePassword)
 
         // user clicks sign up button
         signUpButton.setOnClickListener {
 
             val userInput = JSONObject()
-                .put("username", usernameInput.text.toString())
-                .put("email", mailInput.text.toString())
+                .put("username", usernameInput.text.toString().lowercase())
+                .put("email", mailInput.text.toString().lowercase())
                 .put("password", passwordInput.text.toString())
 
-            // Check if password meets requirements
-            // Make email lowercase
-            // check if email meets requirements
-            // make username lowercase
+            // username validation check
+            if(!isValidUsername(userInput.getString("username"))){
+
+                showMessageBox("Usernames must be at least 3 characters\nand contain only letters or numbers.")
+                return@setOnClickListener
+            }
+
+            // email validation check
+            if(!isValidMail(userInput.getString("email"))){
+                showMessageBox("Please enter a valid email")
+                return@setOnClickListener
+            }
+
+            // password validation check
+            println(userInput.getString("password"))
+            if(!isValidPass(userInput.getString("password"))){
+
+                showMessageBox("Password does not meet the following requirements:\n\n" +
+                        "Length of at least 8.\n" +
+                        "1 capital letter.\n" +
+                        "1 lowercase letter.\n" +
+                        "1 number.")
+
+                return@setOnClickListener
+            }
 
             // simulate loading screen here...
 
@@ -70,23 +91,18 @@ class SignUp : AppCompatActivity() {
             }
         }
 
-        imgShowHidePassword.setOnClickListener {
+        passwordEye.setOnClickListener {
             isPasswordShown = !isPasswordShown
             if (isPasswordShown) {
                 passwordInput.transformationMethod = HideReturnsTransformationMethod.getInstance()
-                imgShowHidePassword.setImageResource(R.drawable.ic_baseline_visibility_24)
+                passwordEye.setImageResource(R.drawable.ic_baseline_visibility_24)
             } else {
                 passwordInput.transformationMethod = PasswordTransformationMethod.getInstance()
-                imgShowHidePassword.setImageResource(R.drawable.ic_baseline_visibility_24)
+                passwordEye.setImageResource(R.drawable.ic_baseline_visibility_24)
             }
             passwordInput.setSelection(passwordInput.text.length)
         }
     }
-
-     fun onLoginTextClick(view:View) {
-         // switch to Login screen
-         startActivity(Intent(this, Login::class.java))
-     }
 
     private fun handleSignUp(userInput: JSONObject, emailResult: JSONObject, usernameResult: JSONObject){
 
@@ -124,5 +140,23 @@ class SignUp : AppCompatActivity() {
 
         val alert = builder.create()
         alert.show()
+    }
+    private fun isValidPass(password: String): Boolean {
+
+        return Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}\$").matches(password)
+    }
+    private fun isValidMail(email: String): Boolean {
+
+        return Regex("^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-]+)(\\.[a-zA-Z]{2,5}){1,2}\$").matches(email)
+    }
+
+    private fun isValidUsername(username: String): Boolean {
+
+        if(username.length < 3) return false
+        return Regex("^[a-zA-Z_\$][a-zA-Z_\$0-9]*\$").matches(username)
+    }
+    fun onLoginTextClick(view:View) {
+        // switch to Login screen
+        startActivity(Intent(this, Login::class.java))
     }
 }

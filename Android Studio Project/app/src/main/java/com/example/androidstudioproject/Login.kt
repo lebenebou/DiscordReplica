@@ -41,7 +41,7 @@ class Login : AppCompatActivity() {
         loginButton.setOnClickListener {
 
             val userInput = JSONObject()
-                .put("identity_input", identityInput.text.toString())
+                .put("identity_input", identityInput.text.toString().lowercase())
                 .put("password", passwordInput.text.toString())
 
             // simulate loading screen here...
