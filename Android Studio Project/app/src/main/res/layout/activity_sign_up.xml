@@ -14,7 +14,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="70dp"/>
     <EditText
-        android:id="@+id/edt_name"
+        android:id="@+id/usernameInput"
         android:textIsSelectable="true"
         android:layout_width="match_parent"
         android:layout_height="50dp"
@@ -28,11 +28,11 @@
         android:layout_marginRight="20dp"
         android:inputType="textEmailAddress"/>
     <EditText
-        android:id="@+id/edt_email"
+        android:id="@+id/identityInput"
         android:textIsSelectable="true"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_below="@+id/edt_name"
+        android:layout_below="@+id/usernameInput"
         android:drawableLeft="@drawable/baseline_email_24"
         android:layout_marginTop="10dp"
         android:hint="Email"
@@ -43,11 +43,11 @@
         android:inputType="textEmailAddress"/>
 
     <EditText
-        android:id="@+id/edt_password"
+        android:id="@+id/passwordInput"
         android:textIsSelectable="true"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_below="@+id/edt_email"
+        android:layout_below="@+id/identityInput"
         android:drawableLeft="@drawable/baseline_security_24"
         android:paddingLeft="13dp"
         android:layout_marginTop="10dp"
@@ -58,10 +58,10 @@
         android:inputType="textPassword"/>
 
     <Button
-        android:id="@+id/btnSignUp"
+        android:id="@+id/signUpButton"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/edt_password"
+        android:layout_below="@+id/passwordInput"
         android:text="Sign up"
         android:background="@drawable/btn_background"
         android:layout_centerHorizontal="true"
@@ -73,8 +73,8 @@
         android:id="@+id/imgShowHidePassword"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/edt_password"
-        android:layout_alignBottom="@+id/edt_password"
+        android:layout_alignEnd="@+id/passwordInput"
+        android:layout_alignBottom="@+id/passwordInput"
         android:layout_marginEnd="7dp"
         android:layout_marginBottom="10dp"
         android:src="@drawable/ic_baseline_visibility_24"/>
@@ -83,7 +83,7 @@
         android:id="@+id/text_login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/btnSignUp"
+        android:layout_below="@+id/signUpButton"
         android:layout_marginTop="12dp"
         android:autoLink="web"
         android:clickable="true"

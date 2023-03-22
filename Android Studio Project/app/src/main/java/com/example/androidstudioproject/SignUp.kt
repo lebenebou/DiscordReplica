@@ -1,7 +1,6 @@
 package com.example.androidstudioproject
 
 import android.content.Intent
-import android.graphics.DiscretePathEffect
 import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
@@ -9,7 +8,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -19,10 +18,12 @@ import org.json.JSONObject
 
 class SignUp : AppCompatActivity() {
 
-    private lateinit var edtName: EditText
-    private lateinit var edtEmail: EditText
-    private lateinit var edtPassword: EditText
-    private lateinit var btnSignUp: Button
+    private lateinit var usernameInput: EditText
+    private lateinit var mailInput: EditText
+    private lateinit var passwordInput: EditText
+
+    private lateinit var signUpButton: Button
+
     private lateinit var imgShowHidePassword: ImageView
 
     private var isPasswordShown = false
@@ -32,38 +33,38 @@ class SignUp : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_up)
-
         supportActionBar?.hide() // to hide actionbar
 
-        edtName=findViewById(R.id.edt_name)
-        edtEmail=findViewById(R.id.edt_email)
-        edtPassword=findViewById(R.id.edt_password)
-        btnSignUp=findViewById(R.id.btnSignUp)
-        imgShowHidePassword=findViewById(R.id.imgShowHidePassword)
+        usernameInput = findViewById(R.id.usernameInput)
+        mailInput = findViewById(R.id.identityInput)
+        passwordInput = findViewById(R.id.passwordInput)
+        signUpButton = findViewById(R.id.signUpButton)
 
-        // Set up password strength requirements
-        val passwordPattern = Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@\$!%*?&])[A-Za-z\\d@\$!%*?&]{8,}\$")
-        val passwordError = "Password must contain at least 8 characters, including 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character."
+        imgShowHidePassword = findViewById(R.id.imgShowHidePassword)
 
-        btnSignUp.setOnClickListener {
+        // user clicks sign up button
+        signUpButton.setOnClickListener {
 
             val userInput = JSONObject()
-                .put("username", edtName.text.toString())
-                .put("email", edtEmail.text.toString())
-                .put("password", edtPassword.text.toString())
+                .put("username", usernameInput.text.toString())
+                .put("email", mailInput.text.toString())
+                .put("password", passwordInput.text.toString())
 
             // Check if password meets requirements
             // Make email lowercase
             // check if email meets requirements
             // make username lowercase
 
+            // simulate loading screen here...
+
+            // create a thread to fetch from database (async)
             GlobalScope.launch(Dispatchers.IO){
 
                 val emailResult = databaseClient.findOne("Users", JSONObject().put("email", userInput.get("email")))
                 val usernameResult = databaseClient.findOne("Users", JSONObject().put("username", userInput.get("username")))
 
+                // wait for thread to finish and then handleSignUp with the received info
                 withContext(Dispatchers.Main){
-
                     handleSignUp(userInput, emailResult, usernameResult)
                 }
             }
@@ -72,39 +73,56 @@ class SignUp : AppCompatActivity() {
         imgShowHidePassword.setOnClickListener {
             isPasswordShown = !isPasswordShown
             if (isPasswordShown) {
-                edtPassword.transformationMethod = HideReturnsTransformationMethod.getInstance()
+                passwordInput.transformationMethod = HideReturnsTransformationMethod.getInstance()
                 imgShowHidePassword.setImageResource(R.drawable.ic_baseline_visibility_24)
             } else {
-                edtPassword.transformationMethod = PasswordTransformationMethod.getInstance()
+                passwordInput.transformationMethod = PasswordTransformationMethod.getInstance()
                 imgShowHidePassword.setImageResource(R.drawable.ic_baseline_visibility_24)
             }
-            edtPassword.setSelection(edtPassword.text.length)
+            passwordInput.setSelection(passwordInput.text.length)
         }
     }
 
      fun onLoginTextClick(view:View) {
-         val intent = Intent(this, Login::class.java)
-         startActivity(intent)
+         // switch to Login screen
+         startActivity(Intent(this, Login::class.java))
      }
 
     private fun handleSignUp(userInput: JSONObject, emailResult: JSONObject, usernameResult: JSONObject){
 
-        if(emailResult.length() > 0){
-            Toast.makeText(this, "This E-mail already exists!", Toast.LENGTH_SHORT).show()
-            return
-        }
+        // username findOne was not null
         if(usernameResult.length() > 0){
-            Toast.makeText(this, "This username already exists!", Toast.LENGTH_SHORT).show()
+            showMessageBox("This username already exists.\nTry a different one.")
+            return
+        }
+        // email findOne was not null
+        if(emailResult.length() > 0){
+            showMessageBox("This E-mail already exists.")
             return
         }
 
-        GlobalScope.launch(Dispatchers.IO){
+        // simulate loading screen here...
 
+        // email and username are valid
+        // start thread to insert new user into database
+        GlobalScope.launch(Dispatchers.IO){
             databaseClient.insertOne("Users", userInput)
         }
 
+
+        // switch to home page screen
         startActivity(Intent(this, HomePage::class.java))
     }
 
+    private fun showMessageBox(message: String) {
 
+        // Shows message with OK button
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage(message)
+            .setCancelable(false)
+            .setPositiveButton("OK") { _, _ -> ; }
+
+        val alert = builder.create()
+        alert.show()
+    }
 }

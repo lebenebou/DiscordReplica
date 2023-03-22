@@ -1,94 +1,109 @@
 package com.example.androidstudioproject
 
+import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
-import android.view.View
 import android.widget.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import androidx.appcompat.app.AlertDialog
+import kotlinx.coroutines.*
 import org.json.JSONObject
 
 class Login : AppCompatActivity() {
-    private lateinit var edtEmail: EditText
-    private lateinit var edtPassword: EditText
-    private lateinit var btnLogin: Button
-    private lateinit var imgShowHidePassword: ImageView
-    private lateinit var signupText: TextView
 
+    private lateinit var identityInput: EditText
+    private lateinit var passwordInput: EditText
+    private lateinit var loginButton: Button
+    private lateinit var imgShowHidePassword: ImageView
+    private lateinit var signUpText: TextView
 
     private var isPasswordShown = false
-
     private val databaseClient = MongoClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+        supportActionBar?.hide() // to hide actionbar
 
-        supportActionBar?.hide()//to hide actionbar
-
-        signupText = findViewById(R.id.text_signup)
-        signupText.setOnClickListener{
+        signUpText = findViewById(R.id.signUpText)
+        signUpText.setOnClickListener{
             startActivity(Intent(this, SignUp::class.java))
         }
 
-        edtEmail = findViewById(R.id.edt_email)
-        edtPassword = findViewById(R.id.edt_password)
-        btnLogin = findViewById(R.id.btnLogin)
+        identityInput = findViewById(R.id.identityInput)
+        passwordInput = findViewById(R.id.passwordInput)
+        loginButton = findViewById(R.id.loginButton)
+
+        // Login button is pressed
+        loginButton.setOnClickListener {
+
+            val userInput = JSONObject()
+                .put("identity_input", identityInput.text.toString())
+                .put("password", passwordInput.text.toString())
+
+            // simulate loading screen here...
+
+            // start new thread to fetch from database
+            GlobalScope.launch(Dispatchers.IO){
+
+                val usernameResult = databaseClient.findOne("Users", JSONObject().put("username", userInput.getString("identity_input")))
+                val emailResult = databaseClient.findOne("Users", JSONObject().put("email", userInput.getString("identity_input")))
+
+                // wait for thread to finish, then handleLogin with the received info
+                withContext(Dispatchers.Main){
+                    handleLogin(userInput, usernameResult, emailResult)
+                }
+            }
+        }
 
         imgShowHidePassword = findViewById(R.id.imgShowHidePassword)
 
         imgShowHidePassword.setOnClickListener {
             isPasswordShown = !isPasswordShown
             if (isPasswordShown) {
-                edtPassword.transformationMethod = HideReturnsTransformationMethod.getInstance()
+                passwordInput.transformationMethod = HideReturnsTransformationMethod.getInstance()
                 imgShowHidePassword.setImageResource(R.drawable.ic_baseline_visibility_24)
             } else {
-                edtPassword.transformationMethod = PasswordTransformationMethod.getInstance()
+                passwordInput.transformationMethod = PasswordTransformationMethod.getInstance()
                 imgShowHidePassword.setImageResource(R.drawable.ic_baseline_visibility_24)
             }
-            edtPassword.setSelection(edtPassword.text.length)
-        }
-
-        // Login button is pressed
-        btnLogin.setOnClickListener {
-
-            val userInput = JSONObject()
-                .put("first_input", edtEmail.text.toString())
-                .put("password", edtPassword.text.toString())
-
-            GlobalScope.launch(Dispatchers.IO){
-
-                val usernameResult = databaseClient.findOne("Users", JSONObject().put("username", userInput.getString("first_input")))
-                val emailResult = databaseClient.findOne("Users", JSONObject().put("email", userInput.getString("first_input")))
-
-                withContext(Dispatchers.Main){
-
-                    handleLogin(userInput, usernameResult, emailResult)
-                }
-            }
+            passwordInput.setSelection(passwordInput.text.length)
         }
     }
 
     private fun handleLogin(userInput: JSONObject, usernameResult: JSONObject, emailResult: JSONObject){
 
+        // findOne returned null for both username and email
         if(usernameResult.length()==0 && emailResult.length()==0){
-            Toast.makeText(this, "Invalid username or email", Toast.LENGTH_SHORT).show()
+            showMessageBox("Invalid username or E-mail.")
             return
         }
 
+        // either username or email is not null, extract the not null result
         val validResult = if(usernameResult.length() > 0) usernameResult else emailResult
 
+        // check if password matches the not null result
         if(userInput.getString("password") != validResult.getString("password")){
-            Toast.makeText(this, "Incorrect Password", Toast.LENGTH_SHORT).show()
+            showMessageBox("Incorrect password.")
             return
         }
 
+        // switch to homepage screen
         startActivity(Intent(this, HomePage::class.java))
     }
+    private fun showMessageBox(message: String) {
+
+        // Shows message with OK button
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage(message)
+            .setCancelable(false)
+            .setPositiveButton("OK") { _, _ -> ; }
+
+        val alert = builder.create()
+        alert.show()
+    }
+
 }

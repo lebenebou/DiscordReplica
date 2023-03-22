@@ -13,7 +13,7 @@ class MongoClient {
     private val apiKey = "9qpyQhdqGAHnWLPlK1Cl9zYEVTsjmuAJy8yNDyj54M9AS0VP8ZLVA8VWrMz4DvMR"
     private val httpClient = OkHttpClient()
 
-    private fun makeAPIRequest(endpoint: String, headers: JSONObject, body: JSONObject) : JSONObject {
+    private suspend fun makeAPIRequest(endpoint: String, headers: JSONObject, body: JSONObject) : JSONObject {
 
         val mediaType = "application/json".toMediaType()
 
@@ -33,7 +33,7 @@ class MongoClient {
         return JSONObject(responseBody)
     }
 
-    fun insertOne(collectionName: String, document: JSONObject) : JSONObject {
+    suspend fun insertOne(collectionName: String, document: JSONObject) : JSONObject {
 
         return makeAPIRequest(
 
@@ -50,7 +50,7 @@ class MongoClient {
                 .put("document", document)
         )
     }
-    fun findOne(collectionName: String, filter: JSONObject) : JSONObject {
+    suspend fun findOne(collectionName: String, filter: JSONObject) : JSONObject {
 
         // returns empty json if no matches
         val jsonResponse = makeAPIRequest(
@@ -72,7 +72,7 @@ class MongoClient {
         if(jsonResponse.toString().length < 18) return JSONObject()
         return jsonResponse.getJSONObject("document")
     }
-    fun deleteOne(collectionName: String, filter: JSONObject) : JSONObject {
+    suspend fun deleteOne(collectionName: String, filter: JSONObject) : JSONObject {
 
         return makeAPIRequest(
 
@@ -89,7 +89,7 @@ class MongoClient {
                 .put("filter", filter)
         )
     }
-    fun updateOne(collectionName: String, filter: JSONObject, updates: JSONObject) : JSONObject {
+    suspend fun updateOne(collectionName: String, filter: JSONObject, updates: JSONObject) : JSONObject {
 
         return makeAPIRequest(
 
