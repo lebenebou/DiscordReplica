@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.Dispatchers
@@ -77,6 +78,7 @@ class SignUp : AppCompatActivity() {
             }
 
             // simulate loading screen here...
+            startLoadingMode()
 
             // create a thread to fetch from database (async)
             GlobalScope.launch(Dispatchers.IO){
@@ -132,11 +134,11 @@ class SignUp : AppCompatActivity() {
 
     private fun showMessageBox(message: String) {
 
-        // Shows message with OK button
+        // Shows message with OK button, when OK is pressed, loading mode ends
         val builder = AlertDialog.Builder(this)
         builder.setMessage(message)
             .setCancelable(false)
-            .setPositiveButton("OK") { _, _ -> ; }
+            .setPositiveButton("OK") { _, _ -> endLoadingMode() }
 
         val alert = builder.create()
         alert.show()
@@ -149,7 +151,6 @@ class SignUp : AppCompatActivity() {
 
         return Regex("^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-]+)(\\.[a-zA-Z]{2,5}){1,2}\$").matches(email)
     }
-
     private fun isValidUsername(username: String): Boolean {
 
         if(username.length < 3) return false
@@ -158,5 +159,23 @@ class SignUp : AppCompatActivity() {
     fun onLoginTextClick(view:View) {
         // switch to Login screen
         startActivity(Intent(this, Login::class.java))
+    }
+    private fun startLoadingMode(){
+
+        usernameInput.isEnabled = false
+        mailInput.isEnabled = false
+        passwordInput.isEnabled = false
+
+        signUpButton.isEnabled = false
+        findViewById<TextView>(R.id.loginText).isEnabled = false
+    }
+    private fun endLoadingMode(){
+
+        usernameInput.isEnabled = true
+        mailInput.isEnabled = true
+        passwordInput.isEnabled = true
+
+        signUpButton.isEnabled = true
+        findViewById<TextView>(R.id.loginText).isEnabled = true
     }
 }

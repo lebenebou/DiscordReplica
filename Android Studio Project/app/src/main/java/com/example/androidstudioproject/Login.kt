@@ -2,6 +2,7 @@ package com.example.androidstudioproject
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
@@ -45,7 +46,7 @@ class Login : AppCompatActivity() {
                 .put("password", passwordInput.text.toString())
 
             // simulate loading screen here...
-
+            startLoadingMode()
             // start new thread to fetch from database
             GlobalScope.launch(Dispatchers.IO){
 
@@ -73,7 +74,6 @@ class Login : AppCompatActivity() {
             passwordInput.setSelection(passwordInput.text.length)
         }
     }
-
     private fun handleLogin(userInput: JSONObject, usernameResult: JSONObject, emailResult: JSONObject){
 
         // findOne returned null for both username and email
@@ -100,10 +100,25 @@ class Login : AppCompatActivity() {
         val builder = AlertDialog.Builder(this)
         builder.setMessage(message)
             .setCancelable(false)
-            .setPositiveButton("OK") { _, _ -> ; }
+            .setPositiveButton("OK") { _, _ -> endLoadingMode() }
 
         val alert = builder.create()
         alert.show()
     }
+    private fun startLoadingMode(){
 
+        identityInput.isEnabled = false
+        passwordInput.isEnabled = false
+
+        loginButton.isEnabled = false
+        signUpText.isEnabled = false
+    }
+    private fun endLoadingMode(){
+
+        identityInput.isEnabled = true
+        passwordInput.isEnabled = true
+
+        loginButton.isEnabled = true
+        signUpText.isEnabled = true
+    }
 }
