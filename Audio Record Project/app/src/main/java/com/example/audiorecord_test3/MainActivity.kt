@@ -1,6 +1,7 @@
 package com.example.audiorecord_test3
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.media.*
@@ -8,6 +9,8 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import java.io.File
+import java.io.FileOutputStream
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,7 +28,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startCommunication() {
-        voipCommunication = VoipCommunication()
+        voipCommunication = VoipCommunication(this)
         voipCommunication?.startCommunication()
     }
 
@@ -36,39 +39,40 @@ class MainActivity : AppCompatActivity() {
 }
 
 
-class VoipCommunication() {
+class VoipCommunication(private val context: Context) {
     //Change the value here:
     private val BUFFER_SIZE = 4096
     private val SAMPLE_RATE = 8000
 
-    private val context: Context = TODO()
-
     private var audioRecord: AudioRecord? = null
     private var audioTrack: AudioTrack? = null
 
-
+    //to test the record audio
+    val file = File(context.getExternalFilesDir(null), "Sound_test.raw")
+    var outputStream: FileOutputStream? = null
 
     fun startCommunication() {
+        outputStream = FileOutputStream(file)
         // Configure the audio recorder
-        val bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
+        val bufferSize = AudioRecord.getMinBufferSize(
+            SAMPLE_RATE,
+            AudioFormat.CHANNEL_IN_MONO,
+            AudioFormat.ENCODING_PCM_16BIT
+        )
 
         // this test allow AudioRecord to use the mic
         if (ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.RECORD_AUDIO
+                context, Manifest.permission.RECORD_AUDIO
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+            ActivityCompat.requestPermissions(
+                context as Activity,
+                arrayOf(Manifest.permission.RECORD_AUDIO), 0)
             return
         }
 
         audioRecord = AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize)
+
 
         // Create a thread to send data
         Thread {
@@ -78,9 +82,13 @@ class VoipCommunication() {
             while (true) {
                 val count = audioRecord?.read(buffer, 0, buffer.size) ?: 0
                 if (count > 0) {
+                    val outputStream = this.outputStream
+                    outputStream?.write(buffer, 0, count)
                     //TODO: send it to the server
                 }
             }
+            audioRecord?.stop()
+            audioRecord?.release()
         }.start()
 
         audioTrack = AudioTrack.Builder()
@@ -117,5 +125,9 @@ class VoipCommunication() {
         audioTrack?.stop()
         audioTrack?.release()
         audioTrack = null
+
+        outputStream?.close()
+        outputStream = null
+
     }
 }
