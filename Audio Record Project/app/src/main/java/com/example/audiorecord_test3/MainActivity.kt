@@ -50,6 +50,8 @@ class VoipCommunication(private val context: Context) {
     //to test the record audio
     val file = File(context.getExternalFilesDir(null), "Sound_test.raw")
     var outputStream: FileOutputStream? = null
+    var isRecording = false
+
 
     fun startCommunication() {
         outputStream = FileOutputStream(file)
@@ -77,9 +79,10 @@ class VoipCommunication(private val context: Context) {
         // Create a thread to send data
         Thread {
             val buffer = ByteArray(BUFFER_SIZE)
+            isRecording = true
             audioRecord?.startRecording()
 
-            while (true) {
+            while (isRecording) {
                 val count = audioRecord?.read(buffer, 0, buffer.size) ?: 0
                 if (count > 0) {
                     val outputStream = this.outputStream
@@ -87,8 +90,8 @@ class VoipCommunication(private val context: Context) {
                     //TODO: send it to the server
                 }
             }
-            audioRecord?.stop()
             audioRecord?.release()
+            audioRecord = null
         }.start()
 
         audioTrack = AudioTrack.Builder()
@@ -118,14 +121,19 @@ class VoipCommunication(private val context: Context) {
 
 
     fun stopCommunication() {
+        isRecording = false
+
         audioRecord?.stop()
-        audioRecord?.release()
-        audioRecord = null
+        audioRecord?.let {
+            it.release()
+            audioRecord = null
+        }
 
         audioTrack?.stop()
         audioTrack?.release()
         audioTrack = null
 
+        outputStream?.flush()
         outputStream?.close()
         outputStream = null
 
