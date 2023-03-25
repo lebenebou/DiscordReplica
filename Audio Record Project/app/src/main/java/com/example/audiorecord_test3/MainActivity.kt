@@ -1,141 +1,120 @@
 package com.example.audiorecord_test3
 
 import android.Manifest
-import android.app.Activity
-import android.content.Context
 import android.content.pm.PackageManager
 import android.media.*
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import java.io.File
-import java.io.FileOutputStream
 
 class MainActivity : AppCompatActivity() {
+    private var audioRecord: AudioRecord? = null
+    private var audioTrack: AudioTrack? = null
+    private var intBufferSize = 0
+    private lateinit var shortAudioData: ShortArray
+    private var intGain = 1
+    private var isActive = false
 
-    private var voipCommunication: VoipCommunication? = null
-
+    //TODO(): quand on refuse de donnee l'acces au microphone, on ne doit pas continuer comme si de rien n'etait
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val startButton = findViewById<Button>(R.id.start_button)
-        val stopButton = findViewById<Button>(R.id.stop_button)
+        val startButton = findViewById<Button>(R.id.button)
+        val stopButton = findViewById<Button>(R.id.button2)
 
-        startButton.setOnClickListener { startCommunication() }
-        stopButton.setOnClickListener { stopCommunication() }
+        startButton.setOnClickListener {
+            if(!isActive){
+                buttonStart()
+                isActive = true
+
+            }else{
+                println("You can't click on start, since you are already calling")
+            }
+        }
+
+        stopButton.setOnClickListener {
+            if(isActive){
+                buttonStop()
+                isActive = false
+            }else{
+                println("You can't click on stop, since you are not already calling")
+            }
+        }
     }
 
-    private fun startCommunication() {
-        voipCommunication = VoipCommunication(this)
-        voipCommunication?.startCommunication()
+    fun buttonStart() {
+        println("START RECORDING")
+        threadLoop()
+    }
+    fun buttonStop() {
+        println("STOP RECORDING")
+        audioTrack?.stop()
+        audioRecord?.stop()
     }
 
-    private fun stopCommunication() {
-        voipCommunication?.stopCommunication()
-        voipCommunication = null
-    }
-}
 
+    private fun threadLoop() {
+        println("START THREADLOOP")
 
-class VoipCommunication(private val context: Context) {
-    //Change the value here:
-    private val BUFFER_SIZE = 4096
-    private val SAMPLE_RATE = 8000
-
-    private var audioRecord: AudioRecord? = null
-    private var audioTrack: AudioTrack? = null
-
-    //to test the record audio
-    val file = File(context.getExternalFilesDir(null), "Sound_test.raw")
-    var outputStream: FileOutputStream? = null
-    var isRecording = false
-
-
-    fun startCommunication() {
-        outputStream = FileOutputStream(file)
-        // Configure the audio recorder
-        val bufferSize = AudioRecord.getMinBufferSize(
-            SAMPLE_RATE,
-            AudioFormat.CHANNEL_IN_MONO,
-            AudioFormat.ENCODING_PCM_16BIT
+        val intRecordSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_MUSIC)
+        intBufferSize = AudioRecord.getMinBufferSize(
+            intRecordSampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT
         )
+        shortAudioData = ShortArray(intBufferSize)
 
-        // this test allow AudioRecord to use the mic
+
         if (ActivityCompat.checkSelfPermission(
-                context, Manifest.permission.RECORD_AUDIO
+                this,
+                Manifest.permission.RECORD_AUDIO
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             ActivityCompat.requestPermissions(
-                context as Activity,
+                this,
                 arrayOf(Manifest.permission.RECORD_AUDIO), 0)
-            return
         }
 
-        audioRecord = AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize)
+
+        //TODO(): adjust the code so it won't continue before getting the permission, provisoire pour ne pas avoir d'erreur
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED){
+            println("Start the record")
+
+            val audioSource = MediaRecorder.AudioSource.MIC
+            val sampleRate = 44100
+            val channelConfig = AudioFormat.CHANNEL_IN_MONO
+            val audioFormat = AudioFormat.ENCODING_PCM_16BIT
+
+            val audioRecord = AudioRecord(
+                audioSource,
+                sampleRate,
+                channelConfig,
+                audioFormat,
+                intBufferSize
+            )
+
+            audioTrack = AudioTrack(
+                AudioManager.STREAM_MUSIC,
+                intRecordSampleRate,
+                AudioFormat.CHANNEL_IN_STEREO,
+                AudioFormat.ENCODING_PCM_16BIT,
+                intBufferSize,
+                AudioTrack.MODE_STREAM
+            )
 
 
-        // Create a thread to send data
-        Thread {
-            val buffer = ByteArray(BUFFER_SIZE)
-            isRecording = true
-            audioRecord?.startRecording()
+            audioTrack!!.playbackRate = intRecordSampleRate
+            audioRecord!!.startRecording()
 
-            while (isRecording) {
-                val count = audioRecord?.read(buffer, 0, buffer.size) ?: 0
-                if (count > 0) {
-                    val outputStream = this.outputStream
-                    outputStream?.write(buffer, 0, count)
-                    //TODO: send it to the server
+            audioTrack!!.play()
+            while (isActive) {
+                audioRecord!!.read(shortAudioData, 0, shortAudioData.size)
+                for (i in shortAudioData.indices) {
+                    shortAudioData[i] = (shortAudioData[i] * intGain).toShort().coerceIn(Short.MIN_VALUE, Short.MAX_VALUE)
                 }
+                audioTrack!!.write(shortAudioData, 0, shortAudioData.size)
             }
-            audioRecord?.release()
-            audioRecord = null
-        }.start()
-
-        audioTrack = AudioTrack.Builder()
-            .setAudioAttributes(AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                .build())
-            .setAudioFormat(AudioFormat.Builder()
-                .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                .setSampleRate(SAMPLE_RATE)
-                .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
-                .build())
-            .setBufferSizeInBytes(bufferSize)
-            .setTransferMode(AudioTrack.MODE_STREAM)
-            .build()
-
-        audioTrack?.play()
-
-        // Create a thread to recive the data and to play
-        Thread {
-            val buffer = ByteArray(BUFFER_SIZE)
-            while (true) {
-                //TODO: recive and play the voice using write method
-            }
-        }.start()
-    }
-
-
-    fun stopCommunication() {
-        isRecording = false
-
-        audioRecord?.stop()
-        audioRecord?.let {
-            it.release()
-            audioRecord = null
         }
-
-        audioTrack?.stop()
-        audioTrack?.release()
-        audioTrack = null
-
-        outputStream?.flush()
-        outputStream?.close()
-        outputStream = null
-
     }
 }
+
