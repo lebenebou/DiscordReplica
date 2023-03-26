@@ -52,6 +52,8 @@ class MainActivity : AppCompatActivity() {
         println("STOP RECORDING")
         audioTrack?.stop()
         audioRecord?.stop()
+        audioRecord?.release()
+        audioTrack?.release()
     }
 
 
@@ -85,7 +87,7 @@ class MainActivity : AppCompatActivity() {
             val channelConfig = AudioFormat.CHANNEL_IN_MONO
             val audioFormat = AudioFormat.ENCODING_PCM_16BIT
 
-            val audioRecord = AudioRecord(
+            audioRecord = AudioRecord(
                 audioSource,
                 sampleRate,
                 channelConfig,
@@ -107,7 +109,8 @@ class MainActivity : AppCompatActivity() {
             audioRecord!!.startRecording()
 
             audioTrack!!.play()
-            while (isActive) {
+            while (true) {
+                if (!isActive) break
                 audioRecord!!.read(shortAudioData, 0, shortAudioData.size)
                 for (i in shortAudioData.indices) {
                     shortAudioData[i] = (shortAudioData[i] * intGain).toShort().coerceIn(Short.MIN_VALUE, Short.MAX_VALUE)
