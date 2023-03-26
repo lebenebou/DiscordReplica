@@ -16,6 +16,12 @@ class MainActivity : AppCompatActivity() {
     private var intGain = 1
     private var isActive = false
 
+    private var audioThread: Thread? = null
+
+
+    private var isRecording = false
+    private var isPlaying = false
+
     //TODO(): quand on refuse de donnee l'acces au microphone, on ne doit pas continuer comme si de rien n'etait
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,9 +32,8 @@ class MainActivity : AppCompatActivity() {
 
         startButton.setOnClickListener {
             if(!isActive){
-                buttonStart()
                 isActive = true
-
+                buttonStart()
             }else{
                 println("You can't click on start, since you are already calling")
             }
@@ -36,20 +41,28 @@ class MainActivity : AppCompatActivity() {
 
         stopButton.setOnClickListener {
             if(isActive){
-                buttonStop()
                 isActive = false
+                buttonStop()
             }else{
-                println("You can't click on stop, since you are not already calling")
+                println("You can't click on stop, since you are not calling")
             }
         }
     }
 
     fun buttonStart() {
-        println("START RECORDING")
-        threadLoop()
+        if (!isRecording) {
+            isRecording = true
+            if (!isPlaying) {
+                isPlaying = true
+                threadLoop()
+            }
+        }
     }
+
     fun buttonStop() {
-        println("STOP RECORDING")
+        isRecording = false
+        isPlaying = false
+        Thread.sleep(10) // Ajouter une pause de 10 millisecondes
         audioTrack?.stop()
         audioRecord?.stop()
         audioRecord?.release()
@@ -74,7 +87,8 @@ class MainActivity : AppCompatActivity() {
         ) {
             ActivityCompat.requestPermissions(
                 this,
-                arrayOf(Manifest.permission.RECORD_AUDIO), 0)
+                arrayOf(Manifest.permission.RECORD_AUDIO), 0
+            )
         }
 
 
@@ -117,21 +131,31 @@ class MainActivity : AppCompatActivity() {
                 .setBufferSizeInBytes(intBufferSize)
                 .build()
 
-
-
             audioTrack!!.playbackRate = intRecordSampleRate
             audioRecord!!.startRecording()
 
             audioTrack!!.play()
-            while (true) {
-                if (!isActive) break
-                audioRecord!!.read(shortAudioData, 0, shortAudioData.size)
-                for (i in shortAudioData.indices) {
-                    shortAudioData[i] = (shortAudioData[i] * intGain).toShort()
-                        .coerceIn(Short.MIN_VALUE, Short.MAX_VALUE)
+
+
+            isActive = true
+            //Le thread empeche le code de bloquer sur le while et d'avoir l'acces au bouton stop
+            audioThread = Thread {
+                while (isPlaying) {
+                    Thread.sleep(1)
+
+                    audioRecord!!.read(shortAudioData, 0, shortAudioData.size)
+
+                    for (i in shortAudioData.indices) {
+                        println("boucle de diffusion")
+                        shortAudioData[i] = (shortAudioData[i] * intGain).toShort()
+                            .coerceIn(Short.MIN_VALUE, Short.MAX_VALUE)
+                    }
+                    if (audioTrack?.playState == AudioTrack.PLAYSTATE_PLAYING) {
+                        audioTrack!!.write(shortAudioData, 0, shortAudioData.size)
+                    }
                 }
-                audioTrack!!.write(shortAudioData, 0, shortAudioData.size)
             }
+            audioThread!!.start()
         }
     }
 }
