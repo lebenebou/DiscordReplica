@@ -79,7 +79,11 @@ class MainActivity : AppCompatActivity() {
 
 
         //TODO(): adjust the code so it won't continue before getting the permission, provisoire pour ne pas avoir d'erreur
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED){
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             println("Start the record")
 
             val audioSource = MediaRecorder.AudioSource.MIC
@@ -95,14 +99,24 @@ class MainActivity : AppCompatActivity() {
                 intBufferSize
             )
 
-            audioTrack = AudioTrack(
-                AudioManager.STREAM_MUSIC,
-                intRecordSampleRate,
-                AudioFormat.CHANNEL_IN_STEREO,
-                AudioFormat.ENCODING_PCM_16BIT,
-                intBufferSize,
-                AudioTrack.MODE_STREAM
-            )
+
+            val audioAttributes = AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .build()
+
+            audioTrack = AudioTrack.Builder()
+                .setAudioAttributes(audioAttributes)
+                .setAudioFormat(
+                    AudioFormat.Builder()
+                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                        .setSampleRate(intRecordSampleRate)
+                        .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
+                        .build()
+                )
+                .setBufferSizeInBytes(intBufferSize)
+                .build()
+
 
 
             audioTrack!!.playbackRate = intRecordSampleRate
@@ -113,7 +127,8 @@ class MainActivity : AppCompatActivity() {
                 if (!isActive) break
                 audioRecord!!.read(shortAudioData, 0, shortAudioData.size)
                 for (i in shortAudioData.indices) {
-                    shortAudioData[i] = (shortAudioData[i] * intGain).toShort().coerceIn(Short.MIN_VALUE, Short.MAX_VALUE)
+                    shortAudioData[i] = (shortAudioData[i] * intGain).toShort()
+                        .coerceIn(Short.MIN_VALUE, Short.MAX_VALUE)
                 }
                 audioTrack!!.write(shortAudioData, 0, shortAudioData.size)
             }
