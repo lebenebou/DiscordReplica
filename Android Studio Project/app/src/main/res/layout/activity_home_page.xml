@@ -8,31 +8,64 @@
     tools:context=".HomePage">
 
     <Button
-        android:id="@+id/joinButton"
+        android:id="@+id/upperButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:width="190dp"
-        android:text="Join a room"
-        app:layout_constraintBottom_toTopOf="@+id/createButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:textColor="@color/white"
         android:background="@drawable/normal_btn_bg"
+        android:text="Join a room"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@+id/middleButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.931" />
+        app:layout_constraintVertical_bias="0.953" />
 
     <Button
-        android:id="@+id/createButton"
+        android:id="@+id/middleButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:width="190dp"
-        android:textColor="@color/white"
         android:background="@drawable/normal_btn_bg"
         android:text="Create a room"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.499" />
+        app:layout_constraintVertical_bias="0.494" />
+
+    <Button
+        android:id="@+id/lowerButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:width="190dp"
+        android:background="@drawable/grey_btn_bg"
+        android:text="Cancel"
+        android:textColor="@color/white"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/middleButton"
+        app:layout_constraintVertical_bias="0.037" />
+
+    <EditText
+        android:id="@+id/codeInput"
+        android:layout_width="175dp"
+        android:layout_height="42dp"
+        android:ems="10"
+        android:hint="Code"
+        android:inputType="textPersonName"
+        android:text=""
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.433" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
