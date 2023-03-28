@@ -1,7 +1,10 @@
 package com.example.androidstudioproject
 
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
@@ -31,11 +34,13 @@ class HomePage : AppCompatActivity() {
             createRoom()
         }
         lowerButton.setOnClickListener{
+
             setNormalState()
         }
     }
     private fun setNormalState(){
 
+        dismissKeyboard()
         upperButton.isVisible = true
         lowerButton.isVisible = false
 
@@ -64,7 +69,6 @@ class HomePage : AppCompatActivity() {
             joinRoom(codeInput.text.toString().lowercase())
         }
     }
-
     private fun joinRoom(roomCode: String){
 
         if(true){
@@ -86,5 +90,10 @@ class HomePage : AppCompatActivity() {
 
         val alert = builder.create()
         alert.show()
+    }
+    private fun dismissKeyboard(){
+
+        val keyboard = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        keyboard.hideSoftInputFromWindow(findViewById<View>(android.R.id.content).windowToken, 0)
     }
 }
