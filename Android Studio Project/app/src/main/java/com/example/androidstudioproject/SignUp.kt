@@ -11,6 +11,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -168,6 +169,10 @@ class SignUp : AppCompatActivity() {
 
         signUpButton.isEnabled = false
         findViewById<TextView>(R.id.loginText).isEnabled = false
+
+        // change colors ot grey
+        findViewById<TextView>(R.id.loginText).setTextColor(ContextCompat.getColor(this, R.color.grey))
+        signUpButton.setBackgroundResource(R.drawable.grey_btn_bg)
     }
     private fun endLoadingMode(){
 
@@ -177,5 +182,9 @@ class SignUp : AppCompatActivity() {
 
         signUpButton.isEnabled = true
         findViewById<TextView>(R.id.loginText).isEnabled = true
+
+        // change colors back to normal
+        findViewById<TextView>(R.id.loginText).setTextColor(ContextCompat.getColor(this, R.color.purple_700))
+        signUpButton.setBackgroundResource(R.drawable.normal_btn_bg)
     }
 }

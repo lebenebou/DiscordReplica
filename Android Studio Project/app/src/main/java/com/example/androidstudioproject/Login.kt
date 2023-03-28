@@ -1,14 +1,13 @@
 package com.example.androidstudioproject
 
-import android.app.Activity
 import android.content.Intent
-import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.*
 import org.json.JSONObject
 
@@ -44,6 +43,15 @@ class Login : AppCompatActivity() {
             val userInput = JSONObject()
                 .put("identity_input", identityInput.text.toString().lowercase())
                 .put("password", passwordInput.text.toString())
+
+            if (userInput.get("identity_input")==""){
+                showMessageBox("Please provide a username or E-mail.")
+                return@setOnClickListener
+            }
+            if (userInput.get("password")==""){
+                showMessageBox("Please provide a password.")
+                return@setOnClickListener
+            }
 
             // simulate loading screen here...
             startLoadingMode()
@@ -111,7 +119,10 @@ class Login : AppCompatActivity() {
         passwordInput.isEnabled = false
 
         loginButton.isEnabled = false
-        signUpText.isEnabled = false
+
+        // change colors to grey
+        loginButton.setBackgroundResource(R.drawable.grey_btn_bg)
+        signUpText.setTextColor(ContextCompat.getColor(this, R.color.grey))
     }
     private fun endLoadingMode(){
 
@@ -120,5 +131,9 @@ class Login : AppCompatActivity() {
 
         loginButton.isEnabled = true
         signUpText.isEnabled = true
+
+        // change colors back to normal
+        loginButton.setBackgroundResource(R.drawable.normal_btn_bg)
+        signUpText.setTextColor(ContextCompat.getColor(this, R.color.purple_700))
     }
 }
