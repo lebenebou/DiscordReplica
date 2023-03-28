@@ -21,7 +21,7 @@
         android:layout_height="50dp"
         android:layout_below="@+id/app_logo"
         android:layout_marginTop="10dp"
-        android:hint="Email"
+        android:hint="Username or Email"
         android:background="@drawable/edt_background"
         android:drawableLeft="@drawable/baseline_email_24"
         android:paddingLeft="15dp"
