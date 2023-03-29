@@ -1,6 +1,7 @@
 package com.example.androidstudioproject
 
 import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -78,7 +79,7 @@ class HomePage : AppCompatActivity() {
     }
     private fun createRoom(){
 
-        showMessageBox("This activity doesn't exist yet.")
+        startActivity(Intent(this, CreateRoom::class.java))
     }
     private fun showMessageBox(message: String) {
 
