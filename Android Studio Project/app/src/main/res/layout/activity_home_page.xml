@@ -15,7 +15,7 @@
         android:background="@drawable/normal_btn_bg"
         android:text="Join a room"
         android:textColor="@color/white"
-        app:layout_constraintBottom_toTopOf="@+id/middleButton"
+        app:layout_constraintBottom_toTopOf="@+id/lowerButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,7 +23,7 @@
         app:layout_constraintVertical_bias="0.953" />
 
     <Button
-        android:id="@+id/middleButton"
+        android:id="@+id/lowerButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:width="190dp"
@@ -36,22 +36,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.494" />
-
-    <Button
-        android:id="@+id/lowerButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:width="190dp"
-        android:background="@drawable/grey_btn_bg"
-        android:text="Cancel"
-        android:textColor="@color/white"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/middleButton"
-        app:layout_constraintVertical_bias="0.037" />
 
     <EditText
         android:id="@+id/codeInput"
@@ -66,6 +50,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.433" />
+        app:layout_constraintVertical_bias="0.339" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -13,7 +13,6 @@ import androidx.core.view.isVisible
 class HomePage : AppCompatActivity() {
 
     private lateinit var upperButton: Button
-    private lateinit var middleButton: Button
     private lateinit var lowerButton: Button
     private lateinit var codeInput: EditText
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,7 +21,6 @@ class HomePage : AppCompatActivity() {
         setContentView(R.layout.activity_home_page)
 
         upperButton = findViewById(R.id.upperButton)
-        middleButton = findViewById(R.id.middleButton)
         lowerButton = findViewById(R.id.lowerButton)
 
         codeInput = findViewById(R.id.codeInput)
@@ -30,43 +28,45 @@ class HomePage : AppCompatActivity() {
         upperButton.setOnClickListener{
             setJoinState()
         }
-        middleButton.setOnClickListener{
-            createRoom()
-        }
         lowerButton.setOnClickListener{
-
-            setNormalState()
+            createRoom()
         }
     }
     private fun setNormalState(){
 
         dismissKeyboard()
-        upperButton.isVisible = true
-        lowerButton.isVisible = false
 
         codeInput.isVisible = false
         codeInput.text.clear()
 
-        middleButton.text = "Create a channel"
-        middleButton.setBackgroundResource(R.drawable.normal_btn_bg)
+        upperButton.text = "Join a room"
+        upperButton.setBackgroundResource(R.drawable.normal_btn_bg)
+        upperButton.setOnClickListener{
+            setJoinState()
+        }
 
-        middleButton.setOnClickListener{
+        lowerButton.text = "Create a room"
+        lowerButton.setBackgroundResource(R.drawable.normal_btn_bg)
+        lowerButton.setOnClickListener{
             createRoom()
         }
     }
     private fun setJoinState(){
 
-        upperButton.isVisible = false
         codeInput.isVisible = true
-        lowerButton.isVisible = true
 
         codeInput.text.clear()
 
-        middleButton.text = "Join"
-        middleButton.setBackgroundResource(R.drawable.green_btn_bg)
-
-        middleButton.setOnClickListener{
+        upperButton.text = "Join"
+        upperButton.setBackgroundResource(R.drawable.green_btn_bg)
+        upperButton.setOnClickListener{
             joinRoom(codeInput.text.toString().lowercase())
+        }
+
+        lowerButton.text = "Cancel"
+        lowerButton.setBackgroundResource(R.drawable.grey_btn_bg)
+        lowerButton.setOnClickListener{
+            setNormalState()
         }
     }
     private fun joinRoom(roomCode: String){
