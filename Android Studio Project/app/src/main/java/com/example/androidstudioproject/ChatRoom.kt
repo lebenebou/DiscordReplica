@@ -13,6 +13,10 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
@@ -25,14 +29,13 @@ class ChatRoom : AppCompatActivity() {
     private lateinit var scrollView: ScrollView
     private lateinit var titleText: TextView
 
-    private val mongoClient = MongoClient()
-
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_room)
 
         titleText = findViewById(R.id.titleText)
+        titleText.text = GlobalVars.currentRoomName
         val randomColor = Color.argb(255, (40..200).random(), (40..200).random(), (40..200).random())
         titleText.setBackgroundColor(randomColor)
 
@@ -46,6 +49,13 @@ class ChatRoom : AppCompatActivity() {
 
         messageList = findViewById(R.id.message_list)
         messageInput = findViewById(R.id.messageInput)
+        messageInput.setOnClickListener{
+
+            GlobalScope.launch(Dispatchers.IO){
+                delay(150)
+                scrollToBottom()
+            }
+        }
 
         sendButton = findViewById(R.id.sendButton)
         sendButton.setOnClickListener{
@@ -96,9 +106,7 @@ class ChatRoom : AppCompatActivity() {
 
         addMessage(newMessage)
         messageInput.text.clear()
-        scrollView.post{
-            scrollView.fullScroll(ScrollView.FOCUS_DOWN)
-        }
+        scrollToBottom()
     }
     private fun timestampToString(epoch: Long): String {
 
@@ -124,5 +132,10 @@ class ChatRoom : AppCompatActivity() {
 
         val keyboard = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         keyboard.hideSoftInputFromWindow(findViewById<View>(android.R.id.content).windowToken, 0)
+    }
+    private fun scrollToBottom(){
+        scrollView.post{
+            scrollView.fullScroll(ScrollView.FOCUS_DOWN)
+        }
     }
 }
