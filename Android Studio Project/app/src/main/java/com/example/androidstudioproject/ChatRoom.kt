@@ -33,7 +33,7 @@ class ChatRoom : AppCompatActivity() {
         setContentView(R.layout.activity_chat_room)
 
         titleText = findViewById(R.id.titleText)
-        val randomColor = Color.argb(255, (0..255).random(), (0..255).random(), (0..255).random())
+        val randomColor = Color.argb(255, (40..200).random(), (40..200).random(), (40..200).random())
         titleText.setBackgroundColor(randomColor)
 
         scrollView = findViewById(R.id.scrollView)
