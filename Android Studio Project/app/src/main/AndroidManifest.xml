@@ -14,6 +14,12 @@
         android:theme="@style/Theme.AndroidStudioProject"
         tools:targetApi="31">
         <activity
+            android:name=".Chatroom"
+            android:exported="false" />
+        <activity
+            android:name=".ChatRoom"
+            android:exported="false" />
+        <activity
             android:name=".CreateRoom"
             android:exported="false" />
         <activity
