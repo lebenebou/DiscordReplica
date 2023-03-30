@@ -1,12 +1,18 @@
 package com.example.androidstudioproject
 
+import android.content.Context
 import android.graphics.Color
+import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
@@ -16,25 +22,34 @@ class ChatRoom : AppCompatActivity() {
     private lateinit var messageList: LinearLayout
     private lateinit var sendButton: Button
     private lateinit var messageInput: EditText
+    private lateinit var scrollView: ScrollView
+    private lateinit var titleText: TextView
+
+    private val mongoClient = MongoClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_room)
 
+        titleText = findViewById(R.id.titleText)
+        val randomColor = Color.argb(255, (0..255).random(), (0..255).random(), (0..255).random())
+        titleText.setBackgroundColor(randomColor)
+
+        scrollView = findViewById(R.id.scrollView)
+        scrollView.setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
+            if (scrollY < oldScrollY) {
+                // Dismiss Keyboard if scrolling up
+                dismissKeyboard()
+            }
+        }
+
         messageList = findViewById(R.id.message_list)
         messageInput = findViewById(R.id.messageInput)
+
         sendButton = findViewById(R.id.sendButton)
         sendButton.setOnClickListener{
-
-            val newMessage = JSONObject().apply {
-                put("username", GlobalVars.currentUser)
-                put("content", messageInput.text.toString())
-                put("timestamp", currentTimestamp())
-            }
-
-            addMessage(newMessage)
-            messageInput.text.clear()
+            send()
         }
     }
     private fun addMessage(message: JSONObject){
@@ -51,6 +66,8 @@ class ChatRoom : AppCompatActivity() {
         // Content
         val contentTextView = TextView(this)
         contentTextView.text = message.getString("content")
+        contentTextView.setTypeface(null, Typeface.BOLD)
+        contentTextView.setTextColor(Color.BLACK)
         messageLayout.addView(contentTextView)
 
         // Timestamp
@@ -59,17 +76,53 @@ class ChatRoom : AppCompatActivity() {
         timestampTextView.setTextColor(Color.GRAY)
         messageLayout.addView(timestampTextView)
 
+        messageLayout.setBackgroundResource(R.drawable.message_rectangle)
         messageList.addView(messageLayout)
-    }
 
+    }
+    private fun send(){
+
+        if(messageInput.text.toString().isEmpty()){
+
+            showMessageBox("Please type a message first.")
+            return
+        }
+
+        val newMessage = JSONObject().apply {
+            put("username", GlobalVars.currentUser)
+            put("content", messageInput.text.toString())
+            put("timestamp", currentTimestamp())
+        }
+
+        addMessage(newMessage)
+        messageInput.text.clear()
+        scrollView.post{
+            scrollView.fullScroll(ScrollView.FOCUS_DOWN)
+        }
+    }
     private fun timestampToString(epoch: Long): String {
 
         val date = Date(epoch.toLong() * 1000)
         val dateFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
         return dateFormat.format(date)
     }
-
     private fun currentTimestamp(): Long {
         return System.currentTimeMillis() / 1000
+    }
+    private fun showMessageBox(message: String) {
+
+        // Shows message with OK button
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage(message)
+            .setCancelable(false)
+            .setPositiveButton("OK") { _, _ ->  }
+
+        val alert = builder.create()
+        alert.show()
+    }
+    private fun dismissKeyboard(){
+
+        val keyboard = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        keyboard.hideSoftInputFromWindow(findViewById<View>(android.R.id.content).windowToken, 0)
     }
 }
