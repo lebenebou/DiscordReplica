@@ -13,14 +13,18 @@ class MainActivity : AppCompatActivity() {
     private var audioTrack: AudioTrack? = null
     private var intBufferSize = 0
     private lateinit var shortAudioData: ShortArray
-    private var intGain = 1
+    private var intGain = 5
     private var isActive = false
-
     private var audioThread: Thread? = null
-
-
     private var isRecording = false
     private var isPlaying = false
+
+    //TODO(): adapt the values to get the best performance:
+    private val audioSource = MediaRecorder.AudioSource.MIC
+    private val sampleRate = 44100
+    private val channelConfig = AudioFormat.CHANNEL_IN_MONO
+    private val audioFormat = AudioFormat.ENCODING_PCM_16BIT
+
 
     //TODO(): quand on refuse de donnee l'acces au microphone, on ne doit pas continuer comme si de rien n'etait
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,7 +33,6 @@ class MainActivity : AppCompatActivity() {
 
         val startButton = findViewById<Button>(R.id.button)
         val stopButton = findViewById<Button>(R.id.button2)
-
         startButton.setOnClickListener {
             if(!isActive){
                 isActive = true
@@ -38,7 +41,6 @@ class MainActivity : AppCompatActivity() {
                 println("You can't click on start, since you are already calling")
             }
         }
-
         stopButton.setOnClickListener {
             if(isActive){
                 isActive = false
@@ -50,6 +52,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun buttonStart() {
+        println("Button start has been clicked!")
         if (!isRecording) {
             isRecording = true
             if (!isPlaying) {
@@ -58,53 +61,43 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
     fun buttonStop() {
+        println("Button stop has been clicked!")
         isRecording = false
         isPlaying = false
-        Thread.sleep(10) // Ajouter une pause de 10 millisecondes
+        Thread.sleep(10) // Ajouter une pause de 10 ms
         audioTrack?.stop()
         audioRecord?.stop()
         audioRecord?.release()
         audioTrack?.release()
     }
 
-
     private fun threadLoop() {
-        println("START THREADLOOP")
-
         val intRecordSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_MUSIC)
+        //we calculate the optimal size of the buffer (7680 bytes)
         intBufferSize = AudioRecord.getMinBufferSize(
-            intRecordSampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT
-        )
+            intRecordSampleRate,
+            AudioFormat.CHANNEL_IN_STEREO,
+            AudioFormat.ENCODING_PCM_16BIT)
+
+        //create an array containing intBufferSize values initialized with 0
         shortAudioData = ShortArray(intBufferSize)
 
 
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.RECORD_AUDIO
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.RECORD_AUDIO), 0
             )
         }
 
-
-        //TODO(): adjust the code so it won't continue before getting the permission, provisoire pour ne pas avoir d'erreur
+        //TODO(): adjust the code so it won't continue before getting the permission, provisoire pour ne pas avoir d'erreur,
+        // on ne peut pas commencer le call au 1er start, il faut start stop puis restart pr le lancer correctement:
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.RECORD_AUDIO
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            println("Start the record")
-
-            val audioSource = MediaRecorder.AudioSource.MIC
-            val sampleRate = 44100
-            val channelConfig = AudioFormat.CHANNEL_IN_MONO
-            val audioFormat = AudioFormat.ENCODING_PCM_16BIT
-
             audioRecord = AudioRecord(
                 audioSource,
                 sampleRate,
@@ -113,10 +106,9 @@ class MainActivity : AppCompatActivity() {
                 intBufferSize
             )
 
-
             val audioAttributes = AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_MEDIA)
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                 .build()
 
             audioTrack = AudioTrack.Builder()
@@ -131,25 +123,25 @@ class MainActivity : AppCompatActivity() {
                 .setBufferSizeInBytes(intBufferSize)
                 .build()
 
+            //Set the playback rate to the sampleRate
             audioTrack!!.playbackRate = intRecordSampleRate
-            audioRecord!!.startRecording()
 
+
+            audioRecord!!.startRecording()
             audioTrack!!.play()
 
-
             isActive = true
-            //Le thread empeche le code de bloquer sur le while et d'avoir l'acces au bouton stop
-            audioThread = Thread {
+            audioThread = Thread {//Le thread empeche le code de bloquer sur le while et d'avoir l'acces au bouton stop
                 while (isPlaying) {
-                    Thread.sleep(1)
-
+                    //we read the bytes captured by audioRecord and save them in SHORT FORMAT inside shortAudioData (not bytes)
                     audioRecord!!.read(shortAudioData, 0, shortAudioData.size)
 
+                    println("SHOWING shortAudioData: ${shortAudioData.sliceArray(0..99).contentToString()}")
+
                     for (i in shortAudioData.indices) {
-                        println("boucle de diffusion")
-                        shortAudioData[i] = (shortAudioData[i] * intGain).toShort()
-                            .coerceIn(Short.MIN_VALUE, Short.MAX_VALUE)
+                        shortAudioData[i] = (shortAudioData[i] * intGain).toShort().coerceIn(Short.MIN_VALUE, Short.MAX_VALUE)
                     }
+
                     if (audioTrack?.playState == AudioTrack.PLAYSTATE_PLAYING) {
                         audioTrack!!.write(shortAudioData, 0, shortAudioData.size)
                     }
