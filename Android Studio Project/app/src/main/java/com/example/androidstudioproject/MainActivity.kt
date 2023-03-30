@@ -27,13 +27,11 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, HomePage::class.java))
         }
     }
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
 
         menuInflater.inflate(R.menu.menu,menu)
         return super.onCreateOptionsMenu(menu)
     }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         if(item.itemId==R.id.logout){

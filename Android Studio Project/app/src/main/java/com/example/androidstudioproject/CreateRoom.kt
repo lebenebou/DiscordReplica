@@ -32,7 +32,6 @@ class CreateRoom : AppCompatActivity() {
             createRoom(nameInput.text.toString(), descInput.text.toString())
         }
     }
-
     private fun createRoom(name: String, desc: String){
 
         showMessageBox("This isn't implemented yet.")
