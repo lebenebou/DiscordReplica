@@ -72,6 +72,11 @@ class HomePage : AppCompatActivity() {
     }
     private fun joinRoom(roomCode: String){
 
+        if(codeInput.text.toString().isEmpty()){
+            showMessageBox("Please provide a code.")
+            return
+        }
+
         if(true){
 
             showMessageBox("This room code doesn't match any open rooms.")

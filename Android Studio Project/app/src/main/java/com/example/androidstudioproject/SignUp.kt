@@ -132,7 +132,6 @@ class SignUp : AppCompatActivity() {
         // switch to home page screen
         startActivity(Intent(this, HomePage::class.java))
     }
-
     private fun showMessageBox(message: String) {
 
         // Shows message with OK button, when OK is pressed, loading mode ends
