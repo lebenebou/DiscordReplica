@@ -5,8 +5,6 @@ import android.os.Bundle
 
 class ChatRoom : AppCompatActivity() {
 
-    private var currentRoomCode: String = "null"
-
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)

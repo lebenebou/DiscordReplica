@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets
 
 class MongoClient {
 
-    private val apiKey = "9qpyQhdqGAHnWLPlK1Cl9zYEVTsjmuAJy8yNDyj54M9AS0VP8ZLVA8VWrMz4DvMR"
+    private val apiKey = GlobalVars.MongoAPIKey
     private val httpClient = OkHttpClient()
 
     private suspend fun makeAPIRequest(endpoint: String, headers: JSONObject, body: JSONObject) : JSONObject {
