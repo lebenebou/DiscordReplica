@@ -13,16 +13,16 @@ class MainActivity : AppCompatActivity() {
     private var audioTrack: AudioTrack? = null
     private var intBufferSize = 0
     private lateinit var shortAudioData: ShortArray
-    private var intGain = 5
+    private var intGain = 1 //put it to 3
     private var isActive = false
     private var audioThread: Thread? = null
     private var isRecording = false
     private var isPlaying = false
 
-    //TODO(): adapt the values to get the best performance:
-    private val audioSource = MediaRecorder.AudioSource.MIC
-    private val sampleRate = 44100
-    private val channelConfig = AudioFormat.CHANNEL_IN_MONO
+    //TODO(): adapt the values to get the best performance: (for now it for a samsung S7 edge)
+    private val audioSource = MediaRecorder.AudioSource.DEFAULT
+    private val sampleRate = 48000
+    private val channelConfig = AudioFormat.CHANNEL_IN_STEREO
     private val audioFormat = AudioFormat.ENCODING_PCM_16BIT
 
 
@@ -133,14 +133,27 @@ class MainActivity : AppCompatActivity() {
             isActive = true
             audioThread = Thread {//Le thread empeche le code de bloquer sur le while et d'avoir l'acces au bouton stop
                 while (isPlaying) {
+                    Thread.sleep(1)
                     //we read the bytes captured by audioRecord and save them in SHORT FORMAT inside shortAudioData (not bytes)
                     audioRecord!!.read(shortAudioData, 0, shortAudioData.size)
 
                     println("SHOWING shortAudioData: ${shortAudioData.sliceArray(0..99).contentToString()}")
 
+                    //to amplify the sound
                     for (i in shortAudioData.indices) {
                         shortAudioData[i] = (shortAudioData[i] * intGain).toShort().coerceIn(Short.MIN_VALUE, Short.MAX_VALUE)
                     }
+
+                    println("SHOWING shortAudioData after using gain: ${shortAudioData.sliceArray(0..99).contentToString()}")
+
+                    //testing to see if there is interference between microphone and speakers
+                    Thread.sleep(2)
+
+
+                    //TODO(): the sound is bad:
+                    // You can try using audio processing techniques to improve the sound quality.
+                    // For example, you could use noise reduction, equalization, or compression to reduce unwanted noise and enhance the clarity of your voice
+
 
                     if (audioTrack?.playState == AudioTrack.PLAYSTATE_PLAYING) {
                         audioTrack!!.write(shortAudioData, 0, shortAudioData.size)
