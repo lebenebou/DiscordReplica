@@ -100,6 +100,7 @@ class Login : AppCompatActivity() {
         }
 
         // switch to homepage screen
+        GlobalVars.currentUser = usernameResult.getString("username")
         startActivity(Intent(this, HomePage::class.java))
     }
     private fun showMessageBox(message: String) {

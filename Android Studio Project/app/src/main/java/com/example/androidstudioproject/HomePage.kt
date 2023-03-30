@@ -78,8 +78,7 @@ class HomePage : AppCompatActivity() {
         }
 
         if(true){
-
-            showMessageBox("This room code doesn't match any open rooms.")
+            startActivity(Intent(this, ChatRoom::class.java))
         }
     }
     private fun createRoom(){
