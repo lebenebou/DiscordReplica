@@ -60,8 +60,8 @@
         android:layout_below="@+id/passwordInput"
         android:text="Log in"
         android:background="@drawable/normal_btn_bg"
-        android:layout_centerHorizontal="true"
         android:textColor="@color/white"
+        android:layout_centerHorizontal="true"
         android:textSize="20sp"
         android:layout_marginTop="10dp"/>
     <TextView
