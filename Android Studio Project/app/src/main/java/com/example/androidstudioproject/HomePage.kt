@@ -22,7 +22,7 @@ class HomePage : AppCompatActivity() {
     private lateinit var lowerButton: Button
     private lateinit var codeInput: EditText
 
-    private val mongoClient = MongoClient()
+    private val databaseClient = MongoClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -79,7 +79,7 @@ class HomePage : AppCompatActivity() {
 
                 runOnUiThread{ startLoadingMode() }
 
-                val roomResult = mongoClient.findOne("Rooms", JSONObject().put("code", givenCode))
+                val roomResult = databaseClient.findOne("Rooms", JSONObject().put("code", givenCode))
 
                 withContext(Dispatchers.Main){
                     handleJoinAttempt(roomResult)

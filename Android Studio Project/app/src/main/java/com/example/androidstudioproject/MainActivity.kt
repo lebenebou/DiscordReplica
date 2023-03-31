@@ -22,31 +22,14 @@ class MainActivity : AppCompatActivity() {
         joinCreateButton = findViewById(R.id.joinCreateButton)
         chatroomsButton = findViewById(R.id.chatroomsButton)
 
-        accountsButton.setOnClickListener{
+        accountsButton.setOnClickListener {
             startActivity(Intent(this, Login::class.java))
         }
-        joinCreateButton.setOnClickListener{
+        joinCreateButton.setOnClickListener {
             startActivity(Intent(this, HomePage::class.java))
         }
-        chatroomsButton.setOnClickListener{
+        chatroomsButton.setOnClickListener {
             startActivity(Intent(this, ChatRoom::class.java))
         }
-    }
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-
-        menuInflater.inflate(R.menu.menu,menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
-        if(item.itemId==R.id.logout){
-
-            // logic for logout
-            val intent = Intent(this@MainActivity, Login::class.java)
-            finish()
-            startActivity(intent)
-            return false
-        }
-        return false
     }
 }

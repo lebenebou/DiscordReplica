@@ -25,7 +25,7 @@ class ChatRoom : AppCompatActivity() {
     private lateinit var scrollView: ScrollView
     private lateinit var titleText: TextView
 
-    private val mongoClient = MongoClient()
+    private val databaseClient = MongoClient()
     private var currentRoom = JSONObject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,7 +38,7 @@ class ChatRoom : AppCompatActivity() {
         GlobalScope.launch {
 
             // the following code assumes the Global Var Room Code is of an existing room code
-            currentRoom = mongoClient.findOne("Rooms", JSONObject().put("code", GlobalVars.currentRoomCode))
+            currentRoom = databaseClient.findOne("Rooms", JSONObject().put("code", GlobalVars.currentRoomCode))
             runOnUiThread{
                 titleText.text = currentRoom.getString("name")
 

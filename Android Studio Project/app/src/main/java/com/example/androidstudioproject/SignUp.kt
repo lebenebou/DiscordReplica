@@ -128,7 +128,8 @@ class SignUp : AppCompatActivity() {
             databaseClient.insertOne("Users", userInput)
         }
 
-
+        // set global username value
+        GlobalVars.currentUser = userInput.getString("username")
         // switch to home page screen
         startActivity(Intent(this, HomePage::class.java))
     }
