@@ -19,7 +19,6 @@ class MainActivity : AppCompatActivity() {
     private var intGain = 1
     private var isActive = false
     private var audioThread: Thread? = null
-    private var isRecording = false
     private var isPlaying = false
     private val deferred = CompletableDeferred<Boolean>()
 
@@ -36,6 +35,7 @@ class MainActivity : AppCompatActivity() {
         val startButton = findViewById<Button>(R.id.button)
         val stopButton = findViewById<Button>(R.id.button2)
         startButton.setOnClickListener {
+            println(isActive)
             if(!isActive){
                 isActive = true
                 buttonStart()
@@ -54,19 +54,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun buttonStart() {
-        if (!isRecording) {
-            isRecording = true
-            if (!isPlaying) {
-                isPlaying = true
-                GlobalScope.launch {
-                    startCommunication()
-                }
+        if (!isPlaying) {
+            isPlaying = true
+            GlobalScope.launch {
+                startCommunication()
             }
         }
-    }
 
+    }
     fun buttonStop() {
-        isRecording = false
+        println("accessedddddd")
+        isActive= false
         isPlaying = false
         audioTrack?.stop()
         audioRecord?.stop()
@@ -88,6 +86,7 @@ class MainActivity : AppCompatActivity() {
                     deferred.complete(true)
 
                 } else {
+                    buttonStop()
                     println("ACCES DENIED, PLEASE ENABLE MICROPHONE SO YOU WILL BE ABLE TO CALL")
                 }
             }
@@ -108,19 +107,12 @@ class MainActivity : AppCompatActivity() {
         shortAudioData = ShortArray(intBufferSize)
 
 
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.RECORD_AUDIO
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.RECORD_AUDIO), 0
-            )
-            //we suspend the activity till the user answer:
-            deferred.await()
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 0)
+            deferred.await() //we suspend the activity till the user answer
         }
 
+        println("ENTERING HERE")
         audioRecord = AudioRecord(
             audioSource,
             sampleRate,
@@ -157,6 +149,7 @@ class MainActivity : AppCompatActivity() {
         audioThread = threadLoop()
         audioThread!!.start()
     }
+
 
     private fun threadLoop(): Thread? {
         return Thread {//Le thread empeche le code de bloquer sur le while et d'avoir l'acces au bouton stop
