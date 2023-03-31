@@ -64,7 +64,6 @@ class MainActivity : AppCompatActivity() {
         println("Button stop has been clicked!")
         isRecording = false
         isPlaying = false
-        Thread.sleep(10) // Ajouter une pause de 10 ms
         audioTrack?.stop()
         audioRecord?.stop()
         audioRecord?.release()
@@ -132,7 +131,6 @@ class MainActivity : AppCompatActivity() {
             isActive = true
             audioThread = Thread {//Le thread empeche le code de bloquer sur le while et d'avoir l'acces au bouton stop
                 while (isPlaying) {
-                    Thread.sleep(1)
                     //we read the bytes captured by audioRecord and save them in SHORT FORMAT inside shortAudioData (not bytes)
                     audioRecord!!.read(shortAudioData, 0, shortAudioData.size)
 
@@ -144,15 +142,6 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     println("SHOWING shortAudioData after using gain: ${shortAudioData.sliceArray(0..99).contentToString()}")
-
-                    //testing to see if there is interference between microphone and speakers
-                    Thread.sleep(2)
-
-
-                    //TODO(): the sound is bad:
-                    // You can try using audio processing techniques to improve the sound quality.
-                    // For example, you could use noise reduction, equalization, or compression to reduce unwanted noise and enhance the clarity of your voice
-
 
                     if (audioTrack?.playState == AudioTrack.PLAYSTATE_PLAYING) {
                         audioTrack!!.write(shortAudioData, 0, shortAudioData.size)
