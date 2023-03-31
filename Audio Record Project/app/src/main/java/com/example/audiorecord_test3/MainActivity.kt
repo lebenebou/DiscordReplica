@@ -7,6 +7,10 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+
 
 class MainActivity : AppCompatActivity() {
     private var audioRecord: AudioRecord? = null
@@ -18,6 +22,8 @@ class MainActivity : AppCompatActivity() {
     private var audioThread: Thread? = null
     private var isRecording = false
     private var isPlaying = false
+    private val deferred = CompletableDeferred<Boolean>()
+
 
     private val audioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION //so we can use earphones
     private val sampleRate = 44100
@@ -56,7 +62,9 @@ class MainActivity : AppCompatActivity() {
             isRecording = true
             if (!isPlaying) {
                 isPlaying = true
-                threadLoop()
+                GlobalScope.launch {
+                    threadLoop()
+                }
             }
         }
     }
@@ -70,32 +78,53 @@ class MainActivity : AppCompatActivity() {
         audioTrack?.release()
     }
 
-    private fun threadLoop() {
+
+    @Override
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            0 -> {
+                // If the user granted permission to access the microphone, continue with the app's logic
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    println("PERMISSION GRANTED")
+                    deferred.complete(true)
+
+                } else {
+                    println("ACCES DENEID")
+                }
+            }
+        }
+    }
+
+    private suspend fun threadLoop() {
         val intRecordSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_MUSIC)
         //we calculate the optimal size of the buffer (7680 bytes)
         intBufferSize = AudioRecord.getMinBufferSize(
             intRecordSampleRate,
             AudioFormat.CHANNEL_IN_STEREO,
-            AudioFormat.ENCODING_PCM_16BIT)
+            AudioFormat.ENCODING_PCM_16BIT
+        )
 
         //create an array containing intBufferSize values initialized with 0
         shortAudioData = ShortArray(intBufferSize)
 
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.RECORD_AUDIO
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.RECORD_AUDIO), 0
             )
+            deferred.await()
         }
 
-        //TODO(): adjust the code so it won't continue before getting the permission, provisoire pour ne pas avoir d'erreur,
-        // on ne peut pas commencer le call au 1er start, il faut start stop puis restart pr le lancer correctement:
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.RECORD_AUDIO
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
             audioRecord = AudioRecord(
                 audioSource,
                 sampleRate,
@@ -129,27 +158,38 @@ class MainActivity : AppCompatActivity() {
             audioTrack!!.play()
 
             isActive = true
-            audioThread = Thread {//Le thread empeche le code de bloquer sur le while et d'avoir l'acces au bouton stop
-                while (isPlaying) {
-                    //we read the bytes captured by audioRecord and save them in SHORT FORMAT inside shortAudioData (not bytes)
-                    audioRecord!!.read(shortAudioData, 0, shortAudioData.size)
+            audioThread =
+                Thread {//Le thread empeche le code de bloquer sur le while et d'avoir l'acces au bouton stop
+                    while (isPlaying) {
+                        //we read the bytes captured by audioRecord and save them in SHORT FORMAT inside shortAudioData (not bytes)
+                        audioRecord!!.read(shortAudioData, 0, shortAudioData.size)
 
-                    println("SHOWING shortAudioData: ${shortAudioData.sliceArray(0..99).contentToString()}")
+                        println(
+                            "SHOWING shortAudioData: ${
+                                shortAudioData.sliceArray(0..99).contentToString()
+                            }"
+                        )
 
-                    //to amplify the sound
-                    for (i in shortAudioData.indices) {
-                        shortAudioData[i] = (shortAudioData[i] * intGain).toShort().coerceIn(Short.MIN_VALUE, Short.MAX_VALUE)
-                    }
+                        //to amplify the sound
+                        for (i in shortAudioData.indices) {
+                            shortAudioData[i] = (shortAudioData[i] * intGain).toShort()
+                                .coerceIn(Short.MIN_VALUE, Short.MAX_VALUE)
+                        }
 
-                    println("SHOWING shortAudioData after using gain: ${shortAudioData.sliceArray(0..99).contentToString()}")
+                        println(
+                            "SHOWING shortAudioData after using gain: ${
+                                shortAudioData.sliceArray(
+                                    0..99
+                                ).contentToString()
+                            }"
+                        )
 
-                    if (audioTrack?.playState == AudioTrack.PLAYSTATE_PLAYING) {
-                        audioTrack!!.write(shortAudioData, 0, shortAudioData.size)
+                        if (audioTrack?.playState == AudioTrack.PLAYSTATE_PLAYING) {
+                            audioTrack!!.write(shortAudioData, 0, shortAudioData.size)
+                        }
                     }
                 }
-            }
             audioThread!!.start()
         }
     }
-}
 
