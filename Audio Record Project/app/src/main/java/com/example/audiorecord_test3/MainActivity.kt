@@ -54,20 +54,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun buttonStart() {
-        println("Button start has been clicked!")
         if (!isRecording) {
             isRecording = true
             if (!isPlaying) {
                 isPlaying = true
                 GlobalScope.launch {
-                    threadLoop()
+                    startCommunication()
                 }
             }
         }
     }
 
     fun buttonStop() {
-        println("Button stop has been clicked!")
         isRecording = false
         isPlaying = false
         audioTrack?.stop()
@@ -86,17 +84,18 @@ class MainActivity : AppCompatActivity() {
         when (requestCode) {
             0 -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    println("PERMISSION GRANTED")
+                    //to continue the code when the user check permission
                     deferred.complete(true)
 
                 } else {
-                    println("ACCES DENEID")
+                    println("ACCES DENIED, PLEASE ENABLE MICROPHONE SO YOU WILL BE ABLE TO CALL")
                 }
             }
         }
     }
 
-    private suspend fun threadLoop() {
+
+    private suspend fun startCommunication() {
         val intRecordSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_MUSIC)
         //we calculate the optimal size of the buffer (7680 bytes)
         intBufferSize = AudioRecord.getMinBufferSize(
@@ -150,12 +149,17 @@ class MainActivity : AppCompatActivity() {
         //Set the playback rate to the sampleRate
         audioTrack!!.playbackRate = intRecordSampleRate
 
-        
+
         audioRecord!!.startRecording()
         audioTrack!!.play()
 
         isActive = true
-        audioThread = Thread {//Le thread empeche le code de bloquer sur le while et d'avoir l'acces au bouton stop
+        audioThread = threadLoop()
+        audioThread!!.start()
+    }
+
+    private fun threadLoop(): Thread? {
+        return Thread {//Le thread empeche le code de bloquer sur le while et d'avoir l'acces au bouton stop
             while (isPlaying) {
                 //we read the bytes captured by audioRecord and save them in SHORT FORMAT inside shortAudioData (not bytes)
                 audioRecord!!.read(shortAudioData, 0, shortAudioData.size)
@@ -175,7 +179,8 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        audioThread!!.start()
     }
+
+
 }
 
