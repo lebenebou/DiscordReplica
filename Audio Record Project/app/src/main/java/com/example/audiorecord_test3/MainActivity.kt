@@ -7,26 +7,28 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private var audioRecord: AudioRecord? = null
     private var audioTrack: AudioTrack? = null
     private var intBufferSize = 0
     private lateinit var shortAudioData: ShortArray
-    private var intGain = 1 //put it to 3
+    private var intGain = 1
     private var isActive = false
     private var audioThread: Thread? = null
     private var isRecording = false
     private var isPlaying = false
+    private val deferred = CompletableDeferred<Boolean>()
 
-    //TODO(): adapt the values to get the best performance: (for now it for a samsung S7 edge)
-    private val audioSource = MediaRecorder.AudioSource.DEFAULT
-    private val sampleRate = 48000
+    private val audioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION //so we can use earphones
+    private val sampleRate = 44100
     private val channelConfig = AudioFormat.CHANNEL_IN_STEREO
     private val audioFormat = AudioFormat.ENCODING_PCM_16BIT
 
 
-    //TODO(): quand on refuse de donnee l'acces au microphone, on ne doit pas continuer comme si de rien n'etait
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -57,111 +59,123 @@ class MainActivity : AppCompatActivity() {
             isRecording = true
             if (!isPlaying) {
                 isPlaying = true
-                threadLoop()
+                GlobalScope.launch {
+                    threadLoop()
+                }
             }
         }
     }
+
     fun buttonStop() {
         println("Button stop has been clicked!")
         isRecording = false
         isPlaying = false
-        Thread.sleep(10) // Ajouter une pause de 10 ms
         audioTrack?.stop()
         audioRecord?.stop()
         audioRecord?.release()
         audioTrack?.release()
     }
 
-    private fun threadLoop() {
+    @Override
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            0 -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    println("PERMISSION GRANTED")
+                    deferred.complete(true)
+
+                } else {
+                    println("ACCES DENEID")
+                }
+            }
+        }
+    }
+
+    private suspend fun threadLoop() {
         val intRecordSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_MUSIC)
         //we calculate the optimal size of the buffer (7680 bytes)
         intBufferSize = AudioRecord.getMinBufferSize(
             intRecordSampleRate,
             AudioFormat.CHANNEL_IN_STEREO,
-            AudioFormat.ENCODING_PCM_16BIT)
+            AudioFormat.ENCODING_PCM_16BIT
+        )
 
         //create an array containing intBufferSize values initialized with 0
         shortAudioData = ShortArray(intBufferSize)
 
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.RECORD_AUDIO
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.RECORD_AUDIO), 0
             )
+            //we suspend the activity till the user answer:
+            deferred.await()
         }
 
-        //TODO(): adjust the code so it won't continue before getting the permission, provisoire pour ne pas avoir d'erreur,
-        // on ne peut pas commencer le call au 1er start, il faut start stop puis restart pr le lancer correctement:
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.RECORD_AUDIO
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            audioRecord = AudioRecord(
-                audioSource,
-                sampleRate,
-                channelConfig,
-                audioFormat,
-                intBufferSize
+        audioRecord = AudioRecord(
+            audioSource,
+            sampleRate,
+            channelConfig,
+            audioFormat,
+            intBufferSize
+        )
+
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+            .build()
+
+        audioTrack = AudioTrack.Builder()
+            .setAudioAttributes(audioAttributes)
+            .setAudioFormat(
+                AudioFormat.Builder()
+                    .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                    .setSampleRate(intRecordSampleRate)
+                    .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
+                    .build()
             )
+            .setBufferSizeInBytes(intBufferSize)
+            .build()
 
-            val audioAttributes = AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                .build()
+        //Set the playback rate to the sampleRate
+        audioTrack!!.playbackRate = intRecordSampleRate
 
-            audioTrack = AudioTrack.Builder()
-                .setAudioAttributes(audioAttributes)
-                .setAudioFormat(
-                    AudioFormat.Builder()
-                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                        .setSampleRate(intRecordSampleRate)
-                        .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
-                        .build()
-                )
-                .setBufferSizeInBytes(intBufferSize)
-                .build()
+        
+        audioRecord!!.startRecording()
+        audioTrack!!.play()
 
-            //Set the playback rate to the sampleRate
-            audioTrack!!.playbackRate = intRecordSampleRate
+        isActive = true
+        audioThread = Thread {//Le thread empeche le code de bloquer sur le while et d'avoir l'acces au bouton stop
+            while (isPlaying) {
+                //we read the bytes captured by audioRecord and save them in SHORT FORMAT inside shortAudioData (not bytes)
+                audioRecord!!.read(shortAudioData, 0, shortAudioData.size)
 
+                println("SHOWING shortAudioData: ${shortAudioData.sliceArray(0..99).contentToString()}")
 
-            audioRecord!!.startRecording()
-            audioTrack!!.play()
+                //to amplify the sound, does not have sense if intGain =1
+                for (i in shortAudioData.indices) {
+                    shortAudioData[i] = (shortAudioData[i] * intGain).toShort()
+                        .coerceIn(Short.MIN_VALUE, Short.MAX_VALUE)
+                }
 
-            isActive = true
-            audioThread = Thread {//Le thread empeche le code de bloquer sur le while et d'avoir l'acces au bouton stop
-                while (isPlaying) {
-                    Thread.sleep(1)
-                    //we read the bytes captured by audioRecord and save them in SHORT FORMAT inside shortAudioData (not bytes)
-                    audioRecord!!.read(shortAudioData, 0, shortAudioData.size)
+                println("SHOWING shortAudioData after using gain: ${shortAudioData.sliceArray(0..99).contentToString()}")
 
-                    println("SHOWING shortAudioData: ${shortAudioData.sliceArray(0..99).contentToString()}")
-
-                    //to amplify the sound
-                    for (i in shortAudioData.indices) {
-                        shortAudioData[i] = (shortAudioData[i] * intGain).toShort().coerceIn(Short.MIN_VALUE, Short.MAX_VALUE)
-                    }
-
-                    println("SHOWING shortAudioData after using gain: ${shortAudioData.sliceArray(0..99).contentToString()}")
-
-                    //testing to see if there is interference between microphone and speakers
-                    Thread.sleep(2)
-
-
-                    //TODO(): the sound is bad:
-                    // You can try using audio processing techniques to improve the sound quality.
-                    // For example, you could use noise reduction, equalization, or compression to reduce unwanted noise and enhance the clarity of your voice
-
-
-                    if (audioTrack?.playState == AudioTrack.PLAYSTATE_PLAYING) {
-                        audioTrack!!.write(shortAudioData, 0, shortAudioData.size)
-                    }
+                if (audioTrack?.playState == AudioTrack.PLAYSTATE_PLAYING) {
+                    audioTrack!!.write(shortAudioData, 0, shortAudioData.size)
                 }
             }
-            audioThread!!.start()
         }
+        audioThread!!.start()
     }
 }
 
