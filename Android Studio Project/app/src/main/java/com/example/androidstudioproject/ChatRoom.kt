@@ -9,10 +9,8 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import org.json.JSONArray
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
@@ -27,19 +25,30 @@ class ChatRoom : AppCompatActivity() {
 
     private val databaseClient = MongoClient()
     private var currentRoom = JSONObject()
+    private var localMessages = JSONArray()
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_room)
 
+        val scope = CoroutineScope(Dispatchers.Default)
+        scope.launch {
+            while (true){
+                fetchCurrentRoomJSON()
+                runOnUiThread{ syncMessages(currentRoom.getJSONArray("messages")) }
+                delay(2000)
+            }
+        }
+
         titleText = findViewById(R.id.titleText)
 
         GlobalScope.launch {
 
             // the following code assumes the Global Var Room Code is of an existing room code
-            currentRoom = databaseClient.findOne("Rooms", JSONObject().put("code", GlobalVars.currentRoomCode))
-            runOnUiThread{
+            fetchCurrentRoomJSON()
+            runOnUiThread {
+
                 titleText.text = currentRoom.getString("name")
 
                 messageInput.isEnabled = true
@@ -47,6 +56,7 @@ class ChatRoom : AppCompatActivity() {
                 sendButton.setBackgroundResource(R.drawable.normal_btn_bg)
 
                 showRoomCodePopup()
+                syncMessages(currentRoom.getJSONArray("messages"))
             }
         }
 
@@ -73,16 +83,29 @@ class ChatRoom : AppCompatActivity() {
 
         sendButton = findViewById(R.id.sendButton)
         sendButton.setOnClickListener{
-            send()
-        }
 
+            if(messageInput.text.toString().trim().isEmpty()){
+
+                showMessageBox("Please type a message first.")
+                return@setOnClickListener
+            }
+
+            val newMessage = JSONObject().apply {
+                put("username", GlobalVars.currentUser)
+                put("content", messageInput.text.toString().trim())
+                put("timestamp", currentTimestamp())
+            }
+            GlobalScope.launch { handleSend(newMessage) }
+            messageInput.text.clear()
+            messageInput.requestFocus()
+        }
     }
     private fun showRoomCodePopup(){
 
         // Build the alert dialog
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Welcome to ${currentRoom.getString("name")}!")
-        builder.setMessage("This room's code is ${GlobalVars.currentRoomCode}.\nShare it with your friends so they can join!")
+        builder.setMessage("Creator: ${currentRoom.getString("creator")}\nThis room's code is ${GlobalVars.currentRoomCode}.\nShare it with your friends so they can join!")
         builder.setPositiveButton("Copy Code") { _, _ ->
 
             // Copy the code to clipboard
@@ -126,24 +149,23 @@ class ChatRoom : AppCompatActivity() {
         messageList.addView(messageLayout)
 
     }
-    private fun send(){
+    private suspend fun handleSend(newMessage: JSONObject){
 
-        if(messageInput.text.toString().trim().isEmpty()){
+        databaseClient.addToMessages(currentRoom.getString("code"), newMessage)
+    }
+    private suspend fun fetchCurrentRoomJSON(){
 
-            showMessageBox("Please type a message first.")
-            return
+        currentRoom = databaseClient
+            .findOne("Rooms", JSONObject()
+                .put("code", GlobalVars.currentRoomCode))
+    }
+    private fun syncMessages(newMessages: JSONArray){
+
+        for(i in localMessages.length() until newMessages.length()){
+            addMessageToScrollView(newMessages.getJSONObject(i))
+            scrollToBottom()
         }
-
-        val newMessage = JSONObject().apply {
-            put("username", GlobalVars.currentUser)
-            put("content", messageInput.text.toString().trim())
-            put("timestamp", currentTimestamp())
-        }
-
-        addMessageToScrollView(newMessage)
-        messageInput.text.clear()
-        scrollToBottom()
-        messageInput.requestFocus()
+        localMessages = newMessages // update the local messages
     }
     private fun timestampToString(epoch: Long): String {
 

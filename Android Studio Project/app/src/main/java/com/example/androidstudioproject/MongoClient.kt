@@ -109,4 +109,26 @@ class MongoClient {
                 )
         )
     }
+    suspend fun addToMessages(roomCode: String, newMessage: JSONObject) :JSONObject {
+
+        val filter = JSONObject().put("code", roomCode)
+
+        return makeAPIRequest(
+
+            endpoint = "https://eu-central-1.aws.data.mongodb-api.com/app/data-wzbfu/endpoint/data/v1/action/updateOne",
+
+            headers = JSONObject()
+                .put("content-type", "application/json")
+                .put("apiKey", apiKey),
+
+            body = JSONObject()
+                .put("dataSource", "Cluster1")
+                .put("database", "DiscordReplica")
+                .put("collection", "Rooms")
+                .put("filter", filter)
+                .put("update", JSONObject()
+                    .put("\$addToSet", JSONObject().put("messages", newMessage))
+                )
+        )
+    }
 }
