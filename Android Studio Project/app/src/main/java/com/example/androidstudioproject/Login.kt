@@ -100,7 +100,7 @@ class Login : AppCompatActivity() {
         }
 
         // set global user variable
-        GlobalVars.currentUser = usernameResult.getString("username")
+        GlobalVars.currentUser = validResult.getString("username")
         // switch to homepage screen
         startActivity(Intent(this, HomePage::class.java))
     }
