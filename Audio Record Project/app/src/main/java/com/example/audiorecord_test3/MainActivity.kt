@@ -13,15 +13,14 @@ class MainActivity : AppCompatActivity() {
     private var audioTrack: AudioTrack? = null
     private var intBufferSize = 0
     private lateinit var shortAudioData: ShortArray
-    private var intGain = 1 //put it to 3
+    private var intGain = 1
     private var isActive = false
     private var audioThread: Thread? = null
     private var isRecording = false
     private var isPlaying = false
 
-    //TODO(): adapt the values to get the best performance: (for now it for a samsung S7 edge)
-    private val audioSource = MediaRecorder.AudioSource.DEFAULT
-    private val sampleRate = 48000
+    private val audioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION //so we can use earphones
+    private val sampleRate = 44100
     private val channelConfig = AudioFormat.CHANNEL_IN_STEREO
     private val audioFormat = AudioFormat.ENCODING_PCM_16BIT
 
