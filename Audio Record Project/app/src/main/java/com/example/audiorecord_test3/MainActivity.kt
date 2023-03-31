@@ -19,7 +19,6 @@ class MainActivity : AppCompatActivity() {
     private var intGain = 1
     private var isActive = false
     private var audioThread: Thread? = null
-    private var isPlaying = false
     private val deferred = CompletableDeferred<Boolean>()
 
     private val audioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION //so we can use earphones
@@ -54,18 +53,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun buttonStart() {
-        if (!isPlaying) {
-            isPlaying = true
-            GlobalScope.launch {
-                startCommunication()
-            }
+        GlobalScope.launch {
+            startCommunication()
         }
-
     }
     fun buttonStop() {
-        println("accessedddddd")
         isActive= false
-        isPlaying = false
         audioTrack?.stop()
         audioRecord?.stop()
         audioRecord?.release()
@@ -153,7 +146,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun threadLoop(): Thread? {
         return Thread {//Le thread empeche le code de bloquer sur le while et d'avoir l'acces au bouton stop
-            while (isPlaying) {
+            while (isActive) {
                 //we read the bytes captured by audioRecord and save them in SHORT FORMAT inside shortAudioData (not bytes)
                 audioRecord!!.read(shortAudioData, 0, shortAudioData.size)
 
