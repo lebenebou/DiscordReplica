@@ -34,7 +34,6 @@ class MainActivity : AppCompatActivity() {
         val startButton = findViewById<Button>(R.id.button)
         val stopButton = findViewById<Button>(R.id.button2)
         startButton.setOnClickListener {
-            println(isActive)
             if(!isActive){
                 isActive = true
                 buttonStart()
@@ -105,7 +104,6 @@ class MainActivity : AppCompatActivity() {
             deferred.await() //we suspend the activity till the user answer
         }
 
-        println("ENTERING HERE")
         audioRecord = AudioRecord(
             audioSource,
             sampleRate,
@@ -144,7 +142,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun threadLoop(): Thread? {
+    private fun threadLoop(): Thread {
         return Thread {//Le thread empeche le code de bloquer sur le while et d'avoir l'acces au bouton stop
             while (isActive) {
                 //we read the bytes captured by audioRecord and save them in SHORT FORMAT inside shortAudioData (not bytes)
