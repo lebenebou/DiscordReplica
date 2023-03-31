@@ -62,7 +62,7 @@ class ChatRoom : AppCompatActivity() {
             send()
         }
     }
-    private fun addMessage(message: JSONObject){
+    private fun addMessageToScrollView(message: JSONObject){
 
         val messageLayout = LinearLayout(this)
         messageLayout.orientation = LinearLayout.VERTICAL
@@ -92,7 +92,7 @@ class ChatRoom : AppCompatActivity() {
     }
     private fun send(){
 
-        if(messageInput.text.toString().isEmpty()){
+        if(messageInput.text.toString().trim().isEmpty()){
 
             showMessageBox("Please type a message first.")
             return
@@ -100,13 +100,14 @@ class ChatRoom : AppCompatActivity() {
 
         val newMessage = JSONObject().apply {
             put("username", GlobalVars.currentUser)
-            put("content", messageInput.text.toString())
+            put("content", messageInput.text.toString().trim())
             put("timestamp", currentTimestamp())
         }
 
-        addMessage(newMessage)
+        addMessageToScrollView(newMessage)
         messageInput.text.clear()
         scrollToBottom()
+        messageInput.requestFocus()
     }
     private fun timestampToString(epoch: Long): String {
 
