@@ -10,12 +10,20 @@ import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
 
 class HomePage : AppCompatActivity() {
 
     private lateinit var upperButton: Button
     private lateinit var lowerButton: Button
     private lateinit var codeInput: EditText
+
+    private val mongoClient = MongoClient()
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -61,7 +69,25 @@ class HomePage : AppCompatActivity() {
         upperButton.text = "Join"
         upperButton.setBackgroundResource(R.drawable.green_btn_bg)
         upperButton.setOnClickListener{
-            joinRoom(codeInput.text.toString().lowercase())
+
+            val givenCode = codeInput.text.toString().trim().uppercase()
+            if(givenCode.isEmpty()) return@setOnClickListener showMessageBox("Please provide a code.")
+            if(givenCode.length != 6) return@setOnClickListener showMessageBox("This code is invalid")
+
+            // code is valid, attempt to join room
+            GlobalScope.launch {
+
+                runOnUiThread{ startLoadingMode() }
+
+                val roomResult = mongoClient.findOne("Rooms", JSONObject().put("code", givenCode))
+
+                withContext(Dispatchers.Main){
+                    handleJoinAttempt(roomResult)
+                    runOnUiThread{ endLoadingMode() }
+                }
+
+
+            }
         }
 
         lowerButton.text = "Cancel"
@@ -70,16 +96,13 @@ class HomePage : AppCompatActivity() {
             setNormalState()
         }
     }
-    private fun joinRoom(roomCode: String){
+    private fun handleJoinAttempt(roomResult: JSONObject){
 
-        if(codeInput.text.toString().isEmpty()){
-            showMessageBox("Please provide a code.")
-            return
-        }
+        if(roomResult.length()==0) return showMessageBox("This code doesn't match any open rooms.")
 
-        if(true){
-            startActivity(Intent(this, ChatRoom::class.java))
-        }
+        // room exists
+        GlobalVars.currentRoomCode = roomResult.getString("code")
+        startActivity(Intent(this, ChatRoom::class.java))
     }
     private fun createRoom(){
         startActivity(Intent(this, CreateRoom::class.java))
@@ -94,6 +117,22 @@ class HomePage : AppCompatActivity() {
 
         val alert = builder.create()
         alert.show()
+    }
+    private fun startLoadingMode() {
+
+        codeInput.isEnabled = false
+        upperButton.isEnabled = false
+        lowerButton.isEnabled = false
+
+        upperButton.setBackgroundResource(R.drawable.grey_btn_bg)
+    }
+    private fun endLoadingMode() {
+
+        codeInput.isEnabled = true
+        upperButton.isEnabled = true
+        lowerButton.isEnabled = true
+
+        upperButton.setBackgroundResource(R.drawable.green_btn_bg)
     }
     private fun dismissKeyboard(){
 

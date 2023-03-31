@@ -1,9 +1,6 @@
 package com.example.androidstudioproject
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.DialogInterface
+import android.content.*
 import android.graphics.Color
 import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
@@ -39,6 +36,8 @@ class ChatRoom : AppCompatActivity() {
         titleText = findViewById(R.id.titleText)
 
         GlobalScope.launch {
+
+            // the following code assumes the Global Var Room Code is of an existing room code
             currentRoom = mongoClient.findOne("Rooms", JSONObject().put("code", GlobalVars.currentRoomCode))
             runOnUiThread{
                 titleText.text = currentRoom.getString("name")
@@ -90,6 +89,7 @@ class ChatRoom : AppCompatActivity() {
             val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clipData = ClipData.newPlainText("text", GlobalVars.currentRoomCode)
             clipboardManager.setPrimaryClip(clipData)
+            showRoomCodePopup()
 
             Toast.makeText(this, "Code copied!", Toast.LENGTH_SHORT).show()
         }
