@@ -11,7 +11,6 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-
 class MainActivity : AppCompatActivity() {
     private var audioRecord: AudioRecord? = null
     private var audioTrack: AudioTrack? = null
@@ -24,14 +23,12 @@ class MainActivity : AppCompatActivity() {
     private var isPlaying = false
     private val deferred = CompletableDeferred<Boolean>()
 
-
     private val audioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION //so we can use earphones
     private val sampleRate = 44100
     private val channelConfig = AudioFormat.CHANNEL_IN_STEREO
     private val audioFormat = AudioFormat.ENCODING_PCM_16BIT
 
 
-    //TODO(): quand on refuse de donnee l'acces au microphone, on ne doit pas continuer comme si de rien n'etait
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -68,6 +65,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
     fun buttonStop() {
         println("Button stop has been clicked!")
         isRecording = false
@@ -78,7 +76,6 @@ class MainActivity : AppCompatActivity() {
         audioTrack?.release()
     }
 
-
     @Override
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -88,7 +85,6 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             0 -> {
-                // If the user granted permission to access the microphone, continue with the app's logic
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     println("PERMISSION GRANTED")
                     deferred.complete(true)
@@ -122,74 +118,64 @@ class MainActivity : AppCompatActivity() {
                 this,
                 arrayOf(Manifest.permission.RECORD_AUDIO), 0
             )
+            //we suspend the activity till the user answer:
             deferred.await()
         }
 
-            audioRecord = AudioRecord(
-                audioSource,
-                sampleRate,
-                channelConfig,
-                audioFormat,
-                intBufferSize
+        audioRecord = AudioRecord(
+            audioSource,
+            sampleRate,
+            channelConfig,
+            audioFormat,
+            intBufferSize
+        )
+
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+            .build()
+
+        audioTrack = AudioTrack.Builder()
+            .setAudioAttributes(audioAttributes)
+            .setAudioFormat(
+                AudioFormat.Builder()
+                    .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                    .setSampleRate(intRecordSampleRate)
+                    .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
+                    .build()
             )
+            .setBufferSizeInBytes(intBufferSize)
+            .build()
 
-            val audioAttributes = AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                .build()
+        //Set the playback rate to the sampleRate
+        audioTrack!!.playbackRate = intRecordSampleRate
 
-            audioTrack = AudioTrack.Builder()
-                .setAudioAttributes(audioAttributes)
-                .setAudioFormat(
-                    AudioFormat.Builder()
-                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                        .setSampleRate(intRecordSampleRate)
-                        .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
-                        .build()
-                )
-                .setBufferSizeInBytes(intBufferSize)
-                .build()
+        
+        audioRecord!!.startRecording()
+        audioTrack!!.play()
 
-            //Set the playback rate to the sampleRate
-            audioTrack!!.playbackRate = intRecordSampleRate
+        isActive = true
+        audioThread = Thread {//Le thread empeche le code de bloquer sur le while et d'avoir l'acces au bouton stop
+            while (isPlaying) {
+                //we read the bytes captured by audioRecord and save them in SHORT FORMAT inside shortAudioData (not bytes)
+                audioRecord!!.read(shortAudioData, 0, shortAudioData.size)
 
+                println("SHOWING shortAudioData: ${shortAudioData.sliceArray(0..99).contentToString()}")
 
-            audioRecord!!.startRecording()
-            audioTrack!!.play()
-
-            isActive = true
-            audioThread =
-                Thread {//Le thread empeche le code de bloquer sur le while et d'avoir l'acces au bouton stop
-                    while (isPlaying) {
-                        //we read the bytes captured by audioRecord and save them in SHORT FORMAT inside shortAudioData (not bytes)
-                        audioRecord!!.read(shortAudioData, 0, shortAudioData.size)
-
-                        println(
-                            "SHOWING shortAudioData: ${
-                                shortAudioData.sliceArray(0..99).contentToString()
-                            }"
-                        )
-
-                        //to amplify the sound
-                        for (i in shortAudioData.indices) {
-                            shortAudioData[i] = (shortAudioData[i] * intGain).toShort()
-                                .coerceIn(Short.MIN_VALUE, Short.MAX_VALUE)
-                        }
-
-                        println(
-                            "SHOWING shortAudioData after using gain: ${
-                                shortAudioData.sliceArray(
-                                    0..99
-                                ).contentToString()
-                            }"
-                        )
-
-                        if (audioTrack?.playState == AudioTrack.PLAYSTATE_PLAYING) {
-                            audioTrack!!.write(shortAudioData, 0, shortAudioData.size)
-                        }
-                    }
+                //to amplify the sound, does not have sense if intGain =1
+                for (i in shortAudioData.indices) {
+                    shortAudioData[i] = (shortAudioData[i] * intGain).toShort()
+                        .coerceIn(Short.MIN_VALUE, Short.MAX_VALUE)
                 }
-            audioThread!!.start()
+
+                println("SHOWING shortAudioData after using gain: ${shortAudioData.sliceArray(0..99).contentToString()}")
+
+                if (audioTrack?.playState == AudioTrack.PLAYSTATE_PLAYING) {
+                    audioTrack!!.write(shortAudioData, 0, shortAudioData.size)
+                }
+            }
         }
+        audioThread!!.start()
     }
+}
 
