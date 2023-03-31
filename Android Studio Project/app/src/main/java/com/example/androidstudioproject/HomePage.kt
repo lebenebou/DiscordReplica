@@ -82,7 +82,6 @@ class HomePage : AppCompatActivity() {
         }
     }
     private fun createRoom(){
-
         startActivity(Intent(this, CreateRoom::class.java))
     }
     private fun showMessageBox(message: String) {

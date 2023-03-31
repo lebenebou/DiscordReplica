@@ -1,17 +1,16 @@
 package com.example.androidstudioproject
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
+import android.content.DialogInterface
 import android.graphics.Color
 import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.Button
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.ScrollView
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -29,13 +28,29 @@ class ChatRoom : AppCompatActivity() {
     private lateinit var scrollView: ScrollView
     private lateinit var titleText: TextView
 
+    private val mongoClient = MongoClient()
+    private var currentRoom = JSONObject()
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_room)
 
         titleText = findViewById(R.id.titleText)
-        titleText.text = GlobalVars.currentRoomName
+
+        GlobalScope.launch {
+            currentRoom = mongoClient.findOne("Rooms", JSONObject().put("code", GlobalVars.currentRoomCode))
+            runOnUiThread{
+                titleText.text = currentRoom.getString("name")
+
+                messageInput.isEnabled = true
+                sendButton.isEnabled = true
+                sendButton.setBackgroundResource(R.drawable.normal_btn_bg)
+
+                showRoomCodePopup()
+            }
+        }
+
         val randomColor = Color.argb(255, (40..200).random(), (40..200).random(), (40..200).random())
         titleText.setBackgroundColor(randomColor)
 
@@ -61,6 +76,27 @@ class ChatRoom : AppCompatActivity() {
         sendButton.setOnClickListener{
             send()
         }
+
+    }
+    private fun showRoomCodePopup(){
+
+        // Build the alert dialog
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Welcome to ${currentRoom.getString("name")}!")
+        builder.setMessage("This room's code is ${GlobalVars.currentRoomCode}.\nShare it with your friends so they can join!")
+        builder.setPositiveButton("Copy Code") { _, _ ->
+
+            // Copy the code to clipboard
+            val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clipData = ClipData.newPlainText("text", GlobalVars.currentRoomCode)
+            clipboardManager.setPrimaryClip(clipData)
+
+            Toast.makeText(this, "Code copied!", Toast.LENGTH_SHORT).show()
+        }
+        builder.setNegativeButton("Dismiss") { dialog, _ -> dialog.dismiss() }
+
+        val alertDialog = builder.create()
+        alertDialog.show()
     }
     private fun addMessageToScrollView(message: JSONObject){
 
