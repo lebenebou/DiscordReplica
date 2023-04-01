@@ -20,7 +20,7 @@ class CreateRoom : AppCompatActivity() {
     private lateinit var createButton: Button
     private lateinit var cancelButton: Button
 
-    private val mongoClient = MongoClient()
+    private val databaseClient = MongoClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -62,7 +62,7 @@ class CreateRoom : AppCompatActivity() {
         while(response.length() > 0){ // keep changing code until it is unique
 
             newCode = newRandomCode()
-            response = mongoClient.findOne("Rooms", JSONObject().put("code", newCode))
+            response = databaseClient.findOne("Rooms", JSONObject().put("code", newCode))
         }
 
         GlobalVars.currentRoomCode = newCode
@@ -71,11 +71,12 @@ class CreateRoom : AppCompatActivity() {
 
             put("code", newCode)
             put("name", name)
+            put("creator", GlobalVars.currentUser)
             put("description", desc)
             put("messages", JSONArray()) // empty list of messages
             put("active_users", JSONArray().put(GlobalVars.currentUser)) // empty list of messages
         }
-        mongoClient.insertOne("Rooms", newRoom)
+        databaseClient.insertOne("Rooms", newRoom)
     }
     private fun showMessageBox(message: String) {
 
