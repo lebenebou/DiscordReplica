@@ -36,7 +36,10 @@ class ChatRoom : AppCompatActivity() {
         scope.launch {
             while (true){
                 fetchCurrentRoomJSON()
-                runOnUiThread{ syncMessages(currentRoom.getJSONArray("messages")) }
+                runOnUiThread{
+                    syncMessages(currentRoom.getJSONArray("messages"))
+                    endSendingMode()
+                }
                 delay(2000)
             }
         }
@@ -95,7 +98,11 @@ class ChatRoom : AppCompatActivity() {
                 put("content", messageInput.text.toString().trim())
                 put("timestamp", currentTimestamp())
             }
-            GlobalScope.launch { handleSend(newMessage) }
+            GlobalScope.launch {
+
+                runOnUiThread{ startSendingMode() }
+                handleSend(newMessage)
+            }
             messageInput.text.clear()
             messageInput.requestFocus()
         }
@@ -196,5 +203,17 @@ class ChatRoom : AppCompatActivity() {
         scrollView.post{
             scrollView.fullScroll(ScrollView.FOCUS_DOWN)
         }
+    }
+    private fun startSendingMode(){
+
+        sendButton.isEnabled = false
+        sendButton.text = "Sending..."
+        sendButton.setBackgroundResource(R.drawable.grey_btn_bg)
+    }
+    private fun endSendingMode(){
+
+        sendButton.isEnabled = true
+        sendButton.text = "Send"
+        sendButton.setBackgroundResource(R.drawable.normal_btn_bg)
     }
 }
