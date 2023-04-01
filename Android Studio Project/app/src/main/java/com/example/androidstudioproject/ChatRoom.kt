@@ -32,11 +32,15 @@ class ChatRoom : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_room)
 
+        // this scope.launch runs every 2 seconds
         val scope = CoroutineScope(Dispatchers.Default)
         scope.launch {
+
             while (true){
-                fetchCurrentRoomJSON()
-                runOnUiThread{
+
+                fetchCurrentRoomJSON() // update currentRoom
+
+                runOnUiThread{ // sync messages from currentRoom to the UI
                     syncMessages(currentRoom.getJSONArray("messages"))
                     endSendingMode()
                 }
