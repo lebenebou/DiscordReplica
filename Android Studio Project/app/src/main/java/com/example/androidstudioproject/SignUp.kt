@@ -86,7 +86,7 @@ class SignUp : AppCompatActivity() {
 
                 runOnUiThread{ startLoadingMode() }
 
-                if(!isConnected(this@SignUp)){ // check internet connection
+                if(!databaseClient.isConnected(this@SignUp)){ // check internet connection
                     runOnUiThread{ showMessageBox("Unable to connect.\nPlease make sure you have an active internet connection.")}
                     return@launch
                 }
@@ -193,21 +193,5 @@ class SignUp : AppCompatActivity() {
         // change colors back to normal
         findViewById<TextView>(R.id.loginText).setTextColor(ContextCompat.getColor(this, R.color.purple_700))
         signUpButton.setBackgroundResource(R.drawable.normal_btn_bg)
-    }
-    private suspend fun isConnected(context: Context): Boolean {
-
-        return withContext(Dispatchers.IO) {
-            try {
-                val url = URL("https://www.google.com")
-                val connection = url.openConnection() as HttpURLConnection
-                connection.setRequestProperty("User-Agent", "Android")
-                connection.setRequestProperty("Connection", "close")
-                connection.connectTimeout = 1000
-                connection.connect()
-                connection.responseCode == 200
-            } catch (e: IOException) {
-                false
-            }
-        }
     }
 }

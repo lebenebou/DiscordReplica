@@ -1,17 +1,40 @@
 
 package com.example.androidstudioproject
 
+import android.content.Context
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
+import java.io.IOException
+import java.net.HttpURLConnection
+import java.net.URL
 import java.nio.charset.StandardCharsets
 
 class MongoClient {
 
     private val apiKey = GlobalVars.MongoAPIKey
     private val httpClient = OkHttpClient()
+
+    suspend fun isConnected(context: Context): Boolean {
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val url = URL("https://www.mongodb.com")
+                val connection = url.openConnection() as HttpURLConnection
+                connection.setRequestProperty("User-Agent", "Android")
+                connection.setRequestProperty("Connection", "close")
+                connection.connectTimeout = 1000
+                connection.connect()
+                connection.responseCode == 200
+            } catch (e: IOException) {
+                false
+            }
+        }
+    }
 
     private suspend fun makeAPIRequest(endpoint: String, headers: JSONObject, body: JSONObject) : JSONObject {
 
