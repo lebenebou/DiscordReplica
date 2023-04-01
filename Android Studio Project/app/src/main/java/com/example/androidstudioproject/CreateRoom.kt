@@ -47,6 +47,11 @@ class CreateRoom : AppCompatActivity() {
 
                 runOnUiThread{ startLoadingMode() }
 
+                if(!databaseClient.isConnected(this@CreateRoom)){
+                    runOnUiThread{ showMessageBox("Unable to connect.\nPlease make sure you have an active internet connection.")}
+                    return@launch
+                }
+
                 createRoom(roomName, roomDesc)
                 startActivity(Intent(this@CreateRoom, ChatRoom::class.java))
 
@@ -56,12 +61,12 @@ class CreateRoom : AppCompatActivity() {
     }
     private suspend fun createRoom(name: String, desc: String){
 
-        var newCode = newRandomCode() // 6 random letters/numbers
+        var newCode = generateRandomCode() // 6 random letters/numbers
         var response = JSONObject()
 
         while(response.length() > 0){ // keep changing code until it is unique
 
-            newCode = newRandomCode()
+            newCode = generateRandomCode()
             response = databaseClient.findOne("Rooms", JSONObject().put("code", newCode))
         }
 
@@ -89,7 +94,7 @@ class CreateRoom : AppCompatActivity() {
         val alert = builder.create()
         alert.show()
     }
-    private fun newRandomCode(): String {
+    private fun generateRandomCode(): String {
 
         val charPool: List<Char> = ('A'..'Z') + ('0'..'9')
         return (1..6)

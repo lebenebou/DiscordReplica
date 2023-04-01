@@ -79,14 +79,17 @@ class HomePage : AppCompatActivity() {
 
                 runOnUiThread{ startLoadingMode() }
 
+                if(!databaseClient.isConnected(this@HomePage)){
+                    runOnUiThread{ showMessageBox("Unable to connect.\nPlease make sure you have an active internet connection.")}
+                    return@launch
+                }
+
                 val roomResult = databaseClient.findOne("Rooms", JSONObject().put("code", givenCode))
 
                 withContext(Dispatchers.Main){
                     handleJoinAttempt(roomResult)
                     runOnUiThread{ endLoadingMode() }
                 }
-
-
             }
         }
 
