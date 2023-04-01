@@ -1,5 +1,6 @@
 package com.example.androidstudioproject
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
@@ -17,6 +18,9 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import java.io.IOException
+import java.net.HttpURLConnection
+import java.net.URL
 
 class SignUp : AppCompatActivity() {
 
@@ -66,7 +70,6 @@ class SignUp : AppCompatActivity() {
             }
 
             // password validation check
-            println(userInput.getString("password"))
             if(!isValidPass(userInput.getString("password"))){
 
                 showMessageBox("Password does not meet the following requirements:\n\n" +
@@ -78,11 +81,15 @@ class SignUp : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // simulate loading screen here...
-            startLoadingMode()
-
             // create a thread to fetch from database (async)
             GlobalScope.launch(Dispatchers.IO){
+
+                runOnUiThread{ startLoadingMode() }
+
+                if(!isConnected(this@SignUp)){ // check internet connection
+                    runOnUiThread{ showMessageBox("Unable to connect.\nPlease make sure you have an active internet connection.")}
+                    return@launch
+                }
 
                 val emailResult = databaseClient.findOne("Users", JSONObject().put("email", userInput.get("email")))
                 val usernameResult = databaseClient.findOne("Users", JSONObject().put("username", userInput.get("username")))
@@ -186,5 +193,21 @@ class SignUp : AppCompatActivity() {
         // change colors back to normal
         findViewById<TextView>(R.id.loginText).setTextColor(ContextCompat.getColor(this, R.color.purple_700))
         signUpButton.setBackgroundResource(R.drawable.normal_btn_bg)
+    }
+    private suspend fun isConnected(context: Context): Boolean {
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val url = URL("https://www.google.com")
+                val connection = url.openConnection() as HttpURLConnection
+                connection.setRequestProperty("User-Agent", "Android")
+                connection.setRequestProperty("Connection", "close")
+                connection.connectTimeout = 1000
+                connection.connect()
+                connection.responseCode == 200
+            } catch (e: IOException) {
+                false
+            }
+        }
     }
 }
