@@ -49,6 +49,8 @@ class ChatRoom : AppCompatActivity() {
         GlobalScope.launch {
 
             // the following code assumes the Global Var Room Code is of an existing room code
+
+            databaseClient.addToActiveUsers(GlobalVars.currentRoomCode, GlobalVars.currentUser)
             fetchCurrentRoomJSON()
             runOnUiThread {
 
@@ -106,6 +108,27 @@ class ChatRoom : AppCompatActivity() {
             messageInput.text.clear()
             messageInput.requestFocus()
         }
+    }
+
+    override fun onBackPressed(){
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Leaving Room")
+        builder.setMessage("Are you sure you want to leave this room?")
+
+        builder.setPositiveButton("Yes") { _, _ ->
+
+            GlobalScope.launch { leaveRoom() }
+            finish()
+        }
+        builder.setNegativeButton("No") { dialog, _ ->
+            dialog.dismiss()
+        }
+
+        builder.show()
+    }
+    private suspend fun leaveRoom(){
+        databaseClient.removeFromActiveUsers(GlobalVars.currentRoomCode, GlobalVars.currentUser)
     }
     private fun showRoomCodePopup(){
 

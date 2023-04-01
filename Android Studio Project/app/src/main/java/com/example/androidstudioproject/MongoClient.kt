@@ -109,9 +109,8 @@ class MongoClient {
                 )
         )
     }
-    suspend fun addToMessages(roomCode: String, newMessage: JSONObject) :JSONObject {
 
-        val filter = JSONObject().put("code", roomCode)
+    private suspend fun addToArray(collectionName: String, filter: JSONObject, arrayName: String, element: Any) :JSONObject {
 
         return makeAPIRequest(
 
@@ -124,11 +123,45 @@ class MongoClient {
             body = JSONObject()
                 .put("dataSource", "Cluster1")
                 .put("database", "DiscordReplica")
-                .put("collection", "Rooms")
+                .put("collection", collectionName)
                 .put("filter", filter)
                 .put("update", JSONObject()
-                    .put("\$addToSet", JSONObject().put("messages", newMessage))
+                    .put("\$addToSet", JSONObject().put(arrayName, element))
                 )
         )
+    }
+    private suspend fun removeFromArray(collectionName: String, filter: JSONObject, arrayName: String, element: Any) :JSONObject {
+
+        return makeAPIRequest(
+
+            endpoint = "https://eu-central-1.aws.data.mongodb-api.com/app/data-wzbfu/endpoint/data/v1/action/updateOne",
+
+            headers = JSONObject()
+                .put("content-type", "application/json")
+                .put("apiKey", apiKey),
+
+            body = JSONObject()
+                .put("dataSource", "Cluster1")
+                .put("database", "DiscordReplica")
+                .put("collection", collectionName)
+                .put("filter", filter)
+                .put("update", JSONObject()
+                    .put("\$pull", JSONObject().put(arrayName, element))
+                )
+        )
+    }
+    suspend fun addToMessages(roomCode: String, newMessage: JSONObject) :JSONObject {
+
+        return addToArray("Rooms",
+            JSONObject().put("code", roomCode),
+            "messages", newMessage)
+    }
+    suspend fun addToActiveUsers(roomCode: String, username: String) : JSONObject {
+
+        return addToArray("Rooms", JSONObject().put("code", roomCode), "active_users", username)
+    }
+    suspend fun removeFromActiveUsers(roomCode: String, username: String) : JSONObject {
+
+        return removeFromArray("Rooms", JSONObject().put("code", roomCode), "active_users", username)
     }
 }

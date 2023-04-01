@@ -74,7 +74,7 @@ class CreateRoom : AppCompatActivity() {
             put("creator", GlobalVars.currentUser)
             put("description", desc)
             put("messages", JSONArray()) // empty list of messages
-            put("active_users", JSONArray().put(GlobalVars.currentUser)) // empty list of messages
+            put("active_users", JSONArray()) // empty list of messages
         }
         databaseClient.insertOne("Rooms", newRoom)
     }
