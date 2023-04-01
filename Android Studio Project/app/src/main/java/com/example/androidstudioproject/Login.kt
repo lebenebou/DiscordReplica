@@ -1,15 +1,28 @@
 package com.example.androidstudioproject
 
+import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
-import android.widget.*
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import java.io.IOException
+import java.net.HttpURLConnection
+import java.net.InetSocketAddress
+import java.net.Socket
+import java.net.URL
 
 class Login : AppCompatActivity() {
 
@@ -44,19 +57,18 @@ class Login : AppCompatActivity() {
                 .put("identity_input", identityInput.text.toString().lowercase())
                 .put("password", passwordInput.text.toString())
 
-            if (userInput.get("identity_input")==""){
-                showMessageBox("Please provide a username or E-mail.")
-                return@setOnClickListener
-            }
-            if (userInput.get("password")==""){
-                showMessageBox("Please provide a password.")
-                return@setOnClickListener
-            }
+            if (userInput.get("identity_input")=="") return@setOnClickListener showMessageBox("Please provide a username or E-mail.")
+            if (userInput.get("password")=="") return@setOnClickListener showMessageBox("Please provide a password.")
 
-            // simulate loading screen here...
-            startLoadingMode()
             // start new thread to fetch from database
             GlobalScope.launch(Dispatchers.IO){
+
+                runOnUiThread{ startLoadingMode() }
+
+                if(!isConnected(this@Login)){ // check internet connection
+                    runOnUiThread{ showMessageBox("Unable to connect.\nPlease make sure you have an active internet connection.")}
+                    return@launch
+                }
 
                 val usernameResult = databaseClient.findOne("Users", JSONObject().put("username", userInput.getString("identity_input")))
                 val emailResult = databaseClient.findOne("Users", JSONObject().put("email", userInput.getString("identity_input")))
@@ -137,5 +149,21 @@ class Login : AppCompatActivity() {
         // change colors back to normal
         loginButton.setBackgroundResource(R.drawable.normal_btn_bg)
         signUpText.setTextColor(ContextCompat.getColor(this, R.color.purple_700))
+    }
+    private suspend fun isConnected(context: Context): Boolean {
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val url = URL("https://www.google.com")
+                val connection = url.openConnection() as HttpURLConnection
+                connection.setRequestProperty("User-Agent", "Android")
+                connection.setRequestProperty("Connection", "close")
+                connection.connectTimeout = 1000
+                connection.connect()
+                connection.responseCode == 200
+            } catch (e: IOException) {
+                false
+            }
+        }
     }
 }

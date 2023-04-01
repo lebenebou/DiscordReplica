@@ -17,7 +17,7 @@ class MongoClient {
 
         val mediaType = "application/json".toMediaType()
 
-        var requestBuilder = Request.Builder()
+        val requestBuilder = Request.Builder()
             .url(endpoint)
             .post(body.toString().toByteArray(StandardCharsets.UTF_8).toRequestBody(mediaType))
 
