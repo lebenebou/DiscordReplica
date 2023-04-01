@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -126,6 +127,7 @@ class Login : AppCompatActivity() {
         passwordInput.isEnabled = false
 
         loginButton.isEnabled = false
+        loginButton.text = "Logging In..."
 
         // change colors to grey
         loginButton.setBackgroundResource(R.drawable.grey_btn_bg)
@@ -138,6 +140,7 @@ class Login : AppCompatActivity() {
 
         loginButton.isEnabled = true
         signUpText.isEnabled = true
+        loginButton.text = "Log In"
 
         // change colors back to normal
         loginButton.setBackgroundResource(R.drawable.normal_btn_bg)

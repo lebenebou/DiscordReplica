@@ -5,10 +5,7 @@ import android.graphics.Color
 import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
@@ -26,9 +23,13 @@ class ChatRoom : AppCompatActivity() {
     private lateinit var scrollView: ScrollView
     private lateinit var titleText: TextView
 
+    private val roomColor = Color.argb(255, (40..200).random(), (40..200).random(), (40..200).random())
+
     private val databaseClient = MongoClient()
     private var currentRoom = JSONObject()
     private var localMessages = JSONArray()
+
+    var disconnected = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -40,6 +41,11 @@ class ChatRoom : AppCompatActivity() {
         scope.launch {
 
             while (true){
+
+                if(!databaseClient.isConnected(this@ChatRoom)){ // internet disconnected
+                    runOnUiThread{ connectionDropped() }
+                    return@launch
+                }
 
                 fetchCurrentRoomJSON() // update currentRoom
 
@@ -72,8 +78,7 @@ class ChatRoom : AppCompatActivity() {
             }
         }
 
-        val randomColor = Color.argb(255, (40..200).random(), (40..200).random(), (40..200).random())
-        titleText.setBackgroundColor(randomColor)
+        titleText.setBackgroundColor(roomColor)
 
         scrollView = findViewById(R.id.scrollView)
         scrollView.setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
@@ -99,6 +104,7 @@ class ChatRoom : AppCompatActivity() {
             if(messageInput.text.toString().trim().isEmpty()){
 
                 showMessageBox("Please type a message first.")
+                messageInput.text.clear()
                 return@setOnClickListener
             }
 
@@ -110,13 +116,18 @@ class ChatRoom : AppCompatActivity() {
             GlobalScope.launch {
 
                 runOnUiThread{ startSendingMode() }
+
+                if(!databaseClient.isConnected(this@ChatRoom)){ // internet disconnected
+                    runOnUiThread{ connectionDropped() }
+                    return@launch
+                }
+
                 handleSend(newMessage)
             }
             messageInput.text.clear()
             messageInput.requestFocus()
         }
     }
-
     @Deprecated("Deprecated in Java")
     override fun onBackPressed(){
 
@@ -152,6 +163,7 @@ class ChatRoom : AppCompatActivity() {
             }
             R.id.menu_users_in_room -> {
 
+                showOnlineUsers()
                 return true
             }
             R.id.menu_leave_room -> {
@@ -170,6 +182,32 @@ class ChatRoom : AppCompatActivity() {
 
         GlobalVars.currentRoomCode = "000000"
         databaseClient.removeFromActiveUsers(GlobalVars.currentRoomCode, GlobalVars.currentUser)
+    }
+    private fun showOnlineUsers(){
+
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.online_users_dialog, null)
+
+        val titleTextView = dialogView.findViewById<TextView>(R.id.popup_title)
+        titleTextView.text = "Users In This Room"
+
+        val nameList = dialogView.findViewById<ListView>(R.id.name_list)
+        val names = mutableListOf<String>()
+
+        val users = currentRoom.getJSONArray("active_users")
+        for(i in 0 until users.length()){
+            names.add(users.getString(i))
+        }
+        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, names)
+        nameList.adapter = adapter
+
+        val dialogBuilder = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setPositiveButton("OK") { dialog, _ ->
+                dialog.dismiss()
+            }
+
+        val dialog = dialogBuilder.create()
+        dialog.show()
     }
     private fun showRoomCodePopup(){
 
@@ -237,6 +275,23 @@ class ChatRoom : AppCompatActivity() {
             scrollToBottom()
         }
         localMessages = newMessages // update the local messages
+    }
+    private fun connectionDropped(){
+
+        if (disconnected) return
+        disconnected = true
+        // this function needs to run only on first disconnection
+
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage("Your internet connection dropped.\nPlease log back in.")
+            .setCancelable(false)
+            .setPositiveButton("OK") { _, _ ->
+                finish()
+                startActivity(Intent(this, Login::class.java))
+            }
+
+        val alert = builder.create()
+        alert.show()
     }
     private fun timestampToString(epoch: Long): String {
 
