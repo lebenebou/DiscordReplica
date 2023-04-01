@@ -5,6 +5,9 @@ import android.graphics.Color
 import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
@@ -125,6 +128,7 @@ class ChatRoom : AppCompatActivity() {
 
             GlobalScope.launch { leaveRoom() }
             finish()
+            startActivity(Intent(this, HomePage::class.java))
         }
         builder.setNegativeButton("No") { dialog, _ ->
             dialog.dismiss()
@@ -132,7 +136,39 @@ class ChatRoom : AppCompatActivity() {
 
         builder.show()
     }
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+
+        menuInflater.inflate(R.menu.chatroom_menu, menu)
+        return true
+    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        when(item.itemId){
+
+            R.id.menu_room_info -> {
+
+                showRoomCodePopup()
+                return true
+            }
+            R.id.menu_users_in_room -> {
+
+                return true
+            }
+            R.id.menu_leave_room -> {
+
+                this.onBackPressed()
+                return true
+            }
+            R.id.menu_logout -> {
+
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
     private suspend fun leaveRoom(){
+
+        GlobalVars.currentRoomCode = "000000"
         databaseClient.removeFromActiveUsers(GlobalVars.currentRoomCode, GlobalVars.currentUser)
     }
     private fun showRoomCodePopup(){

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_room_info"
+        android:title="Room Info"/>
+    <item
+        android:id="@+id/menu_users_in_room"
+        android:title="Online Users"/>
+    <item
+        android:id="@+id/menu_leave_room"
+        android:title="Leave Room"
+        android:titleTextColor="@color/teal_700"/>
+    <item
+        android:id="@+id/menu_logout"
+        android:title="Logout"/>
+</menu>
