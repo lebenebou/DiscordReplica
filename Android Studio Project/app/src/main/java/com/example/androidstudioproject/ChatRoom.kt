@@ -185,29 +185,17 @@ class ChatRoom : AppCompatActivity() {
     }
     private fun showOnlineUsers(){
 
-        val dialogView = LayoutInflater.from(this).inflate(R.layout.online_users_dialog, null)
+        var popupText = "Users In This Room:\n\n"
 
-        val titleTextView = dialogView.findViewById<TextView>(R.id.popup_title)
-        titleTextView.text = "Users In This Room"
+        val userList = currentRoom.getJSONArray("active_users")
 
-        val nameList = dialogView.findViewById<ListView>(R.id.name_list)
-        val names = mutableListOf<String>()
+        for(i in 0 until userList.length()){
 
-        val users = currentRoom.getJSONArray("active_users")
-        for(i in 0 until users.length()){
-            names.add(users.getString(i))
+            popupText += (i+1).toString() + ". "
+            popupText += userList.getString(i) + "\n"
         }
-        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, names)
-        nameList.adapter = adapter
 
-        val dialogBuilder = AlertDialog.Builder(this)
-            .setView(dialogView)
-            .setPositiveButton("OK") { dialog, _ ->
-                dialog.dismiss()
-            }
-
-        val dialog = dialogBuilder.create()
-        dialog.show()
+        showMessageBox(popupText)
     }
     private fun showRoomCodePopup(){
 
