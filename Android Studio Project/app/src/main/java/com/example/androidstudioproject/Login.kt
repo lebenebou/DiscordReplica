@@ -48,29 +48,27 @@ class Login : AppCompatActivity() {
         loginButton.setOnClickListener {
 
             val userInput = JSONObject()
-                .put("identity_input", identityInput.text.toString().lowercase())
-                .put("password", passwordInput.text.toString())
+                .put("identity_input", identityInput.text.toString().lowercase().trim())
+                .put("password", passwordInput.text.toString().trim())
 
-            if (userInput.get("identity_input")=="") return@setOnClickListener showMessageBox("Please provide a username or E-mail.")
-            if (userInput.get("password")=="") return@setOnClickListener showMessageBox("Please provide a password.")
+            if (userInput.get("identity_input")=="") return@setOnClickListener showMessageBox("Empty Input","Please provide a username or E-mail.")
+            if (userInput.get("password")=="") return@setOnClickListener showMessageBox("Empty Input","Please provide a password.")
 
             // start new thread to fetch from database
             GlobalScope.launch(Dispatchers.IO){
 
                 runOnUiThread{ startLoadingMode() }
 
-                if(!databaseClient.isConnected(this@Login)){ // check internet connection
-                    runOnUiThread{ showMessageBox("Unable to connect.\nPlease make sure you have an active internet connection.")}
-                    return@launch
+                try {
+                    val usernameResult = databaseClient.findOne("Users", JSONObject().put("username", userInput.getString("identity_input")))
+                    val emailResult = databaseClient.findOne("Users", JSONObject().put("email", userInput.getString("identity_input")))
+                    runOnUiThread{ handleLogin(userInput, usernameResult, emailResult) }
+                }
+                catch (e: Exception){
+                    runOnUiThread{ showMessageBox("Connection Failure", "Please make sure you have an active internet connection.")}
                 }
 
-                val usernameResult = databaseClient.findOne("Users", JSONObject().put("username", userInput.getString("identity_input")))
-                val emailResult = databaseClient.findOne("Users", JSONObject().put("email", userInput.getString("identity_input")))
 
-                // wait for thread to finish, then handleLogin with the received info
-                withContext(Dispatchers.Main){
-                    handleLogin(userInput, usernameResult, emailResult)
-                }
             }
         }
 
@@ -92,7 +90,7 @@ class Login : AppCompatActivity() {
 
         // findOne returned null for both username and email
         if(usernameResult.length()==0 && emailResult.length()==0){
-            showMessageBox("Invalid username or E-mail.")
+            showMessageBox("Account Not Found","Invalid username or E-mail.")
             return
         }
 
@@ -101,7 +99,7 @@ class Login : AppCompatActivity() {
 
         // check if password matches the not null result
         if(userInput.getString("password") != validResult.getString("password")){
-            showMessageBox("Incorrect password.")
+            showMessageBox("Incorrect password", "This password does not match the specified account.")
             return
         }
 
@@ -110,16 +108,18 @@ class Login : AppCompatActivity() {
         // switch to homepage screen
         startActivity(Intent(this, HomePage::class.java))
     }
-    private fun showMessageBox(message: String) {
+    private fun showMessageBox(title: String, message: String) {
 
-        // Shows message with OK button
         val builder = AlertDialog.Builder(this)
+        builder.setTitle(title)
         builder.setMessage(message)
-            .setCancelable(false)
-            .setPositiveButton("OK") { _, _ -> endLoadingMode() }
 
-        val alert = builder.create()
-        alert.show()
+        builder.setPositiveButton("OK") { dialog, _ ->
+
+            endLoadingMode()
+            dialog.dismiss()
+        }
+        builder.show()
     }
     private fun startLoadingMode(){
 

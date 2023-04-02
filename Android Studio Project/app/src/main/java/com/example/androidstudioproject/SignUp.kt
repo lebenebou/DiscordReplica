@@ -15,7 +15,6 @@ import androidx.core.content.ContextCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
 class SignUp : AppCompatActivity() {
@@ -48,27 +47,27 @@ class SignUp : AppCompatActivity() {
         signUpButton.setOnClickListener {
 
             val userInput = JSONObject()
-                .put("username", usernameInput.text.toString().lowercase())
-                .put("email", mailInput.text.toString().lowercase())
-                .put("password", passwordInput.text.toString())
+                .put("username", usernameInput.text.toString().lowercase().trim())
+                .put("email", mailInput.text.toString().lowercase().trim())
+                .put("password", passwordInput.text.toString().trim())
 
             // username validation check
             if(!isValidUsername(userInput.getString("username"))){
 
-                showMessageBox("Usernames must be at least 3 characters\nand contain only letters or numbers.")
+                showMessageBox("Invalid Username","Usernames must be at least 3 characters\nand contain only letters or numbers.")
                 return@setOnClickListener
             }
 
             // email validation check
             if(!isValidMail(userInput.getString("email"))){
-                showMessageBox("Please enter a valid email")
+                showMessageBox("Invalid Email", "Please enter a valid email")
                 return@setOnClickListener
             }
 
             // password validation check
             if(!isValidPass(userInput.getString("password"))){
 
-                showMessageBox("Password does not meet the following requirements:\n\n" +
+                showMessageBox("Invalid Password", "Password does not meet the following requirements:\n\n" +
                         "Length of at least 8.\n" +
                         "1 capital letter.\n" +
                         "1 lowercase letter.\n" +
@@ -82,17 +81,13 @@ class SignUp : AppCompatActivity() {
 
                 runOnUiThread{ startLoadingMode() }
 
-                if(!databaseClient.isConnected(this@SignUp)){ // check internet connection
-                    runOnUiThread{ showMessageBox("Unable to connect.\nPlease make sure you have an active internet connection.")}
-                    return@launch
+                try {
+                    val emailResult = databaseClient.findOne("Users", JSONObject().put("email", userInput.get("email")))
+                    val usernameResult = databaseClient.findOne("Users", JSONObject().put("username", userInput.get("username")))
+                    runOnUiThread{ handleSignUp(userInput, emailResult, usernameResult) }
                 }
-
-                val emailResult = databaseClient.findOne("Users", JSONObject().put("email", userInput.get("email")))
-                val usernameResult = databaseClient.findOne("Users", JSONObject().put("username", userInput.get("username")))
-
-                // wait for thread to finish and then handleSignUp with the received info
-                withContext(Dispatchers.Main){
-                    handleSignUp(userInput, emailResult, usernameResult)
+                catch (e: Exception){
+                    runOnUiThread{ showMessageBox("Connection Failure","Please make sure you have an active internet connection.")}
                 }
             }
         }
@@ -114,12 +109,12 @@ class SignUp : AppCompatActivity() {
 
         // username findOne was not null
         if(usernameResult.length() > 0){
-            showMessageBox("This username already exists.\nTry a different one.")
+            showMessageBox("Duplicate Username","This username already exists.\nTry a different one.")
             return
         }
         // email findOne was not null
         if(emailResult.length() > 0){
-            showMessageBox("This E-mail already exists.")
+            showMessageBox("Duplicate Email","This E-mail already exists.")
             return
         }
 
@@ -136,16 +131,18 @@ class SignUp : AppCompatActivity() {
         // switch to home page screen
         startActivity(Intent(this, HomePage::class.java))
     }
-    private fun showMessageBox(message: String) {
+    private fun showMessageBox(title: String, message: String) {
 
-        // Shows message with OK button, when OK is pressed, loading mode ends
         val builder = AlertDialog.Builder(this)
+        builder.setTitle(title)
         builder.setMessage(message)
-            .setCancelable(false)
-            .setPositiveButton("OK") { _, _ -> endLoadingMode() }
 
-        val alert = builder.create()
-        alert.show()
+        builder.setPositiveButton("OK") { dialog, _ ->
+
+            endLoadingMode()
+            dialog.dismiss()
+        }
+        builder.show()
     }
     private fun isValidPass(password: String): Boolean {
 

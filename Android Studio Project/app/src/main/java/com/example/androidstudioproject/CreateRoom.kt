@@ -40,22 +40,22 @@ class CreateRoom : AppCompatActivity() {
             val roomName = nameInput.text.toString().trim()
             val roomDesc = descInput.text.toString().trim()
 
-            if(roomName.isEmpty()) return@setOnClickListener showMessageBox("A room can't have an empty name.")
-            if(roomDesc.isEmpty()) return@setOnClickListener showMessageBox("A room can't have an empty description")
+            if(roomName.isEmpty()) return@setOnClickListener showMessageBox("Empty Name","A room can't have an empty name.")
+            if(roomDesc.isEmpty()) return@setOnClickListener showMessageBox("Empty Description","A room can't have an empty description")
 
             GlobalScope.launch {
 
                 runOnUiThread{ startLoadingMode() }
 
-                if(!databaseClient.isConnected(this@CreateRoom)){
-                    runOnUiThread{ showMessageBox("Unable to connect.\nPlease make sure you have an active internet connection.")}
-                    return@launch
+                try {
+                    createRoom(roomName, roomDesc)
+                    startActivity(Intent(this@CreateRoom, ChatRoom::class.java))
+
+                    runOnUiThread{ endLoadingMode() }
                 }
-
-                createRoom(roomName, roomDesc)
-                startActivity(Intent(this@CreateRoom, ChatRoom::class.java))
-
-                runOnUiThread{ endLoadingMode() }
+                catch (e: Exception){
+                    runOnUiThread{ connectionDropped() }
+                }
             }
         }
     }
@@ -83,13 +83,29 @@ class CreateRoom : AppCompatActivity() {
         }
         databaseClient.insertOne("Rooms", newRoom)
     }
-    private fun showMessageBox(message: String) {
+    private fun showMessageBox(title: String, message: String) {
 
-        // Shows message with OK button
         val builder = AlertDialog.Builder(this)
+        builder.setTitle(title)
         builder.setMessage(message)
+
+        builder.setPositiveButton("OK") { dialog, _ ->
+
+            endLoadingMode()
+            dialog.dismiss()
+        }
+        builder.show()
+    }
+    private fun connectionDropped(){
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Connection Failure")
+        builder.setMessage("Your internet connection dropped.\nPlease log back in.")
             .setCancelable(false)
-            .setPositiveButton("OK") { _, _ -> }
+            .setPositiveButton("OK") { _, _ ->
+                finish()
+                startActivity(Intent(this, Login::class.java))
+            }
 
         val alert = builder.create()
         alert.show()
@@ -118,6 +134,6 @@ class CreateRoom : AppCompatActivity() {
         cancelButton.isEnabled = true
         createButton.isEnabled = true
 
-        createButton.setBackgroundResource(R.drawable.normal_btn_bg)
+        createButton.setBackgroundResource(R.drawable.green_btn_bg)
     }
 }

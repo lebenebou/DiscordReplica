@@ -71,24 +71,23 @@ class HomePage : AppCompatActivity() {
         upperButton.setOnClickListener{
 
             val givenCode = codeInput.text.toString().trim().uppercase()
-            if(givenCode.isEmpty()) return@setOnClickListener showMessageBox("Please provide a code.")
-            if(givenCode.length != 6) return@setOnClickListener showMessageBox("This code is invalid")
+            if(givenCode.isEmpty()) return@setOnClickListener showMessageBox("No Code Provided","Please provide a code.")
+            if(givenCode.length != 6) return@setOnClickListener showMessageBox("Invalid Code","This code is invalid")
 
             // code is valid, attempt to join room
             GlobalScope.launch {
 
                 runOnUiThread{ startLoadingMode() }
 
-                if(!databaseClient.isConnected(this@HomePage)){
-                    runOnUiThread{ showMessageBox("Unable to connect.\nPlease make sure you have an active internet connection.")}
-                    return@launch
+                try {
+                    val roomResult = databaseClient.findOne("Rooms", JSONObject().put("code", givenCode))
+                    runOnUiThread{
+                        handleJoinAttempt(roomResult)
+                        endLoadingMode()
+                    }
                 }
-
-                val roomResult = databaseClient.findOne("Rooms", JSONObject().put("code", givenCode))
-
-                withContext(Dispatchers.Main){
-                    handleJoinAttempt(roomResult)
-                    runOnUiThread{ endLoadingMode() }
+                catch (e: Exception){
+                    runOnUiThread{ connectionDropped() }
                 }
             }
         }
@@ -101,7 +100,7 @@ class HomePage : AppCompatActivity() {
     }
     private fun handleJoinAttempt(roomResult: JSONObject){
 
-        if(roomResult.length()==0) return showMessageBox("This code doesn't match any open rooms.")
+        if(roomResult.length()==0) return showMessageBox("Room Not Found","This code doesn't match any open rooms.")
 
         // room exists
         GlobalVars.currentRoomCode = roomResult.getString("code")
@@ -110,16 +109,32 @@ class HomePage : AppCompatActivity() {
     private fun createRoom(){
         startActivity(Intent(this, CreateRoom::class.java))
     }
-    private fun showMessageBox(message: String) {
+    private fun connectionDropped(){
 
-        // Shows message with OK button
         val builder = AlertDialog.Builder(this)
-        builder.setMessage(message)
+        builder.setTitle("Connection Failure")
+        builder.setMessage("Your internet connection dropped.\nPlease log back in.")
             .setCancelable(false)
-            .setPositiveButton("OK") { _, _ -> }
+            .setPositiveButton("OK") { _, _ ->
+                finish()
+                startActivity(Intent(this, Login::class.java))
+            }
 
         val alert = builder.create()
         alert.show()
+    }
+    private fun showMessageBox(title: String, message: String) {
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(title)
+        builder.setMessage(message)
+
+        builder.setPositiveButton("OK") { dialog, _ ->
+
+            endLoadingMode()
+            dialog.dismiss()
+        }
+        builder.show()
     }
     private fun startLoadingMode() {
 

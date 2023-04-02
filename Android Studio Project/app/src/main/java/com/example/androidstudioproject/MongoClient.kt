@@ -19,23 +19,6 @@ class MongoClient {
     private val apiKey = GlobalVars.MongoAPIKey
     private val httpClient = OkHttpClient()
 
-    suspend fun isConnected(context: Context): Boolean {
-
-        return withContext(Dispatchers.IO) {
-            try {
-                val url = URL("https://www.mongodb.com")
-                val connection = url.openConnection() as HttpURLConnection
-                connection.setRequestProperty("User-Agent", "Android")
-                connection.setRequestProperty("Connection", "close")
-                connection.connectTimeout = 1000
-                connection.connect()
-                connection.responseCode == 200
-            } catch (e: IOException) {
-                false
-            }
-        }
-    }
-
     private suspend fun makeAPIRequest(endpoint: String, headers: JSONObject, body: JSONObject) : JSONObject {
 
         val mediaType = "application/json".toMediaType()

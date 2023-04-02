@@ -42,18 +42,19 @@ class ChatRoom : AppCompatActivity() {
 
             while (true){
 
-                if(!databaseClient.isConnected(this@ChatRoom)){ // internet disconnected
-                    runOnUiThread{ connectionDropped() }
-                    return@launch
-                }
+                delay(2000)
 
-                fetchCurrentRoomJSON() // update currentRoom
+                try {
+                    updateCurrentRoom() // fetch new CurrentRoom JSON
+                }
+                catch (e: Exception){
+                    runOnUiThread{ connectionDropped() }
+                }
 
                 runOnUiThread{ // sync messages from currentRoom to the UI
                     syncMessages(currentRoom.getJSONArray("messages"))
                     endSendingMode()
                 }
-                delay(2000)
             }
         }
 
@@ -64,7 +65,7 @@ class ChatRoom : AppCompatActivity() {
             // the following code assumes the Global Var Room Code is of an existing room code
 
             databaseClient.addToActiveUsers(GlobalVars.currentRoomCode, GlobalVars.currentUser)
-            fetchCurrentRoomJSON()
+            updateCurrentRoom()
             runOnUiThread {
 
                 titleText.text = currentRoom.getString("name")
@@ -117,12 +118,12 @@ class ChatRoom : AppCompatActivity() {
 
                 runOnUiThread{ startSendingMode() }
 
-                if(!databaseClient.isConnected(this@ChatRoom)){ // internet disconnected
-                    runOnUiThread{ connectionDropped() }
-                    return@launch
+                try {
+                    handleSend(newMessage)
                 }
-
-                handleSend(newMessage)
+                catch (e: Exception){
+                    runOnUiThread { connectionDropped() }
+                }
             }
             messageInput.text.clear()
             messageInput.requestFocus()
@@ -250,7 +251,7 @@ class ChatRoom : AppCompatActivity() {
 
         databaseClient.addToMessages(currentRoom.getString("code"), newMessage)
     }
-    private suspend fun fetchCurrentRoomJSON(){
+    private suspend fun updateCurrentRoom(){
 
         currentRoom = databaseClient
             .findOne("Rooms", JSONObject()
@@ -271,6 +272,7 @@ class ChatRoom : AppCompatActivity() {
         // this function needs to run only on first disconnection
 
         val builder = AlertDialog.Builder(this)
+        builder.setTitle("Connection Failure")
         builder.setMessage("Your internet connection dropped.\nPlease log back in.")
             .setCancelable(false)
             .setPositiveButton("OK") { _, _ ->
