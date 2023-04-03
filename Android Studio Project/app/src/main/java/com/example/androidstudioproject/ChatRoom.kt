@@ -74,7 +74,7 @@ class ChatRoom : AppCompatActivity() {
                 sendButton.isEnabled = true
                 sendButton.setBackgroundResource(R.drawable.normal_btn_bg)
 
-                showRoomCodePopup()
+                showRoomInfo()
                 syncMessages(currentRoom.getJSONArray("messages"))
             }
         }
@@ -138,7 +138,15 @@ class ChatRoom : AppCompatActivity() {
 
         builder.setPositiveButton("Yes") { _, _ ->
 
-            GlobalScope.launch { leaveRoom() }
+            GlobalScope.launch {
+
+                try {
+                    leaveRoom()
+                }
+                catch(e: Exception){
+                    connectionDropped()
+                }
+            }
             finish()
             startActivity(Intent(this, HomePage::class.java))
         }
@@ -159,7 +167,7 @@ class ChatRoom : AppCompatActivity() {
 
             R.id.menu_room_info -> {
 
-                showRoomCodePopup()
+                showRoomInfo()
                 return true
             }
             R.id.menu_users_in_room -> {
@@ -181,7 +189,6 @@ class ChatRoom : AppCompatActivity() {
     }
     private suspend fun leaveRoom(){
 
-        GlobalVars.currentRoomCode = "000000"
         databaseClient.removeFromActiveUsers(GlobalVars.currentRoomCode, GlobalVars.currentUser)
     }
     private fun showOnlineUsers(){
@@ -198,7 +205,7 @@ class ChatRoom : AppCompatActivity() {
 
         showMessageBox(popupText)
     }
-    private fun showRoomCodePopup(){
+    private fun showRoomInfo(){
 
         // Build the alert dialog
         val builder = AlertDialog.Builder(this)
@@ -210,7 +217,7 @@ class ChatRoom : AppCompatActivity() {
             val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clipData = ClipData.newPlainText("text", GlobalVars.currentRoomCode)
             clipboardManager.setPrimaryClip(clipData)
-            showRoomCodePopup()
+            showRoomInfo()
 
             Toast.makeText(this, "Code copied!", Toast.LENGTH_SHORT).show()
         }
