@@ -10,9 +10,10 @@
         android:id="@+id/app_logo"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:src="@drawable/bg"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="70dp"/>
+        android:layout_gravity="center"
+        android:layout_marginTop="70dp"
+        android:src="@drawable/bg" />
     <EditText
         android:id="@+id/usernameInput"
         android:textIsSelectable="true"
@@ -20,10 +21,10 @@
         android:layout_height="50dp"
         android:drawableLeft="@drawable/baseline_person_24"
         android:layout_below="@+id/app_logo"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="62dp"
         android:hint="Username"
         android:background="@drawable/edt_background"
-        android:paddingLeft="13dp"
+        android:paddingLeft="15dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:inputType="textEmailAddress"/>
@@ -67,7 +68,7 @@
         android:layout_centerHorizontal="true"
         android:textColor="@color/white"
         android:textSize="20sp"
-        android:layout_marginTop="10dp"/>
+        android:layout_marginTop="22dp"/>
 
     <ImageView
         android:id="@+id/imgShowHidePassword"
@@ -84,7 +85,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/signUpButton"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="21dp"
         android:autoLink="web"
         android:clickable="true"
         android:onClick="onLoginTextClick"
