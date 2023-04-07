@@ -67,7 +67,7 @@
         android:background="@drawable/normal_btn_bg"
         android:layout_centerHorizontal="true"
         android:textColor="@color/white"
-        android:textSize="19sp"
+        android:textSize="20sp"
         android:layout_marginTop="22dp"/>
 
     <ImageView
