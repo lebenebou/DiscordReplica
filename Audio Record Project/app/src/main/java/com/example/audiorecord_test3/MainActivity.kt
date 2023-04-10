@@ -75,6 +75,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun playAudio(){
         PlayRecording()
+        theRecord.clear()
     }
 
     @Override
