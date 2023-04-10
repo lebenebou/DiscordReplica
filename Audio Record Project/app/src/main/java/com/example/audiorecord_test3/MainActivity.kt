@@ -27,12 +27,22 @@ class MainActivity : AppCompatActivity() {
     private val audioFormat = AudioFormat.ENCODING_PCM_16BIT
 
 
+    private val audioAttributes = AudioAttributes.Builder()
+        .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+        .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+        .build()
+
+    private val intRecordSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_MUSIC)
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         val startButton = findViewById<Button>(R.id.button)
         val stopButton = findViewById<Button>(R.id.button2)
+        val playButton = findViewById<Button>(R.id.button3)
         startButton.setOnClickListener {
             if(!isActive){
                 isActive = true
@@ -49,11 +59,20 @@ class MainActivity : AppCompatActivity() {
                 println("You can't click on stop, since you are not calling")
             }
         }
+        playButton.setOnClickListener{
+            playAudio();
+        }
+
+    }
+
+
+    fun playAudio(){
+        PlayRecording()
     }
 
     fun buttonStart() {
         GlobalScope.launch {
-            startCommunication()
+            StartRecording()
         }
     }
     fun buttonStop() {
@@ -86,15 +105,16 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private suspend fun startCommunication() {
-        val intRecordSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_MUSIC)
+    private suspend fun StartRecording() {
         //we calculate the optimal size of the buffer (7680 bytes)
+        /**
         intBufferSize = AudioRecord.getMinBufferSize(
             intRecordSampleRate,
             AudioFormat.CHANNEL_IN_STEREO,
             AudioFormat.ENCODING_PCM_16BIT
         )
-
+        **/
+        intBufferSize= 7680;
         //create an array containing intBufferSize values initialized with 0
         shortAudioData = ShortArray(intBufferSize)
 
@@ -112,11 +132,18 @@ class MainActivity : AppCompatActivity() {
             intBufferSize
         )
 
-        val audioAttributes = AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-            .build()
 
+
+        audioRecord!!.startRecording()
+
+        isActive = true
+        audioThread = Record()
+        audioThread!!.start()
+    }
+
+
+
+    private fun PlayRecording(){
         audioTrack = AudioTrack.Builder()
             .setAudioAttributes(audioAttributes)
             .setAudioFormat(
@@ -132,17 +159,15 @@ class MainActivity : AppCompatActivity() {
         //Set the playback rate to the sampleRate
         audioTrack!!.playbackRate = intRecordSampleRate
 
-
-        audioRecord!!.startRecording()
         audioTrack!!.play()
 
-        isActive = true
-        audioThread = threadLoop()
-        audioThread!!.start()
+
+        if (audioTrack?.playState == AudioTrack.PLAYSTATE_PLAYING) {
+            audioTrack!!.write(shortAudioData, 0, shortAudioData.size)
+        }
     }
 
-
-    private fun threadLoop(): Thread {
+    private fun Record(): Thread {
         return Thread {//Le thread empeche le code de bloquer sur le while et d'avoir l'acces au bouton stop
             while (isActive) {
                 //we read the bytes captured by audioRecord and save them in SHORT FORMAT inside shortAudioData (not bytes)
@@ -157,10 +182,6 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 println("SHOWING shortAudioData after using gain: ${shortAudioData.sliceArray(0..99).contentToString()}")
-
-                if (audioTrack?.playState == AudioTrack.PLAYSTATE_PLAYING) {
-                    audioTrack!!.write(shortAudioData, 0, shortAudioData.size)
-                }
             }
         }
     }

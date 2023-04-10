@@ -14,7 +14,7 @@
         android:layout_marginStart="148dp"
         android:layout_marginTop="24dp"
         android:onClick="buttonStart"
-        android:text="/start"
+        android:text="/start recording"
         app:layout_constraintStart_toStartOf="parent"
         tools:ignore="MissingConstraints" />
 
@@ -25,7 +25,19 @@
         android:layout_marginStart="148dp"
         android:layout_marginTop="46dp"
         android:onClick="buttonStop"
-        android:text="/stop"
+        android:text="/stop recording"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button" />
+
+
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="148dp"
+        android:layout_marginTop="436dp"
+        android:onClick="buttonPlay"
+        android:text="/play"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button" />
 
