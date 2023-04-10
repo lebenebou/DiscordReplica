@@ -60,7 +60,7 @@ class SignUp : AppCompatActivity() {
 
             // email validation check
             if(!isValidMail(userInput.getString("email"))){
-                showMessageBox("Invalid Email", "Please enter a valid email")
+                showMessageBox("Invalid Email", "Please enter a valid email.")
                 return@setOnClickListener
             }
 

@@ -104,7 +104,7 @@ class ChatRoom : AppCompatActivity() {
 
             if(messageInput.text.toString().trim().isEmpty()){
 
-                showMessageBox("Please type a message first.")
+                showMessageBox("Empty message","Please type a message first.")
                 messageInput.text.clear()
                 return@setOnClickListener
             }
@@ -193,7 +193,7 @@ class ChatRoom : AppCompatActivity() {
     }
     private fun showOnlineUsers(){
 
-        var popupText = "Users In This Room:\n\n"
+        var popupText = ""
 
         val userList = currentRoom.getJSONArray("active_users")
 
@@ -203,7 +203,7 @@ class ChatRoom : AppCompatActivity() {
             popupText += userList.getString(i) + "\n"
         }
 
-        showMessageBox(popupText)
+        showMessageBox("Users in This Room", popupText)
     }
     private fun showRoomInfo(){
 
@@ -299,10 +299,11 @@ class ChatRoom : AppCompatActivity() {
     private fun currentTimestamp(): Long {
         return System.currentTimeMillis() / 1000
     }
-    private fun showMessageBox(message: String) {
+    private fun showMessageBox(title: String, message: String) {
 
         // Shows message with OK button
         val builder = AlertDialog.Builder(this)
+        builder.setTitle(title)
         builder.setMessage(message)
             .setCancelable(false)
             .setPositiveButton("OK") { _, _ ->  }

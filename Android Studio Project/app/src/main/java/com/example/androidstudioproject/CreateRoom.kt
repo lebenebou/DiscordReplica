@@ -41,7 +41,7 @@ class CreateRoom : AppCompatActivity() {
             val roomDesc = descInput.text.toString().trim()
 
             if(roomName.isEmpty()) return@setOnClickListener showMessageBox("Empty Name","A room can't have an empty name.")
-            if(roomDesc.isEmpty()) return@setOnClickListener showMessageBox("Empty Description","A room can't have an empty description")
+            if(roomDesc.isEmpty()) return@setOnClickListener showMessageBox("Empty Description","A room can't have an empty description.")
 
             GlobalScope.launch {
 

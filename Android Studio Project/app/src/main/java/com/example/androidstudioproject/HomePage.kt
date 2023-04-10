@@ -74,7 +74,7 @@ class HomePage : AppCompatActivity() {
 
             val givenCode = codeInput.text.toString().trim().uppercase()
             if(givenCode.isEmpty()) return@setOnClickListener showMessageBox("No Code Provided","Please provide a code.")
-            if(givenCode.length != 6) return@setOnClickListener showMessageBox("Invalid Code","This code is invalid")
+            if(givenCode.length != 6) return@setOnClickListener showMessageBox("Invalid Code","This code is invalid.")
 
             // code is valid, attempt to join room
             GlobalScope.launch {
