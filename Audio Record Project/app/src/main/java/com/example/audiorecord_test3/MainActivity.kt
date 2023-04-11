@@ -60,7 +60,7 @@ class MainActivity : AppCompatActivity() {
 
     fun buttonStart() {
         GlobalScope.launch {
-            SetUpRecording()
+            setUpRecording()
         }
     }
     fun buttonStop() {
@@ -72,8 +72,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun playAudio(){
-        PlayRecording()
-        theRecord.clear()// for tessting purpose
+        println("LIST OF theRecord: $theRecord")
+        println("SIZE OF theRecord: ${theRecord.size}")
+        playRecording()
+        theRecord.clear()// for testing purpose
     }
 
     @Override
@@ -91,14 +93,14 @@ class MainActivity : AppCompatActivity() {
 
                 } else {
                     buttonStop()
-                    println("ACCES DENIED, PLEASE ENABLE MICROPHONE SO YOU WILL BE ABLE TO CALL")
+                    println("ACCESS DENIED, PLEASE ENABLE MICROPHONE SO YOU WILL BE ABLE TO CALL")
                 }
             }
         }
     }
 
 
-    private suspend fun SetUpRecording() {
+    private suspend fun setUpRecording() {
         //we calculate the optimal size of the buffer (7680 bytes)
         intBufferSize = AudioRecord.getMinBufferSize(
             intRecordSampleRate,
@@ -126,12 +128,13 @@ class MainActivity : AppCompatActivity() {
         audioRecord!!.startRecording()
 
         isActive = true
-        audioThread = Recording()
+        audioThread = recording()
+
         audioThread!!.start()
     }
 
-    private fun Recording(): Thread {
-        return Thread {//Le thread empeche le code de bloquer sur le while et d'avoir l'acces au bouton stop
+    private fun recording(): Thread {
+        return Thread {//The thread prevents the code from blocking on the while loop and thus allows accessing the stop button
             while (isActive) {
                 //we read the bytes captured by audioRecord and save them in SHORT FORMAT inside shortAudioData (not bytes)
                 audioRecord!!.read(shortAudioData, 0, shortAudioData.size)
@@ -141,14 +144,12 @@ class MainActivity : AppCompatActivity() {
                 for (element in shortAudioData) {
                     theRecord.add(element)
                 }
-
             }
         }
     }
 
 
-
-    private fun PlayRecording(){
+    private fun playRecording(){
         val audioAttributes = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
@@ -171,12 +172,12 @@ class MainActivity : AppCompatActivity() {
 
         audioTrack!!.play()
 
-        var shortAudioDataForPlaying: ShortArray = ShortArray(theRecord.size)
+        val shortAudioDataForPlaying = ShortArray(theRecord.size)
 
         var i=0
         while(i< theRecord.size){
-            shortAudioDataForPlaying[i]= theRecord[i];
-            i++;
+            shortAudioDataForPlaying[i]= theRecord[i]
+            i++
         }
 
         if (audioTrack?.playState == AudioTrack.PLAYSTATE_PLAYING) {
