@@ -23,7 +23,6 @@
         android:id="@+id/mainText2"
         android:layout_width="308dp"
         android:layout_height="40dp"
-        android:layout_marginTop="4dp"
         android:text="Ask the room creator for its 6 character code. (Ex: AJH6KF)"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"

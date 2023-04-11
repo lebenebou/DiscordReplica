@@ -12,13 +12,14 @@
         android:id="@+id/nameInput"
         android:layout_width="260dp"
         android:layout_height="59dp"
-        android:layout_marginTop="132dp"        android:ems="10"
-        android:hint="Room name"
+        android:layout_marginTop="32dp"
+        android:ems="10"
+        android:hint="Community name"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.493"
+        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/explanationText" />
 
     <EditText
         android:id="@+id/descInput"
@@ -37,7 +38,7 @@
         android:id="@+id/createButton"
         android:layout_width="260dp"
         android:layout_height="50dp"
-        android:text="Create Room"
+        android:text="Create Community"
         android:background="@drawable/green_btn_bg"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -52,7 +53,7 @@
         android:id="@+id/cancelButton"
         android:layout_width="260dp"
         android:layout_height="50dp"
-        android:text="Cancel"
+        android:text="Go Back"
         app:layout_constraintBottom_toBottomOf="parent"
         android:background="@drawable/grey_btn_bg"
         android:textColor="@color/white"
@@ -61,4 +62,28 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/createButton"
         app:layout_constraintVertical_bias="0.049" />
+
+    <TextView
+        android:id="@+id/explanationText"
+        android:layout_width="341dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="8dp"
+        android:text="Friends with similar interests can join this community and open rooms to chat."
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.228"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/mainText1" />
+
+    <TextView
+        android:id="@+id/mainText1"
+        android:layout_width="351dp"
+        android:layout_height="62dp"
+        android:layout_marginTop="36dp"
+        android:text="Create a public community that represents you."
+        android:textColor="@color/black"
+        android:textSize="25sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.266"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

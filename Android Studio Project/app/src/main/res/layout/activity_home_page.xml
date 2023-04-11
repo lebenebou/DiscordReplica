@@ -7,35 +7,73 @@
     android:layout_height="match_parent"
     tools:context=".HomePage">
 
-    <Button
-        android:id="@+id/upperButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:width="190dp"
-        android:background="@drawable/normal_btn_bg"
-        android:text="quickJoin a room"
-        android:textColor="@color/white"
-        app:layout_constraintBottom_toTopOf="@+id/lowerButton"
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="535dp"
+        android:foregroundGravity="center"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintHorizontal_bias="0.428"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.953" />
+        app:layout_constraintTop_toBottomOf="@+id/myCommunitiesText">
+
+        <LinearLayout
+            android:id="@+id/message_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- linear layouts are added here dynamically from the .kt file -->
+
+        </LinearLayout>
+
+    </ScrollView>
 
     <Button
-        android:id="@+id/lowerButton"
+        android:id="@+id/quickJoinButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:width="190dp"
+        android:layout_marginTop="12dp"
+        android:width="250dp"
+        android:background="@drawable/green_btn_bg"
+        android:text="quick join a room"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/scrollView" />
+
+    <Button
+        android:id="@+id/CreateCommunityButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:width="250dp"
         android:background="@drawable/normal_btn_bg"
-        android:text="Create a room"
+        android:text="Create Your own community"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.494" />
+        app:layout_constraintTop_toBottomOf="@+id/quickJoinButton"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/myCommunitiesText"
+        android:layout_width="411dp"
+        android:layout_height="60dp"
+        android:background="@color/purple_700"
+        android:gravity="left|center"
+        android:paddingLeft="10dp"
+
+        android:text="My Communities"
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

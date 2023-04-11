@@ -146,4 +146,8 @@ class Login : AppCompatActivity() {
         loginButton.setBackgroundResource(R.drawable.normal_btn_bg)
         signUpText.setTextColor(ContextCompat.getColor(this, R.color.purple_700))
     }
+
+    override fun onBackPressed() {
+        return
+    }
 }

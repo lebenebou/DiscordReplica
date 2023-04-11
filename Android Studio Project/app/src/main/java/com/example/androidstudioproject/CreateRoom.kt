@@ -18,7 +18,7 @@ class CreateRoom : AppCompatActivity() {
     private lateinit var nameInput: EditText
     private lateinit var descInput: EditText
     private lateinit var createButton: Button
-    private lateinit var cancelButton: Button
+    private lateinit var backButton: Button
 
     private val databaseClient = MongoClient()
 
@@ -30,10 +30,10 @@ class CreateRoom : AppCompatActivity() {
         nameInput = findViewById(R.id.nameInput)
         descInput = findViewById(R.id.descInput)
         createButton = findViewById(R.id.createButton)
-        cancelButton = findViewById(R.id.cancelButton)
+        backButton = findViewById(R.id.cancelButton)
 
-        cancelButton.setOnClickListener{
-            startActivity(Intent(this, HomePage::class.java))
+        backButton.setOnClickListener{
+            onBackPressed()
         }
         createButton.setOnClickListener{
 
@@ -121,7 +121,7 @@ class CreateRoom : AppCompatActivity() {
 
         nameInput.isEnabled = false
         descInput.isEnabled = false
-        cancelButton.isEnabled = false
+        backButton.isEnabled = false
         createButton.isEnabled = false
 
         createButton.setBackgroundResource(R.drawable.grey_btn_bg)
@@ -130,7 +130,7 @@ class CreateRoom : AppCompatActivity() {
 
         nameInput.isEnabled = true
         descInput.isEnabled = true
-        cancelButton.isEnabled = true
+        backButton.isEnabled = true
         createButton.isEnabled = true
 
         createButton.setBackgroundResource(R.drawable.green_btn_bg)

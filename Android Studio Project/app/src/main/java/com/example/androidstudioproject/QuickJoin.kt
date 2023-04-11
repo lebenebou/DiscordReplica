@@ -51,6 +51,10 @@ class QuickJoin : AppCompatActivity() {
                 }
             }
         }
+
+        backButton.setOnClickListener {
+            onBackPressed()
+        }
     }
     private fun handleJoinAttempt(roomResult: JSONObject){
 
