@@ -23,7 +23,7 @@ class ChatRoom : AppCompatActivity() {
     private lateinit var scrollView: ScrollView
     private lateinit var titleText: TextView
 
-    private val roomColor = -12303292
+    private val roomColor = getRandomColor()
 
     private val databaseClient = MongoClient()
     private var currentRoom = JSONObject()
@@ -180,10 +180,6 @@ class ChatRoom : AppCompatActivity() {
                 this.onBackPressed()
                 return true
             }
-            R.id.menu_logout -> {
-
-                return true
-            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -243,7 +239,7 @@ class ChatRoom : AppCompatActivity() {
         val contentTextView = TextView(this)
         contentTextView.text = message.getString("content")
         contentTextView.setTypeface(null, Typeface.BOLD)
-        contentTextView.setTextColor(Color.WHITE)
+        contentTextView.setTextColor(Color.BLACK)
         messageLayout.addView(contentTextView)
 
         // Timestamp
@@ -253,7 +249,7 @@ class ChatRoom : AppCompatActivity() {
         messageLayout.addView(timestampTextView)
 
 //        messageLayout.setBackgroundResource(R.drawable.message_rectangle)
-        messageLayout.setBackgroundResource(R.color.grey38)
+//        messageLayout.setBackgroundResource(R.color.grey38)
         messageList.addView(messageLayout)
 
     }
@@ -283,11 +279,11 @@ class ChatRoom : AppCompatActivity() {
 
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Connection Failure")
-        builder.setMessage("Your internet connection dropped.\nPlease log back in.")
+        builder.setMessage("Your internet connection dropped.\nPlease join back in.")
             .setCancelable(false)
             .setPositiveButton("OK") { _, _ ->
                 finish()
-                startActivity(Intent(this, Login::class.java))
+                startActivity(Intent(this, HomePage::class.java))
             }
 
         val alert = builder.create()
@@ -356,17 +352,16 @@ class ChatRoom : AppCompatActivity() {
         val random = Random(username.hashCode().toLong() - GlobalVars.currentRoomCode.hashCode().toLong())
         val hue = random.nextInt(360)
         val saturation = 0.7f + random.nextFloat() * 0.4f
-        val brightness = 0.8f + random.nextFloat() * 0.4f
+        val brightness = 0.6f + random.nextFloat() * 0.4f
 
         return Color.HSVToColor(floatArrayOf(hue.toFloat(), saturation, brightness))
     }
     private fun getRandomColor(): Int {
 
         val random = Random()
-        val alpha = 255
-        val red = random.nextInt(50) + 50
-        val green = random.nextInt(50) + 50
-        val blue = random.nextInt(50) + 50
-        return Color.argb(alpha, red, green, blue)
+        val hue = random.nextInt(360)
+        val saturation = random.nextInt(41) + 60
+        val brightness = random.nextInt(41) + 20
+        return Color.HSVToColor(floatArrayOf(hue.toFloat(), saturation.toFloat() / 100, brightness.toFloat() / 100))
     }
 }
