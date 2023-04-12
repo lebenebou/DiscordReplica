@@ -13,7 +13,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import kotlin.random.Random
 
-class CreateRoom : AppCompatActivity() {
+class CreateCommunity : AppCompatActivity() {
 
     private lateinit var nameInput: EditText
     private lateinit var descInput: EditText
@@ -49,7 +49,7 @@ class CreateRoom : AppCompatActivity() {
 
                 try {
                     createRoom(roomName, roomDesc)
-                    startActivity(Intent(this@CreateRoom, ChatRoom::class.java))
+                    startActivity(Intent(this@CreateCommunity, ChatRoom::class.java))
 
                     runOnUiThread{ endLoadingMode() }
                 }

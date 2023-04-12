@@ -6,6 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/grey38"
     tools:context=".ChatRoom">
 
   <ScrollView
@@ -37,6 +38,7 @@
       android:layout_marginStart="12dp"
       android:ems="10"
       android:hint="Type something..."
+      android:textColorHint="@color/white"
       android:enabled="false"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintStart_toStartOf="parent"
@@ -63,7 +65,7 @@
       android:layout_height="0dp"
       android:gravity="center"
       android:text="Loading..."
-      android:background="@color/grey"
+      android:background="@color/light_grey"
       android:textColor="@color/white"
       android:textSize="20sp"
       app:layout_constraintBottom_toTopOf="@+id/scrollView"

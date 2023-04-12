@@ -7,9 +7,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlin.math.log
 
 class HomePage : AppCompatActivity() {
 
@@ -28,7 +25,7 @@ class HomePage : AppCompatActivity() {
             startActivity(Intent(this, QuickJoin::class.java))
         }
         createCommunityButton.setOnClickListener{
-            startActivity(Intent(this, CreateRoom::class.java))
+            startActivity(Intent(this, CreateCommunity::class.java))
         }
     }
     @Deprecated("Deprecated in Java")

@@ -23,7 +23,7 @@ class ChatRoom : AppCompatActivity() {
     private lateinit var scrollView: ScrollView
     private lateinit var titleText: TextView
 
-    private val roomColor = Color.argb(255, (40..200).random(), (40..200).random(), (40..200).random())
+    private val roomColor = -12303292
 
     private val databaseClient = MongoClient()
     private var currentRoom = JSONObject()
@@ -235,13 +235,15 @@ class ChatRoom : AppCompatActivity() {
         // Username
         val usernameTextView = TextView(this)
         usernameTextView.text = message.getString("username")
+        usernameTextView.setTypeface(null, Typeface.BOLD)
+        usernameTextView.setTextColor(getRandomColor(message.getString("username")))
         messageLayout.addView(usernameTextView)
 
         // Content
         val contentTextView = TextView(this)
         contentTextView.text = message.getString("content")
         contentTextView.setTypeface(null, Typeface.BOLD)
-        contentTextView.setTextColor(Color.BLACK)
+        contentTextView.setTextColor(Color.WHITE)
         messageLayout.addView(contentTextView)
 
         // Timestamp
@@ -250,7 +252,8 @@ class ChatRoom : AppCompatActivity() {
         timestampTextView.setTextColor(Color.GRAY)
         messageLayout.addView(timestampTextView)
 
-        messageLayout.setBackgroundResource(R.drawable.message_rectangle)
+//        messageLayout.setBackgroundResource(R.drawable.message_rectangle)
+        messageLayout.setBackgroundResource(R.color.grey38)
         messageList.addView(messageLayout)
 
     }
@@ -290,11 +293,26 @@ class ChatRoom : AppCompatActivity() {
         val alert = builder.create()
         alert.show()
     }
-    private fun timestampToString(epoch: Long): String {
+    private fun timestampToString(epochTime: Long): String {
 
-        val date = Date(epoch.toLong() * 1000)
-        val dateFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
-        return dateFormat.format(date)
+        val now = System.currentTimeMillis() / 1000
+        val timeDifference = now - epochTime
+
+        return when {
+            timeDifference < 60 -> "Just now"
+            timeDifference < 60 * 60 -> {
+                val minutes = timeDifference / 60
+                "${minutes}m ago"
+            }
+            timeDifference < 24 * 60 * 60 -> {
+                val sdf = SimpleDateFormat("h:mm a", Locale.getDefault())
+                "Yesterday at ${sdf.format(Date(epochTime * 1000))}"
+            }
+            else -> {
+                val sdf = SimpleDateFormat("MMM d, yyyy 'at' h:mm a", Locale.getDefault())
+                sdf.format(Date(epochTime * 1000))
+            }
+        }
     }
     private fun currentTimestamp(): Long {
         return System.currentTimeMillis() / 1000
@@ -332,5 +350,23 @@ class ChatRoom : AppCompatActivity() {
         sendButton.isEnabled = true
         sendButton.text = "Send"
         sendButton.setBackgroundResource(R.drawable.normal_btn_bg)
+    }
+    private fun getRandomColor(username: String): Int {
+
+        val random = Random(username.hashCode().toLong() - GlobalVars.currentRoomCode.hashCode().toLong())
+        val hue = random.nextInt(360)
+        val saturation = 0.7f + random.nextFloat() * 0.4f
+        val brightness = 0.8f + random.nextFloat() * 0.4f
+
+        return Color.HSVToColor(floatArrayOf(hue.toFloat(), saturation, brightness))
+    }
+    private fun getRandomColor(): Int {
+
+        val random = Random()
+        val alpha = 255
+        val red = random.nextInt(50) + 50
+        val green = random.nextInt(50) + 50
+        val blue = random.nextInt(50) + 50
+        return Color.argb(alpha, red, green, blue)
     }
 }

@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -15,7 +14,6 @@ import androidx.core.content.ContextCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
 class Login : AppCompatActivity() {
@@ -131,7 +129,7 @@ class Login : AppCompatActivity() {
 
         // change colors to grey
         loginButton.setBackgroundResource(R.drawable.grey_btn_bg)
-        signUpText.setTextColor(ContextCompat.getColor(this, R.color.grey))
+        signUpText.setTextColor(ContextCompat.getColor(this, R.color.light_grey))
     }
     private fun endLoadingMode(){
 

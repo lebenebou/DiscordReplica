@@ -171,7 +171,7 @@ class SignUp : AppCompatActivity() {
         findViewById<TextView>(R.id.loginText).isEnabled = false
 
         // change colors ot grey
-        findViewById<TextView>(R.id.loginText).setTextColor(ContextCompat.getColor(this, R.color.grey))
+        findViewById<TextView>(R.id.loginText).setTextColor(ContextCompat.getColor(this, R.color.light_grey))
         signUpButton.setBackgroundResource(R.drawable.grey_btn_bg)
     }
     private fun endLoadingMode(){

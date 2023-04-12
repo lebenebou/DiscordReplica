@@ -20,7 +20,7 @@
             android:name=".ChatRoom"
             android:exported="false" />
         <activity
-            android:name=".CreateRoom"
+            android:name=".CreateCommunity"
             android:exported="false" />
         <activity
             android:name=".HomePage"
