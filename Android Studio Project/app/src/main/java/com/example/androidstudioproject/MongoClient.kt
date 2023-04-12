@@ -2,6 +2,7 @@
 package com.example.androidstudioproject
 
 import android.content.Context
+import android.util.Base64
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -18,7 +19,6 @@ class MongoClient {
 
     private val apiKey = GlobalVars.MongoAPIKey
     private val httpClient = OkHttpClient()
-
     private suspend fun makeAPIRequest(endpoint: String, headers: JSONObject, body: JSONObject) : JSONObject {
 
         val mediaType = "application/json".toMediaType()
@@ -159,9 +159,7 @@ class MongoClient {
 
     suspend fun addToMessages(roomCode: String, newMessage: JSONObject) :JSONObject {
 
-        return addToArray("Rooms",
-            JSONObject().put("code", roomCode),
-            "messages", newMessage)
+        return addToArray("Rooms", JSONObject().put("code", roomCode),"messages", newMessage)
     }
     suspend fun addToActiveUsers(roomCode: String, username: String) : JSONObject {
 
@@ -170,5 +168,16 @@ class MongoClient {
     suspend fun removeFromActiveUsers(roomCode: String, username: String) : JSONObject {
 
         return removeFromArray("Rooms", JSONObject().put("code", roomCode), "active_users", username)
+    }
+
+    fun encrypt(word: String): String {
+
+        val bytes = word.toByteArray()
+        return Base64.encodeToString(bytes, Base64.DEFAULT)
+    }
+    fun decrypt(encodedStr: String): String {
+
+        val decoded = Base64.decode(encodedStr, Base64.DEFAULT)
+        return String(decoded)
     }
 }

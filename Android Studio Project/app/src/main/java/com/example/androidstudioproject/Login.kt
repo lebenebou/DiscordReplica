@@ -97,7 +97,7 @@ class Login : AppCompatActivity() {
         val validResult = if(usernameResult.length() > 0) usernameResult else emailResult
 
         // check if password matches the not null result
-        if(userInput.getString("password") != decrypt(validResult.getString("password"))){
+        if(userInput.getString("password") != databaseClient.decrypt(validResult.getString("password"))){
             showMessageBox("Incorrect password", "This password does not match the specified account.")
             return
         }
@@ -145,13 +145,7 @@ class Login : AppCompatActivity() {
         loginButton.setBackgroundResource(R.drawable.normal_btn_bg)
         signUpText.setTextColor(ContextCompat.getColor(this, R.color.purple_700))
     }
-
     override fun onBackPressed() {
         return
-    }
-    private fun decrypt(encodedStr: String): String {
-
-        val decoded = Base64.decode(encodedStr, Base64.DEFAULT)
-        return String(decoded)
     }
 }

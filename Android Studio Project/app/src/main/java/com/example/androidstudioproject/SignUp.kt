@@ -121,7 +121,7 @@ class SignUp : AppCompatActivity() {
         }
 
         // encrypt password
-        userInput.put("password", encrypt(userInput.getString("password")))
+        userInput.put("password", databaseClient.encrypt(userInput.getString("password")))
         // add empty communities array
         userInput.put("communities", JSONArray())
 
@@ -192,10 +192,5 @@ class SignUp : AppCompatActivity() {
         // change colors back to normal
         findViewById<TextView>(R.id.loginText).setTextColor(ContextCompat.getColor(this, R.color.purple_700))
         signUpButton.setBackgroundResource(R.drawable.normal_btn_bg)
-    }
-    private fun encrypt(word: String): String {
-
-        val bytes = word.toByteArray()
-        return Base64.encodeToString(bytes, Base64.DEFAULT)
     }
 }
