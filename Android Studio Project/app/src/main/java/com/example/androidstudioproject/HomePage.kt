@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
+import android.widget.VideoView
 import androidx.appcompat.app.AlertDialog
 
 class HomePage : AppCompatActivity() {
@@ -13,7 +14,7 @@ class HomePage : AppCompatActivity() {
     private lateinit var quickJoinButton: Button
     private lateinit var createCommunityButton: Button
     private lateinit var searchButton: Button
-
+    private lateinit var Homevd: VideoView
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -22,7 +23,13 @@ class HomePage : AppCompatActivity() {
         quickJoinButton = findViewById(R.id.quickJoinButton)
         createCommunityButton = findViewById(R.id.createCommunityButton)
         searchButton = findViewById(R.id.searchButton)
-
+        Homevd=findViewById(R.id.Homevd);
+        val videoPath = "android.resource://" + packageName + "/" + R.raw.homebackvd
+        Homevd.setVideoPath(videoPath)
+        Homevd.setOnPreparedListener {
+            it.isLooping = true
+        }
+        Homevd.start()
         quickJoinButton.setOnClickListener{
             startActivity(Intent(this, QuickJoin::class.java))
         }
