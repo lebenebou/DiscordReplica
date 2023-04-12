@@ -206,8 +206,17 @@ class ChatRoom : AppCompatActivity() {
         // Build the alert dialog
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Welcome to ${currentRoom.getString("name")}!")
-        builder.setMessage("Creator: ${currentRoom.getString("creator")}\nThis room's code is ${GlobalVars.currentRoomCode}.\nShare it with your friends so they can join!")
-        builder.setPositiveButton("Copy Code") { _, _ ->
+
+        var messageText = "Creator: ${currentRoom.getString("creator")}"
+        if(currentRoom.getString("creator") == GlobalVars.currentUser){
+
+            messageText += "\n" +
+                    "\nThis room's code is ${GlobalVars.currentRoomCode}.\n" +
+                    "This code is only shown to you.\nPlease copy it or save it elsewhere.\n" +
+                    "\nShare it with friends who wish to join this room."
+        }
+        builder.setMessage(messageText)
+        if(currentRoom.getString("creator") == GlobalVars.currentUser) builder.setPositiveButton("Copy Code") { _, _ ->
 
             // Copy the code to clipboard
             val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
