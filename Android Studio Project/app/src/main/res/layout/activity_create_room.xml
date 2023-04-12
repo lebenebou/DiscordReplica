@@ -4,53 +4,42 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CreateCommunity"
+    tools:context=".CreateRoom"
     tools:layout_editor_absoluteX="-1dp"
     tools:layout_editor_absoluteY="-9dp">
+
 
     <EditText
         android:id="@+id/nameInput"
         android:layout_width="260dp"
         android:layout_height="59dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="60dp"
         android:ems="10"
-        android:hint="Community name"
+        android:hint="Room name"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/explanationText" />
 
-    <EditText
-        android:id="@+id/descInput"
-        android:layout_width="260dp"
-        android:layout_height="112dp"
-        android:layout_marginTop="12dp"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:hint="Description"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nameInput" />
-
     <Button
-        android:id="@+id/createButton"
+        android:id="@+id/createComButton"
         android:layout_width="260dp"
         android:layout_height="50dp"
-        android:text="Create Community"
+        android:layout_marginBottom="272dp"
         android:background="@drawable/green_btn_bg"
+        android:inputType="textMultiLine"
+        android:text="Create Room"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:textColor="@color/white"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/descInput"
-        android:inputType="textMultiLine"
-        app:layout_constraintVertical_bias="0.051" />
+        app:layout_constraintTop_toBottomOf="@+id/nameInput"
+        app:layout_constraintVertical_bias="0.365" />
 
     <Button
-        android:id="@+id/cancelButton"
+        android:id="@+id/goBackButton"
         android:layout_width="260dp"
         android:layout_height="50dp"
         android:text="Go Back"
@@ -60,7 +49,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/createButton"
+        app:layout_constraintTop_toBottomOf="@+id/createComButton"
         app:layout_constraintVertical_bias="0.049" />
 
     <TextView
@@ -68,7 +57,7 @@
         android:layout_width="341dp"
         android:layout_height="39dp"
         android:layout_marginTop="8dp"
-        android:text="Friends with similar interests can join this community and open rooms to chat."
+        android:text="You will receive a code for this room. Friends with the code can join this room to chat."
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.228"
         app:layout_constraintStart_toStartOf="parent"
@@ -79,7 +68,7 @@
         android:layout_width="351dp"
         android:layout_height="62dp"
         android:layout_marginTop="36dp"
-        android:text="Create a public community that represents you."
+        android:text="Open a New Room in This Community."
         android:textColor="@color/black"
         android:textSize="25sp"
         app:layout_constraintEnd_toEndOf="parent"

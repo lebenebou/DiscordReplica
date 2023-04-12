@@ -14,13 +14,16 @@
         android:theme="@style/Theme.AndroidStudioProject"
         tools:targetApi="31">
         <activity
-            android:name=".QuickJoin"
+            android:name=".CreateCommunity"
+            android:exported="false" />
+        <activity
+            android:name=".Community"
             android:exported="false" />
         <activity
             android:name=".ChatRoom"
             android:exported="false" />
         <activity
-            android:name=".CreateCommunity"
+            android:name=".CreateRoom"
             android:exported="false" />
         <activity
             android:name=".HomePage"
@@ -39,7 +42,7 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:exported="true"></activity>
+            android:exported="true" />
     </application>
 
 </manifest>
