@@ -20,6 +20,9 @@
             android:name=".Community"
             android:exported="false" />
         <activity
+            android:name=".QuickJoin"
+            android:exported="false" />
+        <activity
             android:name=".ChatRoom"
             android:exported="false" />
         <activity

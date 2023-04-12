@@ -169,6 +169,28 @@ class MongoClient {
 
         return removeFromArray("Rooms", JSONObject().put("code", roomCode), "active_users", username)
     }
+    suspend fun getSearchResults(collectionName: String, attributeName: String, searchQuery: String) : JSONObject {
+
+        val filter = JSONObject().apply {
+            put(attributeName, JSONObject().put("\$regex", "(?i).*$searchQuery.*"))
+            // this is a regex for anything that has the query as a substring
+        }
+
+        return makeAPIRequest(
+
+            endpoint = "https://eu-central-1.aws.data.mongodb-api.com/app/data-wzbfu/endpoint/data/v1/action/find",
+
+            headers = JSONObject()
+                .put("content-type", "application/json")
+                .put("apiKey", apiKey),
+
+            body = JSONObject()
+                .put("dataSource", "Cluster1")
+                .put("database", "DiscordReplica")
+                .put("collection", collectionName)
+                .put("filter", filter)
+        )
+    }
 
     fun encrypt(word: String): String {
 
