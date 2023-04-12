@@ -7,33 +7,11 @@
     android:layout_height="match_parent"
     tools:context=".HomePage">
 
-    <ScrollView
-        android:id="@+id/scrollView"
-        android:layout_width="match_parent"
-        android:layout_height="535dp"
-        android:foregroundGravity="center"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.428"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/myCommunitiesText">
-
-        <LinearLayout
-            android:id="@+id/message_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <!-- linear layouts are added here dynamically from the .kt file -->
-
-        </LinearLayout>
-
-    </ScrollView>
-
     <Button
         android:id="@+id/quickJoinButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="20dp"
         android:width="250dp"
         android:background="@drawable/green_btn_bg"
         android:text="quick join a room"
@@ -41,13 +19,27 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scrollView" />
+        app:layout_constraintTop_toBottomOf="@+id/exploreText" />
 
     <Button
-        android:id="@+id/CreateCommunityButton"
+        android:id="@+id/searchButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
+        android:width="250dp"
+        android:background="@drawable/normal_btn_bg"
+        android:text="Search Communities"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/quickJoinButton" />
+
+    <Button
+        android:id="@+id/createCommunityButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="84dp"
         android:width="250dp"
         android:background="@drawable/normal_btn_bg"
         android:text="Create Your own community"
@@ -56,24 +48,47 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/quickJoinButton"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/searchButton"
+        app:layout_constraintVertical_bias="0.357" />
 
     <TextView
-        android:id="@+id/myCommunitiesText"
-        android:layout_width="411dp"
-        android:layout_height="60dp"
-        android:background="@color/purple_700"
-        android:gravity="left|center"
-        android:paddingLeft="10dp"
-
+        android:id="@+id/myComsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
         android:text="My Communities"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/exploreText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Explore"
+        android:textColor="@color/black"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/scrollView2" />
+
+    <ScrollView
+        android:id="@+id/scrollView2"
+        android:layout_width="match_parent"
+        android:layout_height="302dp"
+        android:layout_marginTop="28dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/myComsText">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </ScrollView>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

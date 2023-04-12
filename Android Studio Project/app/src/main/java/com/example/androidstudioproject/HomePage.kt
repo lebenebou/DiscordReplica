@@ -12,6 +12,7 @@ class HomePage : AppCompatActivity() {
 
     private lateinit var quickJoinButton: Button
     private lateinit var createCommunityButton: Button
+    private lateinit var searchButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -19,7 +20,8 @@ class HomePage : AppCompatActivity() {
         setContentView(R.layout.activity_home_page)
 
         quickJoinButton = findViewById(R.id.quickJoinButton)
-        createCommunityButton = findViewById(R.id.CreateCommunityButton)
+        createCommunityButton = findViewById(R.id.createCommunityButton)
+        searchButton = findViewById(R.id.searchButton)
 
         quickJoinButton.setOnClickListener{
             startActivity(Intent(this, QuickJoin::class.java))
