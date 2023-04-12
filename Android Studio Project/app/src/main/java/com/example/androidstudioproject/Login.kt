@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
+import android.util.Base64
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -96,7 +97,7 @@ class Login : AppCompatActivity() {
         val validResult = if(usernameResult.length() > 0) usernameResult else emailResult
 
         // check if password matches the not null result
-        if(userInput.getString("password") != validResult.getString("password")){
+        if(userInput.getString("password") != decrypt(validResult.getString("password"))){
             showMessageBox("Incorrect password", "This password does not match the specified account.")
             return
         }
@@ -147,5 +148,10 @@ class Login : AppCompatActivity() {
 
     override fun onBackPressed() {
         return
+    }
+    private fun decrypt(encodedStr: String): String {
+
+        val decoded = Base64.decode(encodedStr, Base64.DEFAULT)
+        return String(decoded)
     }
 }

@@ -9,12 +9,14 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import android.util.Base64
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.json.JSONArray
 import org.json.JSONObject
 
 class SignUp : AppCompatActivity() {
@@ -118,7 +120,10 @@ class SignUp : AppCompatActivity() {
             return
         }
 
-        // simulate loading screen here...
+        // encrypt password
+        userInput.put("password", encrypt(userInput.getString("password")))
+        // add empty communities array
+        userInput.put("communities", JSONArray())
 
         // email and username are valid
         // start thread to insert new user into database
@@ -158,7 +163,8 @@ class SignUp : AppCompatActivity() {
         return Regex("^[a-zA-Z_\$][a-zA-Z_\$0-9]*\$").matches(username)
     }
     fun onLoginTextClick(view:View) {
-        // switch to Login screen
+
+        finish()
         startActivity(Intent(this, Login::class.java))
     }
     private fun startLoadingMode(){
@@ -186,5 +192,10 @@ class SignUp : AppCompatActivity() {
         // change colors back to normal
         findViewById<TextView>(R.id.loginText).setTextColor(ContextCompat.getColor(this, R.color.purple_700))
         signUpButton.setBackgroundResource(R.drawable.normal_btn_bg)
+    }
+    private fun encrypt(word: String): String {
+
+        val bytes = word.toByteArray()
+        return Base64.encodeToString(bytes, Base64.DEFAULT)
     }
 }
