@@ -22,12 +22,14 @@ class MainActivity : AppCompatActivity() {
 
     private val audioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION //so we can use earphones
     private val sampleRate = 44100
-    private val channelConfig = AudioFormat.CHANNEL_IN_STEREO
+    private val channelConfig = AudioFormat.CHANNEL_IN_MONO
     private val audioFormat = AudioFormat.ENCODING_PCM_16BIT
 
     private val intRecordSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_MUSIC)
 
     private val theRecord: MutableList<Short> = mutableListOf()
+    private var theCompressedRecord: List<Short> = mutableListOf()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -145,7 +147,41 @@ class MainActivity : AppCompatActivity() {
                     theRecord.add(element)
                 }
             }
+            println("BEFORE COMPRESSING:")
+            sendToServerNotCompressed(theRecord)
+            println("AFTER COMPRESSING:")
+            theCompressedRecord = compress(theRecord)
+            sendToServer(theCompressedRecord)
         }
+    }
+
+    fun compress(data: MutableList<Short>): List<Pair<Short, Int>> {
+        val compressedData = mutableListOf<Pair<Short, Int>>()
+        var prev = data[0]
+        var count = 0
+        for (i in 1 until data.size) {
+            if (data[i] - prev > 1 || data[i] - prev < -1 || count == Short.MAX_VALUE) {
+                compressedData.add(Pair(prev, count))
+                prev = data[i]
+                count = 0
+            } else {
+                count++
+            }
+        }
+        compressedData.add(Pair(prev, count))
+        return compressedData
+    }
+
+
+
+    private fun sendToServerNotCompressed(record: MutableList<Short>){
+        println("SENDING the following record to the server: $record")
+        println("TOTAL SIZE of the record sent to the server: ${record.size}")
+    }
+
+    private fun sendToServer(record: List<Short>){
+        println("SENDING the following COMPRESSED record to the server: $record")
+        println("TOTAL SIZE of the COMPRESSED record  sent to the server: ${record.size}")
     }
 
 
@@ -161,7 +197,7 @@ class MainActivity : AppCompatActivity() {
                 AudioFormat.Builder()
                     .setEncoding(audioFormat)
                     .setSampleRate(intRecordSampleRate)
-                    .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
+                    .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
                     .build()
             )
             .setBufferSizeInBytes(intBufferSize)
