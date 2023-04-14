@@ -146,6 +146,7 @@ class Community : AppCompatActivity() {
         builder.setPositiveButton("Yes") { _, _ ->
 
             finish()
+            GlobalVars.currentCommunityCode = "000000"
             startActivity(Intent(this, HomePage::class.java))
         }
         builder.setNegativeButton("No") { dialog, _ ->

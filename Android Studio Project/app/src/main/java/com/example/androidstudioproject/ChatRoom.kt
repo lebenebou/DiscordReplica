@@ -141,14 +141,19 @@ class ChatRoom : AppCompatActivity() {
             GlobalScope.launch {
 
                 try {
-                    leaveRoom()
+                    databaseClient.removeFromActiveUsers(GlobalVars.currentRoomCode, GlobalVars.currentUser)
                 }
                 catch(e: Exception){
                     connectionDropped()
                 }
             }
             finish()
-            startActivity(Intent(this, HomePage::class.java))
+            if(GlobalVars.currentCommunityCode=="000000"){
+                startActivity(Intent(this, HomePage::class.java))
+            }
+            else{
+                startActivity(Intent(this, Community::class.java))
+            }
         }
         builder.setNegativeButton("No") { dialog, _ ->
             dialog.dismiss()
@@ -182,10 +187,6 @@ class ChatRoom : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-    private suspend fun leaveRoom(){
-
-        databaseClient.removeFromActiveUsers(GlobalVars.currentRoomCode, GlobalVars.currentUser)
     }
     private fun showOnlineUsers(){
 
