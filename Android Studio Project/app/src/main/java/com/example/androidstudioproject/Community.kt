@@ -17,6 +17,7 @@ class Community : AppCompatActivity() {
     private lateinit var welcomeText: TextView
     private lateinit var scrollView: ScrollView
     private lateinit var openRoomButton: Button
+    private lateinit var descriptionText: TextView
 
     private val databaseClient = MongoClient()
     private var currentCommunity = JSONObject()
@@ -28,6 +29,8 @@ class Community : AppCompatActivity() {
         setContentView(R.layout.activity_community)
 
         welcomeText = findViewById(R.id.welcomeText)
+        descriptionText = findViewById(R.id.descriptionText)
+
         openRoomButton = findViewById(R.id.openRoomButton)
         scrollView = findViewById(R.id.scrollView3)
 
@@ -44,6 +47,8 @@ class Community : AppCompatActivity() {
                 openRoomButton.isEnabled = true
                 openRoomButton.setBackgroundResource(R.drawable.normal_btn_bg)
                 welcomeText.text = "Welcome to " + currentCommunity.getString("name") + "."
+                descriptionText.text = currentCommunity.getString("description")
+
             }
         }
     }

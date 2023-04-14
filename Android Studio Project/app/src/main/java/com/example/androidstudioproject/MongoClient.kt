@@ -139,7 +139,7 @@ class MongoClient {
         )
     }
 
-    private suspend fun addToArray(collectionName: String, filter: JSONObject, arrayName: String, element: Any) :JSONObject {
+    suspend fun addToArray(collectionName: String, filter: JSONObject, arrayName: String, element: Any) :JSONObject {
 
         return makeAPIRequest(
 
@@ -159,7 +159,7 @@ class MongoClient {
                 )
         )
     }
-    private suspend fun removeFromArray(collectionName: String, filter: JSONObject, arrayName: String, element: Any) :JSONObject {
+    suspend fun removeFromArray(collectionName: String, filter: JSONObject, arrayName: String, element: Any) :JSONObject {
 
         return makeAPIRequest(
 

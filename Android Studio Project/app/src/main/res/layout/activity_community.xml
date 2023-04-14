@@ -8,8 +8,8 @@
 
     <TextView
         android:id="@+id/welcomeText"
-        android:layout_width="356dp"
-        android:layout_height="69dp"
+        android:layout_width="357dp"
+        android:layout_height="38dp"
         android:layout_marginTop="56dp"
         android:text="Loading..."
         android:textColor="@color/black"
@@ -21,12 +21,26 @@
 
     <TextView
         android:id="@+id/mainText2"
+        android:layout_width="312dp"
+        android:layout_height="31dp"
+        android:layout_marginTop="40dp"
+        android:gravity="center"
+        android:text="Available Rooms"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.494"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/descriptionText" />
+
+    <TextView
+        android:id="@+id/descriptionText"
         android:layout_width="308dp"
         android:layout_height="40dp"
-        android:text="Join one of the rooms below or open your own."
+        android:text="Loading..."
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.155"
+        app:layout_constraintHorizontal_bias="0.145"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/welcomeText" />
 
@@ -36,21 +50,23 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="68dp"
         android:background="@drawable/grey_btn_bg"
-        android:text="Open New Room"
         android:enabled="false"
+        android:text="Open New Room"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/scrollView3"
-        app:layout_constraintVertical_bias="0.653" />
+        app:layout_constraintVertical_bias="1.0" />
 
     <ScrollView
         android:id="@+id/scrollView3"
-        android:layout_width="match_parent"
-        android:layout_height="424dp"
+        android:layout_width="411dp"
+        android:layout_height="365dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/mainText2">
 

@@ -72,6 +72,7 @@ class CreateCommunity : AppCompatActivity() {
         }
 
         GlobalVars.currentCommunityCode = newCode
+        databaseClient.addToArray("Users", JSONObject().put("username", GlobalVars.currentUser), "communities", newCode)
 
         val newRoom = JSONObject().apply {
 
