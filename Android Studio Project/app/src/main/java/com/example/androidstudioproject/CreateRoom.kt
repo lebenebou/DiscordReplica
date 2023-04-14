@@ -71,11 +71,13 @@ class CreateRoom : AppCompatActivity() {
         val newRoom = JSONObject().apply {
 
             put("code", newCode)
+            put("community", GlobalVars.currentCommunityCode)
             put("name", name)
             put("creator", GlobalVars.currentUser)
             put("messages", JSONArray()) // empty list of messages
             put("active_users", JSONArray()) // empty list of online users
         }
+        databaseClient.addToArray("Communities", JSONObject().put("code", GlobalVars.currentCommunityCode), "rooms", newCode)
         databaseClient.insertOne("Rooms", newRoom)
     }
     private fun showMessageBox(title: String, message: String) {
@@ -118,6 +120,7 @@ class CreateRoom : AppCompatActivity() {
         nameInput.isEnabled = false
         backButton.isEnabled = false
         createButton.isEnabled = false
+        createButton.text = "Creating..."
 
         createButton.setBackgroundResource(R.drawable.grey_btn_bg)
     }
@@ -126,6 +129,7 @@ class CreateRoom : AppCompatActivity() {
         nameInput.isEnabled = true
         backButton.isEnabled = true
         createButton.isEnabled = true
+        createButton.text = "Create Room"
 
         createButton.setBackgroundResource(R.drawable.green_btn_bg)
     }
