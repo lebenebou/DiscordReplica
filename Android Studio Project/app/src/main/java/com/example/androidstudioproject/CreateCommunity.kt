@@ -72,6 +72,7 @@ class CreateCommunity : AppCompatActivity() {
         }
 
         GlobalVars.currentCommunityCode = newCode
+        databaseClient.addToArray("Users", JSONObject().put("username", GlobalVars.currentUser), "communities", newCode)
 
         val newRoom = JSONObject().apply {
 
@@ -79,7 +80,7 @@ class CreateCommunity : AppCompatActivity() {
             put("name", name)
             put("description", desc)
             put("creator", GlobalVars.currentUser)
-            put("users", JSONArray()) // empty list of messages
+            put("users", JSONArray().put(GlobalVars.currentUser)) // list of just the creator's name for now
             put("rooms", JSONArray()) // empty list of rooms
         }
         databaseClient.insertOne("Communities", newRoom)

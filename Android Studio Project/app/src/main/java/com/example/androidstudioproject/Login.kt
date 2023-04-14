@@ -70,6 +70,10 @@ class Login : AppCompatActivity() {
 
             }
         }
+        loginButton.setOnClickListener{
+            GlobalVars.currentCommunityCode = "5PPLXZ"
+            startActivity(Intent(this, Community::class.java))
+        }
 
         imgShowHidePassword = findViewById(R.id.imgShowHidePassword)
 
@@ -145,6 +149,7 @@ class Login : AppCompatActivity() {
         loginButton.setBackgroundResource(R.drawable.normal_btn_bg)
         signUpText.setTextColor(ContextCompat.getColor(this, R.color.purple_700))
     }
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         return
     }
