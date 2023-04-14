@@ -192,7 +192,7 @@ class MongoClient {
 
         return removeFromArray("Rooms", JSONObject().put("code", roomCode), "active_users", username)
     }
-    suspend fun getSearchResults(collectionName: String, attributeName: String, searchQuery: String) : JSONObject {
+    suspend fun getSearchResults(collectionName: String, attributeName: String, searchQuery: String) : JSONArray {
 
         val filter = JSONObject().apply {
             put(attributeName, JSONObject().put("\$regex", "(?i).*$searchQuery.*"))
@@ -212,7 +212,8 @@ class MongoClient {
                 .put("database", "DiscordReplica")
                 .put("collection", collectionName)
                 .put("filter", filter)
-        )
+
+        ).getJSONArray("documents")
     }
 
     fun encrypt(word: String): String {

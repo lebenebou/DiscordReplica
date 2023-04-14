@@ -14,7 +14,7 @@ import org.json.JSONObject
 
 class Community : AppCompatActivity() {
 
-    private lateinit var welcomeText: TextView
+    private lateinit var titleText: TextView
     private lateinit var scrollView: ScrollView
     private lateinit var openRoomButton: Button
     private lateinit var descriptionText: TextView
@@ -28,7 +28,7 @@ class Community : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_community)
 
-        welcomeText = findViewById(R.id.welcomeText)
+        titleText = findViewById(R.id.welcomeText)
         descriptionText = findViewById(R.id.descriptionText)
 
         openRoomButton = findViewById(R.id.openRoomButton)
@@ -46,9 +46,10 @@ class Community : AppCompatActivity() {
             runOnUiThread {
                 openRoomButton.isEnabled = true
                 openRoomButton.setBackgroundResource(R.drawable.normal_btn_bg)
-                welcomeText.text = "Welcome to " + currentCommunity.getString("name") + "."
+                titleText.text = currentCommunity.getString("name") + "."
                 descriptionText.text = currentCommunity.getString("description")
 
+                showCommunityInfo()
             }
         }
     }
@@ -61,6 +62,7 @@ class Community : AppCompatActivity() {
             .put("code", JSONObject()
                 .put("\$in", currentCommunity.getJSONArray("rooms"))))
     }
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
 
         val builder = AlertDialog.Builder(this)
@@ -76,5 +78,24 @@ class Community : AppCompatActivity() {
             dialog.dismiss()
         }
         builder.show()
+    }
+    private fun showMessageBox(title: String, message: String) {
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(title)
+        builder.setMessage(message)
+
+        builder.setPositiveButton("OK") { dialog, _ ->
+            dialog.dismiss()
+        }
+        builder.show()
+    }
+    private fun showCommunityInfo(){
+
+        showMessageBox("Welcome to " + currentCommunity.getString("name") + ".",
+            "This community was created by " + currentCommunity.getString("creator") + ".\n\n" +
+                    "Description: " + currentCommunity.getString("description") + "\n\n" +
+                    "Open rooms: " + availableRooms.length() + "\n\n" +
+                    "Join an available room or open a new one to start chatting!")
     }
 }
