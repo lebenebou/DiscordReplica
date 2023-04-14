@@ -66,13 +66,7 @@ class Login : AppCompatActivity() {
                 catch (e: Exception){
                     runOnUiThread{ showMessageBox("Connection Failure", "Please make sure you have an active internet connection.")}
                 }
-
-
             }
-        }
-        loginButton.setOnClickListener{
-            GlobalVars.currentCommunityCode = "5PPLXZ"
-            startActivity(Intent(this, Community::class.java))
         }
 
         imgShowHidePassword = findViewById(R.id.imgShowHidePassword)
