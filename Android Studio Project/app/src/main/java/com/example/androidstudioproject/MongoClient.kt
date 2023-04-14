@@ -9,6 +9,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 import java.net.HttpURLConnection
@@ -77,6 +78,28 @@ class MongoClient {
 
         if(jsonResponse.toString().length < 18) return JSONObject()
         return jsonResponse.getJSONObject("document")
+    }
+    suspend fun findMultiple(collectionName: String, filter: JSONObject) : JSONArray {
+
+        // returns empty json if no matches
+        val jsonResponse = makeAPIRequest(
+
+            endpoint = "https://eu-central-1.aws.data.mongodb-api.com/app/data-wzbfu/endpoint/data/v1/action/find",
+
+            headers = JSONObject()
+                .put("content-type", "application/json")
+                .put("Access-Control-Request-Headers", "*")
+                .put("api-key", apiKey),
+
+            body = JSONObject()
+                .put("dataSource", "Cluster1")
+                .put("database", "DiscordReplica")
+                .put("collection", collectionName)
+                .put("filter", filter)
+        )
+
+        if(jsonResponse.toString().length < 18) return JSONArray()
+        return jsonResponse.getJSONArray("documents")
     }
     suspend fun deleteOne(collectionName: String, filter: JSONObject) : JSONObject {
 
