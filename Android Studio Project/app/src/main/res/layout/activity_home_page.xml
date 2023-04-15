@@ -6,12 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".HomePage">
-    <VideoView
-        android:id="@+id/Homevd"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
 
-/>
     <Button
         android:id="@+id/quickJoinButton"
         android:layout_width="wrap_content"
@@ -44,7 +39,7 @@
         android:id="@+id/createCommunityButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="84dp"
+        android:layout_marginTop="12dp"
         android:width="250dp"
         android:background="@drawable/normal_btn_bg"
         android:text="Create Your own community"
@@ -54,7 +49,7 @@
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/searchButton"
-        app:layout_constraintVertical_bias="0.357" />
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/myComsText"
@@ -62,9 +57,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:text="My Communities"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="30sp"
-        android:fontFamily="@font/testfont"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -75,7 +69,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Explore"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

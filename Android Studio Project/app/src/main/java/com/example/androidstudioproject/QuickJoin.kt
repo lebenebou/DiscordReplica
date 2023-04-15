@@ -71,8 +71,7 @@ class QuickJoin : AppCompatActivity() {
         builder.setMessage("Your internet connection dropped.\nPlease try again.")
             .setCancelable(false)
             .setPositiveButton("OK") { _, _ ->
-//                finish()
-//                startActivity(Intent(this, Login::class.java))
+                endLoadingMode()
             }
 
         val alert = builder.create()
