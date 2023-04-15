@@ -2,9 +2,9 @@ package com.example.androidstudioproject
 
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.Gravity
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -88,7 +88,8 @@ class Community : AppCompatActivity() {
     }
     private fun syncScrollView(){
 
-        scrollView.removeAllViews()
+        roomsLayout.removeAllViews()
+
         for(i in 0 until availableRooms.length()){
 
             val room = availableRooms.getJSONObject(i)
@@ -110,32 +111,38 @@ class Community : AppCompatActivity() {
         linearLayout.orientation = LinearLayout.VERTICAL
         linearLayout.setBackgroundResource(R.drawable.message_rectangle)
         linearLayout.isClickable = true
+
         linearLayout.setOnClickListener {
-            val roomName = room.getString("name")
-            println(roomName)
+            GlobalVars.currentRoomCode = room.getString("code")
+            startActivity(Intent(this, ChatRoom::class.java))
         }
 
         val roomName = TextView(context)
         roomName.text = room.getString("name")
         roomName.setTextColor(Color.BLACK)
+        roomName.setTypeface(null, Typeface.BOLD)
         roomName.textSize = 16f
+        roomName.setPadding(10, 10, 10, 10)
+
         linearLayout.addView(roomName)
 
         val creatorName = TextView(context)
         creatorName.text = "Created by " + room.getString("creator")
         creatorName.setTextColor(getRandomColor(room.getString("creator")))
         creatorName.textSize = 14f
+        creatorName.setPadding(10, 10, 10, 10)
+
         linearLayout.addView(creatorName)
 
         val onlineUsers = TextView(context)
         onlineUsers.text = "Online: " + room.getJSONArray("active_users").length()
         onlineUsers.textSize = 14f
+        onlineUsers.setPadding(10, 10, 10, 10)
+
         linearLayout.addView(onlineUsers)
 
         roomsLayout.addView(linearLayout)
-        scrollView.addView(roomsLayout)
     }
-
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
 
