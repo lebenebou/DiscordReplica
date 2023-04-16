@@ -3,8 +3,12 @@ package com.example.androidstudioproject
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
+import android.graphics.drawable.ShapeDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import kotlinx.coroutines.GlobalScope
@@ -133,7 +137,7 @@ class Community : AppCompatActivity() {
         roomName.setTextColor(Color.BLACK)
         roomName.setTypeface(null, Typeface.BOLD)
         roomName.textSize = 16f
-        roomName.setPadding(10, 10, 10, 10)
+        roomName.setPadding(20, 10, 0, 0)
 
         linearLayout.addView(roomName)
 
@@ -141,14 +145,14 @@ class Community : AppCompatActivity() {
         creatorName.text = "Created by " + room.getString("creator")
         creatorName.setTextColor(getRandomColor(room.getString("creator")))
         creatorName.textSize = 14f
-        creatorName.setPadding(10, 10, 10, 10)
+        creatorName.setPadding(20, 10, 0, 0)
 
         linearLayout.addView(creatorName)
 
         val onlineUsers = TextView(context)
         onlineUsers.text = "Online: " + room.getJSONArray("active_users").length()
         onlineUsers.textSize = 14f
-        onlineUsers.setPadding(10, 10, 10, 10)
+        onlineUsers.setPadding(20, 10, 0, 10)
 
         linearLayout.addView(onlineUsers)
 
