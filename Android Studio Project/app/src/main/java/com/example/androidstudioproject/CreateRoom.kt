@@ -1,9 +1,12 @@
 
 package com.example.androidstudioproject
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
@@ -45,6 +48,7 @@ class CreateRoom : AppCompatActivity() {
 
                 try {
                     createRoom(roomName)
+                    finish()
                     startActivity(Intent(this@CreateRoom, ChatRoom::class.java))
 
                     runOnUiThread{ endLoadingMode() }
@@ -123,6 +127,7 @@ class CreateRoom : AppCompatActivity() {
         createButton.text = "Creating..."
 
         createButton.setBackgroundResource(R.drawable.grey_btn_bg)
+        dismissKeyboard()
     }
     private fun endLoadingMode() {
 
@@ -132,5 +137,10 @@ class CreateRoom : AppCompatActivity() {
         createButton.text = "Create Room"
 
         createButton.setBackgroundResource(R.drawable.green_btn_bg)
+    }
+    private fun dismissKeyboard(){
+
+        val keyboard = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        keyboard.hideSoftInputFromWindow(findViewById<View>(android.R.id.content).windowToken, 0)
     }
 }

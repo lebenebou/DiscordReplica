@@ -49,7 +49,7 @@
         android:id="@+id/openRoomButton"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="48dp"
         android:background="@drawable/grey_btn_bg"
         android:enabled="false"
         android:text="Open New Room"
@@ -73,7 +73,7 @@
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/scrollView3"
-        app:layout_constraintVertical_bias="0.35" />
+        app:layout_constraintVertical_bias="0.508" />
 
     <ScrollView
         android:id="@+id/scrollView3"

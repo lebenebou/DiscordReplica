@@ -36,7 +36,7 @@ class ChatRoom : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_room)
 
-        // this scope.launch runs every 2 seconds
+        // this scope runs every 2 seconds
         val scope = CoroutineScope(Dispatchers.Default)
         scope.launch {
 

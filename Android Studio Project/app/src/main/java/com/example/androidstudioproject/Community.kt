@@ -5,10 +5,7 @@ import android.graphics.Color
 import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.ScrollView
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -27,7 +24,7 @@ class Community : AppCompatActivity() {
 
     private val databaseClient = MongoClient()
     private var currentCommunity = JSONObject()
-    private var availableRooms = JSONArray()
+    private var localAvailableRooms = JSONArray()
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -42,30 +39,15 @@ class Community : AppCompatActivity() {
         scrollView = findViewById(R.id.scrollView3)
         roomsLayout= findViewById(R.id.roomsLayout)
 
-        refreshButton.setOnClickListener{
-
-            GlobalScope.launch {
-
-                runOnUiThread { startLoadingMode() }
-
-                fetchCurrentCommunity()
-                fetchAvailableRooms()
-
-                runOnUiThread {
-                    syncScrollView()
-                    endLoadingMode()
-                }
-            }
-        }
-
-        openRoomButton.setOnClickListener{
-            startActivity(Intent(this, CreateRoom::class.java))
-        }
-
         GlobalScope.launch {
 
-            fetchCurrentCommunity()
-            fetchAvailableRooms()
+            try {
+                fetchCurrentCommunity()
+                fetchAvailableRooms()
+            }
+            catch (e: Exception){
+                runOnUiThread{ connectionDropped() }
+            }
 
             runOnUiThread {
                 endLoadingMode()
@@ -76,13 +58,41 @@ class Community : AppCompatActivity() {
                 syncScrollView()
             }
         }
+
+        refreshButton.setOnClickListener{
+
+            GlobalScope.launch {
+
+                runOnUiThread { startLoadingMode() }
+
+                try {
+                    fetchCurrentCommunity()
+                    fetchAvailableRooms()
+                }
+                catch (e: Exception){
+                    runOnUiThread{ connectionDropped() }
+                }
+
+                runOnUiThread {
+                    syncScrollView()
+                    endLoadingMode()
+                    Toast.makeText(this@Community, "Refreshed", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        openRoomButton.setOnClickListener{
+            startActivity(Intent(this, CreateRoom::class.java))
+        }
+
+
     }
     private suspend fun fetchCurrentCommunity(){
         currentCommunity = databaseClient.findOne("Communities", JSONObject().put("code", GlobalVars.currentCommunityCode))
     }
     private suspend fun fetchAvailableRooms(){
 
-        availableRooms = databaseClient.findMultiple("Rooms", JSONObject()
+        localAvailableRooms = databaseClient.findMultiple("Rooms", JSONObject()
             .put("code", JSONObject()
                 .put("\$in", currentCommunity.getJSONArray("rooms"))))
     }
@@ -90,11 +100,12 @@ class Community : AppCompatActivity() {
 
         roomsLayout.removeAllViews()
 
-        for(i in 0 until availableRooms.length()){
+        for(i in 0 until localAvailableRooms.length()){
 
-            val room = availableRooms.getJSONObject(i)
+            val room = localAvailableRooms.getJSONObject(i)
             addRoomToScrollView(room)
         }
+        scrollToBottom()
     }
     private fun addRoomToScrollView(room: JSONObject) {
 
@@ -177,7 +188,8 @@ class Community : AppCompatActivity() {
         showMessageBox("Welcome to " + currentCommunity.getString("name") + ".",
             "This community was created by " + currentCommunity.getString("creator") + ".\n\n" +
                     "Description: " + currentCommunity.getString("description") + "\n\n" +
-                    "Open rooms: " + availableRooms.length() + "\n\n" +
+                    "People in this community: " + currentCommunity.getJSONArray("users").length() + "\n\n" +
+                    "Open rooms: " + localAvailableRooms.length() + "\n\n" +
                     "Join an available room or open a new one to start chatting!")
     }
     private fun startLoadingMode(){
@@ -208,4 +220,23 @@ class Community : AppCompatActivity() {
         return Color.HSVToColor(floatArrayOf(hue.toFloat(), saturation, brightness))
     }
 
+    private fun connectionDropped(){
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Connection Failure")
+        builder.setMessage("Your internet connection dropped.\nYou are being redirected to the home screen.")
+            .setCancelable(false)
+            .setPositiveButton("OK") { _, _ ->
+                finish()
+                startActivity(Intent(this, HomePage::class.java))
+            }
+
+        val alert = builder.create()
+        alert.show()
+    }
+    private fun scrollToBottom(){
+        scrollView.post{
+            scrollView.fullScroll(ScrollView.FOCUS_DOWN)
+        }
+    }
 }

@@ -1,8 +1,11 @@
 package com.example.androidstudioproject
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
@@ -102,11 +105,11 @@ class CreateCommunity : AppCompatActivity() {
 
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Connection Failure")
-        builder.setMessage("Your internet connection dropped.\nPlease log back in.")
+        builder.setMessage("Your internet connection dropped.\n\nYou are being redirected to the home screen.")
             .setCancelable(false)
             .setPositiveButton("OK") { _, _ ->
                 finish()
-                startActivity(Intent(this, Login::class.java))
+                startActivity(Intent(this, HomePage::class.java))
             }
 
         val alert = builder.create()
@@ -123,19 +126,28 @@ class CreateCommunity : AppCompatActivity() {
     private fun startLoadingMode(){
 
         communityNameInput.isEnabled = false
+        descInput.isEnabled = false
         goBackButton.isEnabled = false
         createComButton.isEnabled = false
 
         createComButton.setBackgroundResource(R.drawable.grey_btn_bg)
         createComButton.text = "Creating..."
+
+        dismissKeyboard()
     }
     private fun endLoadingMode() {
 
         communityNameInput.isEnabled = true
+        descInput.isEnabled = true
         goBackButton.isEnabled = true
         createComButton.isEnabled = true
 
         createComButton.setBackgroundResource(R.drawable.green_btn_bg)
         createComButton.text = "Create Community"
+    }
+    private fun dismissKeyboard(){
+
+        val keyboard = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        keyboard.hideSoftInputFromWindow(findViewById<View>(android.R.id.content).windowToken, 0)
     }
 }
