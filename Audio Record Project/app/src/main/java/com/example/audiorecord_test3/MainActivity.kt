@@ -12,7 +12,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 import java.io.File
-import ws.schild.jave.*
 import ws.schild.jave.encode.EncodingAttributes
 
 import java.io.DataOutputStream
@@ -21,6 +20,7 @@ import java.io.FileOutputStream
 import ws.schild.jave.Encoder
 import ws.schild.jave.MultimediaObject
 
+import java.io.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -40,6 +40,10 @@ class MainActivity : AppCompatActivity() {
     private val intRecordSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_MUSIC)
 
     private val theRecord: MutableList<Short> = mutableListOf()
+    private var theReceivedRecord: MutableList<Short> = mutableListOf()
+
+
+    private val voiceEncodedFile = File("voiceEncodedRecord.mp3")
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -161,8 +165,6 @@ class MainActivity : AppCompatActivity() {
             saveShortListToFile(theRecord, voiceNotEncodedFile)
 
 
-            val voiceEncodedFile = File("voiceEncodedRecord.mp3")
-
             convertTxtToMp3(voiceNotEncodedFile,voiceEncodedFile)
         }
     }
@@ -177,6 +179,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+    private fun readShortListFromFile(file: File): MutableList<Short> {
+        val shortList = mutableListOf<Short>()
+        val inputStream = DataInputStream(FileInputStream(file))
+        try {
+            while (inputStream.available() > 0) {
+                val value = inputStream.readShort()
+                shortList.add(value)
+            }
+        } finally {
+            inputStream.close()
+        }
+        return shortList
+    }
 
 
     private fun convertTxtToMp3(source: File, target: File) {
@@ -225,11 +241,20 @@ class MainActivity : AppCompatActivity() {
 
         audioTrack!!.play()
 
-        val shortAudioDataForPlaying = ShortArray(theRecord.size)
+///////////////////////////////////////////////////////////////////////
+
+        val voiceDecodedFile = File("voiceDecodedFile.txt")
+
+        convertMp3ToTxt(voiceEncodedFile,voiceDecodedFile)
+
+        theReceivedRecord=readShortListFromFile(voiceDecodedFile)
+
+
+        val shortAudioDataForPlaying = ShortArray(theReceivedRecord.size)
 
         var i=0
-        while(i< theRecord.size){
-            shortAudioDataForPlaying[i]= theRecord[i]
+        while(i< theReceivedRecord.size){
+            shortAudioDataForPlaying[i]= theReceivedRecord[i]
             i++
         }
 
@@ -241,11 +266,8 @@ class MainActivity : AppCompatActivity() {
 
 
 
-    fun convertMp3ToTxt(mp3FilePath: String, txtFilePath: String) {
+    private fun convertMp3ToTxt(mp3File: File, txtFile: File) {
         try {
-            val mp3File = File(mp3FilePath)
-            val txtFile = File(txtFilePath)
-
             // Audio Attributes
             val audio = ws.schild.jave.encode.AudioAttributes()
             audio.setCodec("pcm_s16le")
