@@ -4,9 +4,11 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.media.*
 import android.os.Bundle
+import android.os.Environment
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -43,7 +45,7 @@ class MainActivity : AppCompatActivity() {
     private var theReceivedRecord: MutableList<Short> = mutableListOf()
 
 
-    private val voiceEncodedFile = File("voiceEncodedRecord.mp3")
+    private val voiceEncodedFile = File(Environment.getExternalStorageDirectory(),"voiceEncodedRecord.mp3")
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -161,7 +163,14 @@ class MainActivity : AppCompatActivity() {
                     theRecord.add(element)
                 }
             }
-            val voiceNotEncodedFile = File("voiceRecord.txt")
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 0)
+            }
+
+
+            val voiceNotEncodedFile = File(Environment.getExternalStorageDirectory(),"voiceRecord.txt")
             saveShortListToFile(theRecord, voiceNotEncodedFile)
 
 
@@ -243,7 +252,7 @@ class MainActivity : AppCompatActivity() {
 
 ///////////////////////////////////////////////////////////////////////
 
-        val voiceDecodedFile = File("voiceDecodedFile.txt")
+        val voiceDecodedFile = File(Environment.getExternalStorageDirectory(),"voiceDecodedFile.txt")
 
         convertMp3ToTxt(voiceEncodedFile,voiceDecodedFile)
 
