@@ -18,6 +18,11 @@ import ws.schild.jave.encode.EncodingAttributes
 import java.io.DataOutputStream
 import java.io.FileOutputStream
 
+import ws.schild.jave.Encoder
+import ws.schild.jave.MultimediaObject
+
+
+
 class MainActivity : AppCompatActivity() {
     private var audioRecord: AudioRecord? = null
     private var audioTrack: AudioTrack? = null
@@ -140,7 +145,6 @@ class MainActivity : AppCompatActivity() {
 
         audioThread!!.start()
     }
-
     private fun recording(): Thread {
         return Thread {//The thread prevents the code from blocking on the while loop and thus allows accessing the stop button
             while (isActive) {
@@ -157,14 +161,11 @@ class MainActivity : AppCompatActivity() {
             saveShortListToFile(theRecord, voiceNotEncodedFile)
 
 
-            val voiceEncodedFile = File("voiceEncodedRecord.txt")
+            val voiceEncodedFile = File("voiceEncodedRecord.mp3")
 
-            convertToMp3(voiceNotEncodedFile,voiceEncodedFile)
+            convertTxtToMp3(voiceNotEncodedFile,voiceEncodedFile)
         }
     }
-
-
-
     private fun saveShortListToFile(shortList: MutableList<Short>, file: File) {
         val outputStream = DataOutputStream(FileOutputStream(file))
         try {
@@ -178,7 +179,7 @@ class MainActivity : AppCompatActivity() {
 
 
 
-    private fun convertToMp3(source: File, target: File) {
+    private fun convertTxtToMp3(source: File, target: File) {
         try {
             // Audio Attributes
             val audio = ws.schild.jave.encode.AudioAttributes()
@@ -236,5 +237,34 @@ class MainActivity : AppCompatActivity() {
             audioTrack!!.write(shortAudioDataForPlaying, 0, shortAudioDataForPlaying.size)
         }
     }
+
+
+
+
+    fun convertMp3ToTxt(mp3FilePath: String, txtFilePath: String) {
+        try {
+            val mp3File = File(mp3FilePath)
+            val txtFile = File(txtFilePath)
+
+            // Audio Attributes
+            val audio = ws.schild.jave.encode.AudioAttributes()
+            audio.setCodec("pcm_s16le")
+            audio.setBitRate(16)
+            audio.setChannels(1)
+            audio.setSamplingRate(16000)
+
+            // Encoding Attributes
+            val attrs = EncodingAttributes()
+            attrs.setOutputFormat("s16le")
+            attrs.setAudioAttributes(audio)
+
+            // Encode
+            val encoder = Encoder()
+            encoder.encode(MultimediaObject(mp3File), txtFile, attrs)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+    }
+
 
 }
