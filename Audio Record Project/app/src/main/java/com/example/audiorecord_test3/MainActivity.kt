@@ -11,6 +11,13 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
+import java.io.File
+import ws.schild.jave.*
+import ws.schild.jave.encode.EncodingAttributes
+
+import java.io.DataOutputStream
+import java.io.FileOutputStream
+
 class MainActivity : AppCompatActivity() {
     private var audioRecord: AudioRecord? = null
     private var audioTrack: AudioTrack? = null
@@ -28,7 +35,6 @@ class MainActivity : AppCompatActivity() {
     private val intRecordSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_MUSIC)
 
     private val theRecord: MutableList<Short> = mutableListOf()
-    private var theCompressedRecord: List<Short> = mutableListOf()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -147,41 +153,51 @@ class MainActivity : AppCompatActivity() {
                     theRecord.add(element)
                 }
             }
-            println("BEFORE COMPRESSING:")
-            sendToServerNotCompressed(theRecord)
-            println("AFTER COMPRESSING:")
-            theCompressedRecord = compress(theRecord)
-            sendToServer(theCompressedRecord)
+            val voiceNotEncodedFile = File("voiceRecord.txt")
+            saveShortListToFile(theRecord, voiceNotEncodedFile)
+
+
+            val voiceEncodedFile = File("voiceEncodedRecord.txt")
+
+            convertToMp3(voiceNotEncodedFile,voiceEncodedFile)
         }
     }
 
-    fun compress(data: MutableList<Short>): List<Pair<Short, Int>> {
-        val compressedData = mutableListOf<Pair<Short, Int>>()
-        var prev = data[0]
-        var count = 0
-        for (i in 1 until data.size) {
-            if (data[i] - prev > 1 || data[i] - prev < -1 || count == Short.MAX_VALUE) {
-                compressedData.add(Pair(prev, count))
-                prev = data[i]
-                count = 0
-            } else {
-                count++
+
+
+    private fun saveShortListToFile(shortList: MutableList<Short>, file: File) {
+        val outputStream = DataOutputStream(FileOutputStream(file))
+        try {
+            for (s in shortList) {
+                outputStream.writeShort(s.toInt())
             }
+        } finally {
+            outputStream.close()
         }
-        compressedData.add(Pair(prev, count))
-        return compressedData
     }
 
 
 
-    private fun sendToServerNotCompressed(record: MutableList<Short>){
-        println("SENDING the following record to the server: $record")
-        println("TOTAL SIZE of the record sent to the server: ${record.size}")
-    }
+    private fun convertToMp3(source: File, target: File) {
+        try {
+            // Audio Attributes
+            val audio = ws.schild.jave.encode.AudioAttributes()
+            audio.setCodec("libmp3lame")
+            audio.setBitRate(128000)
+            audio.setChannels(2)
+            audio.setSamplingRate(44100)
 
-    private fun sendToServer(record: List<Short>){
-        println("SENDING the following COMPRESSED record to the server: $record")
-        println("TOTAL SIZE of the COMPRESSED record  sent to the server: ${record.size}")
+            // Encoding Attributes
+            val attrs = EncodingAttributes()
+            attrs.setOutputFormat("mp3")
+            attrs.setAudioAttributes(audio)
+
+            // Encode
+            val encoder = Encoder()
+            encoder.encode(MultimediaObject(source), target, attrs)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
     }
 
 
