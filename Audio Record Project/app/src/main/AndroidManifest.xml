@@ -5,9 +5,6 @@
     <!--added the permission to record the micro-->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
-    <!--added the permission to create files-->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"

@@ -4,25 +4,18 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.media.*
 import android.os.Bundle
-import android.os.Environment
+import android.util.Base64
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-
-import java.io.File
-import ws.schild.jave.encode.EncodingAttributes
-
-import java.io.DataOutputStream
-import java.io.FileOutputStream
-
-import ws.schild.jave.Encoder
-import ws.schild.jave.MultimediaObject
-
 import java.io.*
+import ws.schild.jave.*
+import java.nio.ByteBuffer
+import java.io.ByteArrayOutputStream
+import java.util.zip.GZIPOutputStream
 
 
 class MainActivity : AppCompatActivity() {
@@ -42,10 +35,7 @@ class MainActivity : AppCompatActivity() {
     private val intRecordSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_MUSIC)
 
     private val theRecord: MutableList<Short> = mutableListOf()
-    private var theReceivedRecord: MutableList<Short> = mutableListOf()
-
-
-    private val voiceEncodedFile = File(Environment.getExternalStorageDirectory(),"voiceEncodedRecord.mp3")
+    private var compressedByteArray: String = ""
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,8 +81,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun playAudio(){
+
         println("LIST OF theRecord: $theRecord")
         println("SIZE OF theRecord: ${theRecord.size}")
+
+        sendToServer(theRecord)
+
         playRecording()
         theRecord.clear()// for testing purpose
     }
@@ -158,49 +152,135 @@ class MainActivity : AppCompatActivity() {
                 audioRecord!!.read(shortAudioData, 0, shortAudioData.size)
 
 
+
                 //we add all shortAudioData inside a buffer
                 for (element in shortAudioData) {
                     theRecord.add(element)
                 }
             }
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 0)
-            }
 
-
-            val voiceNotEncodedFile = File(Environment.getExternalStorageDirectory(),"voiceRecord.txt")
-            saveShortListToFile(theRecord, voiceNotEncodedFile)
-
-
-            convertTxtToMp3(voiceNotEncodedFile,voiceEncodedFile)
-        }
-    }
-    private fun saveShortListToFile(shortList: MutableList<Short>, file: File) {
-        val outputStream = DataOutputStream(FileOutputStream(file))
-        try {
-            for (s in shortList) {
-                outputStream.writeShort(s.toInt())
-            }
-        } finally {
-            outputStream.close()
         }
     }
 
 
-    private fun readShortListFromFile(file: File): MutableList<Short> {
-        val shortList = mutableListOf<Short>()
-        val inputStream = DataInputStream(FileInputStream(file))
-        try {
-            while (inputStream.available() > 0) {
-                val value = inputStream.readShort()
-                shortList.add(value)
-            }
-        } finally {
-            inputStream.close()
+    private fun sendToServer(record: MutableList<Short>){
+        compressedByteArray= compressList(record)
+        println("compressedByteArray.size ${compressedByteArray.length}")
+    }
+
+    private fun compressList(list: MutableList<Short>): String {
+        // Convert the list to a delta-encoded byte array
+        val deltaEncoded = deltaEncode(list)
+        // Compress the byte array using GZIP
+        val compressed = compress(deltaEncoded)
+        // Encode the compressed byte array as a base64 string
+        return Base64.encodeToString(compressed, Base64.DEFAULT)
+        // Truncate the string to a maximum length of 1.2 million characters
+    }
+
+    private fun compress(data: ByteArray): ByteArray {
+        val baos = ByteArrayOutputStream()
+        GZIPOutputStream(baos).use { gzip -> gzip.write(data) }
+        return baos.toByteArray()
+    }
+
+    private fun deltaEncode(arr: MutableList<Short>): ByteArray {
+        val result = IntArray(arr.size)
+        var prev: Short = 0
+        for (i in arr.indices) {
+            result[i] = arr[i].toInt() - prev.toInt()
+            prev = arr[i]
         }
-        return shortList
+        val byteBuffer = ByteBuffer.allocate(result.size * 4)
+        byteBuffer.asIntBuffer().put(result)
+        return byteBuffer.array()
+    }
+
+
+    
+    private fun playRecording(){
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+            .build()
+
+        audioTrack = AudioTrack.Builder()
+            .setAudioAttributes(audioAttributes)
+            .setAudioFormat(
+                AudioFormat.Builder()
+                    .setEncoding(audioFormat)
+                    .setSampleRate(intRecordSampleRate)
+                    .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
+                    .build()
+            )
+            .setBufferSizeInBytes(intBufferSize)
+            .build()
+
+        //Set the playback rate to the sampleRate
+        audioTrack!!.playbackRate = intRecordSampleRate
+
+        audioTrack!!.play()
+
+
+        val shortAudioDataForPlaying = ShortArray(theRecord.size)
+
+        var i=0
+        while(i< theRecord.size){
+            shortAudioDataForPlaying[i]= theRecord[i]
+            i++
+        }
+
+        if (audioTrack?.playState == AudioTrack.PLAYSTATE_PLAYING) {
+            audioTrack!!.write(shortAudioDataForPlaying, 0, shortAudioDataForPlaying.size)
+        }
+    }
+
+
+
+/**
+
+    private fun encodeShortListToMp3(audioData: MutableList<Short>): JSONObject {
+        val audio = ws.schild.jave.encode.AudioAttributes()
+        audio.setCodec("libmp3lame")
+        audio.setBitRate(128000)
+        audio.setChannels(2)
+        audio.setSamplingRate(44100)
+
+        val attrs = EncodingAttributes()
+        attrs.setOutputFormat("mp3")
+        attrs.setAudioAttributes(audio)
+
+        val encoder = Encoder()
+
+        val encodedData: ByteArray
+        val byteArrayInputStream = ByteArrayInputStream(AudioUtils.shortArrayToByteArray(audioData.toShortArray()))
+        val multimediaObject = MultimediaObject(byteArrayInputStream)
+
+        try {
+            val outputStream = ByteArrayOutputStream()
+            encoder.encode(multimediaObject, outputStream, attrs)
+            encodedData = outputStream.toByteArray()
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            return JSONObject()
+        }
+
+        val json = JSONObject()
+        json.put("data", Base64.encodeToString(encodedData, Base64.DEFAULT))
+        return json
+    }
+
+
+
+    object AudioUtils {
+        fun shortArrayToByteArray(data: ShortArray): ByteArray {
+            val bytes = ByteArray(data.size * 2)
+            for (i in data.indices) {
+                bytes[i * 2] = (data[i] and 0x00FF).toByte()
+                bytes[i * 2 + 1] = (data[i].toInt() shr 8).toByte()
+            }
+            return bytes
+        }
     }
 
 
@@ -226,55 +306,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-    private fun playRecording(){
-        val audioAttributes = AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-            .build()
-
-        audioTrack = AudioTrack.Builder()
-            .setAudioAttributes(audioAttributes)
-            .setAudioFormat(
-                AudioFormat.Builder()
-                    .setEncoding(audioFormat)
-                    .setSampleRate(intRecordSampleRate)
-                    .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
-                    .build()
-            )
-            .setBufferSizeInBytes(intBufferSize)
-            .build()
-
-        //Set the playback rate to the sampleRate
-        audioTrack!!.playbackRate = intRecordSampleRate
-
-        audioTrack!!.play()
-
-///////////////////////////////////////////////////////////////////////
-
-        val voiceDecodedFile = File(Environment.getExternalStorageDirectory(),"voiceDecodedFile.txt")
-
-        convertMp3ToTxt(voiceEncodedFile,voiceDecodedFile)
-
-        theReceivedRecord=readShortListFromFile(voiceDecodedFile)
-
-
-        val shortAudioDataForPlaying = ShortArray(theReceivedRecord.size)
-
-        var i=0
-        while(i< theReceivedRecord.size){
-            shortAudioDataForPlaying[i]= theReceivedRecord[i]
-            i++
-        }
-
-        if (audioTrack?.playState == AudioTrack.PLAYSTATE_PLAYING) {
-            audioTrack!!.write(shortAudioDataForPlaying, 0, shortAudioDataForPlaying.size)
-        }
-    }
-
-
-
-
     private fun convertMp3ToTxt(mp3File: File, txtFile: File) {
         try {
             // Audio Attributes
@@ -296,6 +327,6 @@ class MainActivity : AppCompatActivity() {
             ex.printStackTrace()
         }
     }
-
+    **/
 
 }
