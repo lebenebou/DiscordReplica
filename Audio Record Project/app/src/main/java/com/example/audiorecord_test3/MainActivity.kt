@@ -4,18 +4,14 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.media.*
 import android.os.Bundle
-import android.util.Base64
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.io.*
 import ws.schild.jave.*
-import java.nio.ByteBuffer
-import java.io.ByteArrayOutputStream
-import java.util.zip.GZIPOutputStream
+import java.io.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -164,40 +160,17 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun sendToServer(record: MutableList<Short>){
-        compressedByteArray= compressList(record)
+        val encoding = Encoding()
+        compressedByteArray= encoding.compressList(record)
         println("compressedByteArray.size ${compressedByteArray.length}")
     }
 
-    private fun compressList(list: MutableList<Short>): String {
-        // Convert the list to a delta-encoded byte array
-        val deltaEncoded = deltaEncode(list)
-        // Compress the byte array using GZIP
-        val compressed = compress(deltaEncoded)
-        // Encode the compressed byte array as a base64 string
-        return Base64.encodeToString(compressed, Base64.DEFAULT)
-        // Truncate the string to a maximum length of 1.2 million characters
-    }
-
-    private fun compress(data: ByteArray): ByteArray {
-        val baos = ByteArrayOutputStream()
-        GZIPOutputStream(baos).use { gzip -> gzip.write(data) }
-        return baos.toByteArray()
-    }
-
-    private fun deltaEncode(arr: MutableList<Short>): ByteArray {
-        val result = IntArray(arr.size)
-        var prev: Short = 0
-        for (i in arr.indices) {
-            result[i] = arr[i].toInt() - prev.toInt()
-            prev = arr[i]
-        }
-        val byteBuffer = ByteBuffer.allocate(result.size * 4)
-        byteBuffer.asIntBuffer().put(result)
-        return byteBuffer.array()
+    private fun receivedFromServer(compressedString:String):MutableList<Short>{
+        val encoding = Encoding()
+        return encoding.decompressString(compressedString)
     }
 
 
-    
     private fun playRecording(){
         val audioAttributes = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
@@ -222,11 +195,14 @@ class MainActivity : AppCompatActivity() {
         audioTrack!!.play()
 
 
-        val shortAudioDataForPlaying = ShortArray(theRecord.size)
+        val theRecordAfterCompression = receivedFromServer(compressedByteArray)
+
+
+        val shortAudioDataForPlaying = ShortArray(theRecordAfterCompression.size)
 
         var i=0
-        while(i< theRecord.size){
-            shortAudioDataForPlaying[i]= theRecord[i]
+        while(i< theRecordAfterCompression.size){
+            shortAudioDataForPlaying[i]= theRecordAfterCompression[i]
             i++
         }
 
