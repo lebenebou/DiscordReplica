@@ -39,6 +39,7 @@ class MainActivity : AppCompatActivity() {
         val startButton = findViewById<Button>(R.id.button)
         val stopButton = findViewById<Button>(R.id.button2)
         val playButton = findViewById<Button>(R.id.button3)
+
         startButton.setOnClickListener {
             if(!isActive){
                 isActive = true
