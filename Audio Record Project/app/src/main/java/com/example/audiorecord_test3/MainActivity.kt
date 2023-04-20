@@ -157,15 +157,15 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun sendToServer(record: MutableList<Short>){
-        val encoding = Encoding()
+        val mongoClient = MongoClient()
         //element that we will send to the server
-        compressedByteArray= encoding.compressList(record)
+        compressedByteArray= mongoClient.compressList(record)
         println("this is the length of the String that we send to the server ${compressedByteArray.length}")
     }
 
     private fun receivedFromServer(compressedString:String):MutableList<Short>{
-        val encoding = Encoding()
-        return encoding.decompressString(compressedString)
+        val mongoClient = MongoClient()
+        return mongoClient.decompressString(compressedString)
     }
 
 

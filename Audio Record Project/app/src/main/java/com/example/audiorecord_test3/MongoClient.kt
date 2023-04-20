@@ -7,7 +7,7 @@ import java.nio.ByteBuffer
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
-class Encoding {
+class MongoClient {
     fun compressList(list: MutableList<Short>): String {
         // Convert the list to a delta-encoded byte array
         val deltaEncoded = deltaEncode(list)
