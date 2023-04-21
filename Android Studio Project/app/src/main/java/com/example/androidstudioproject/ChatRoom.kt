@@ -3,17 +3,18 @@ package com.example.androidstudioproject
 import android.content.*
 import android.graphics.Color
 import android.graphics.Typeface
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.*
 import org.json.JSONArray
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 class ChatRoom : AppCompatActivity() {
 
@@ -232,6 +233,11 @@ class ChatRoom : AppCompatActivity() {
         val alertDialog = builder.create()
         alertDialog.show()
     }
+
+
+
+
+
     private fun addMessageToScrollView(message: JSONObject){
 
         val messageLayout = LinearLayout(this)

@@ -1,20 +1,26 @@
 package com.example.androidstudioproject
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.media.*
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
+
+
 class RecordActivity : AppCompatActivity() {
     private lateinit var playButton: Button
     private lateinit var startButton: Button
     private lateinit var stopButton: Button
+    private lateinit var recordButton: Button
 
     private var audioRecord: AudioRecord? = null
     private var audioTrack: AudioTrack? = null
@@ -36,32 +42,31 @@ class RecordActivity : AppCompatActivity() {
 
 
 
+    @SuppressLint("MissingInflatedId", "ResourceType")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_record)
 
         playButton = findViewById(R.id.playbutton)
-        startButton = findViewById(R.id.startbutton)
-        stopButton = findViewById(R.id.stopbutton)
+        //startButton = findViewById(R.id.startbutton)
+        //stopButton = findViewById(R.id.stopbutton)
+        recordButton = findViewById(R.id.recordbutton)
+        var isRecording = false;
 
-        startButton.setOnClickListener {
-            println("Start was pressed")
-            if(!isActive){
-                isActive = true
+
+
+        recordButton.setOnClickListener {
+            if (!isRecording) {
                 buttonStart()
-            }else{
-                println("You can't click on start, since you are already calling")
-            }
-        }
-        stopButton.setOnClickListener {
-            println("stop was pressed")
-            if(isActive){
-                isActive = false
+                isRecording = true
+                //recordButton.text = "Stop Recording"
+            } else {
                 buttonStop()
-            }else{
-                println("You can't click on stop, since you are not calling")
+                isRecording = false
+                //recordButton.text = "Start Recording"
             }
         }
+
 
         playButton.setOnClickListener {
             println("Play was pressed")

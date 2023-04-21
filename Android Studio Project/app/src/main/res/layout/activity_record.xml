@@ -4,37 +4,40 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".RecordActivity">
+    tools:context=".MainActivity">
+
+    <Button
+        android:id="@+id/recordbutton"
+        android:layout_width="48dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/ic_mic"
+        app:layout_constraintBottom_toTopOf="@+id/playbutton"
+        app:layout_constraintEnd_toStartOf="@+id/guideline_end"
+        app:layout_constraintStart_toStartOf="@+id/guideline_start"/>
 
     <Button
         android:id="@+id/playbutton"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="276dp"
+        android:layout_marginBottom="16dp"
         android:text="Play"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintEnd_toStartOf="@+id/guideline_end"
+        app:layout_constraintStart_toStartOf="@+id/guideline_start"/>
 
-    <Button
-        android:id="@+id/startbutton"
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
-        android:text="Start"
-        app:layout_constraintBottom_toTopOf="@+id/stopbutton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.24" />
 
-    <Button
-        android:id="@+id/stopbutton"
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_end"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
-        android:text="Stop"
-        app:layout_constraintBottom_toTopOf="@+id/playbutton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.8"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
