@@ -3,7 +3,10 @@ package com.example.androidstudioproject
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 class SearchCommunity : AppCompatActivity() {
@@ -13,24 +16,34 @@ class SearchCommunity : AppCompatActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search_community)
         searchView = findViewById(R.id.searchView)
         searchButton = findViewById(R.id.searchButton)
         searchButton.setOnClickListener {
             val query = searchView.query.toString()
-            // Do something with the query, such as perform a search
         }
+
+
+
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
             override fun onQueryTextSubmit(query: String?): Boolean {
-                if (query != null) {
-                    val searchResults = runBlocking {
-                        
-                        databaseClient.getSearchResults("Communities", "name", query)
-                    }
-                    // Do something with the search results, such as display them in a RecyclerView
+                if (query==null){
+                    showMessageBox("empty Query","cannot be empty")
+                    return true ;
                 }
+
+                GlobalScope.launch {
+                    val searchResults = databaseClient.getSearchResults("Communities", "name", query)
+                    println(searchResults);
+                    runOnUiThread{
+                        //displayResults(searchReasults);
+                    }
+                }
+
+
                 return true
             }
 
@@ -41,5 +54,18 @@ class SearchCommunity : AppCompatActivity() {
             }
         })
 
+    }
+
+    private fun showMessageBox(title: String, message: String) {
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(title)
+        builder.setMessage(message)
+
+        builder.setPositiveButton("OK") { dialog, _ ->
+//            endLoadingMode()
+            dialog.dismiss()
+        }
+        builder.show()
     }
 }
