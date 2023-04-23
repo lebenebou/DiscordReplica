@@ -1,5 +1,6 @@
 package com.example.androidstudioproject
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
@@ -102,7 +103,8 @@ class SearchCommunity : AppCompatActivity() {
         linearLayout.isClickable = true
 
         linearLayout.setOnClickListener {
-            println(community.getString("name"))
+            GlobalVars.currentCommunityCode = community.getString("code")
+            startActivity(Intent(this, Community::class.java))
         }
 
         val communityName = TextView(context)
