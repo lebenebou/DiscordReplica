@@ -1,9 +1,9 @@
 package com.example.androidstudioproject
 
+import android.graphics.Color
+import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -11,15 +11,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
+import org.json.JSONObject
 
 class SearchCommunity : AppCompatActivity() {
     private lateinit var searchView:SearchView
 //    private lateinit var searchButton:Button
     private lateinit var search_results_layout:LinearLayout
-    private lateinit var name_text_view:TextView
-    private lateinit var description_text_view:TextView
     private lateinit var search_results_scroll_view:ScrollView
 
     private val databaseClient = MongoClient()
@@ -32,8 +30,7 @@ class SearchCommunity : AppCompatActivity() {
         searchView = findViewById(R.id.searchView)
 //        searchButton = findViewById(R.id.searchButton)
         search_results_layout = findViewById(R.id.search_results_layout)
-        name_text_view = findViewById(R.id.name_text_view)
-        description_text_view = findViewById(R.id.description_text_view)
+
         search_results_scroll_view=findViewById(R.id.search_results_scroll_view)
 //        searchButton.setOnClickListener {
 //            val query = searchView.query.toString()
@@ -54,7 +51,7 @@ class SearchCommunity : AppCompatActivity() {
 
 
                     runOnUiThread{
-                        createSearchResultViews(searchResults, search_results_layout)
+                        displaySearchResults(searchResults)
                     }
                 }
 
@@ -80,18 +77,58 @@ class SearchCommunity : AppCompatActivity() {
         }
     }
 
-    fun createSearchResultViews(searchResults: JSONArray, searchResultsLayout: LinearLayout) {
+    fun displaySearchResults(searchResults: JSONArray) {
         for (i in 0 until searchResults.length()) {
-            val community = searchResults.getJSONObject(i)
-            val name = community.getString("name")
-            val description = community.getString("description")
-            val searchResultView = LayoutInflater.from(this@SearchCommunity).inflate(R.layout.activity_search_community, searchResultsLayout, false)
-            val nameTextView = searchResultView.findViewById<TextView>(R.id.name_text_view)
-            val descriptionTextView = searchResultView.findViewById<TextView>(R.id.description_text_view)
-            nameTextView.text = name
-            descriptionTextView.text = description
-            searchResultsLayout.addView(searchResultView)
+            addCommunityToScrollView(searchResults.getJSONObject(i))
         }
+    }
+
+
+    private fun addCommunityToScrollView(community: JSONObject) {
+
+        val context = search_results_scroll_view.context
+
+        val layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        layoutParams.setMargins(16, 16, 16, 16)
+
+        val linearLayout = LinearLayout(context)
+        linearLayout.layoutParams = layoutParams
+        linearLayout.orientation = LinearLayout.VERTICAL
+        linearLayout.setBackgroundResource(R.drawable.message_rectangle)
+        linearLayout.isClickable = true
+
+        linearLayout.setOnClickListener {
+            println(community.getString("name"))
+        }
+
+        val communityName = TextView(context)
+        communityName.text = community.getString("name")
+        communityName.setTextColor(Color.BLACK)
+        communityName.setTypeface(null, Typeface.BOLD)
+        communityName.textSize = 16f
+        communityName.setPadding(20, 10, 0, 0)
+
+        linearLayout.addView(communityName)
+
+        val description = TextView(context)
+        description.text = "Description:" + community.getString("description")
+//        creatorName.setTextColor(getRandomColor(community.getString("creator")))
+        description.textSize = 14f
+        description.setPadding(20, 10, 0, 0)
+
+        linearLayout.addView(description)
+
+        val members = TextView(context)
+        members.text = "Members: " + community.getJSONArray("users").length()
+        members.textSize = 14f
+        members.setPadding(20, 10, 0, 10)
+
+        linearLayout.addView(members)
+
+        search_results_layout.addView(linearLayout)
     }
 
 
