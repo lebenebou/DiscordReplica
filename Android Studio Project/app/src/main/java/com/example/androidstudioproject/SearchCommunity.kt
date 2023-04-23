@@ -4,10 +4,12 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.widget.SearchView
+import kotlinx.coroutines.runBlocking
 
 class SearchCommunity : AppCompatActivity() {
     private lateinit var searchView:SearchView
     private lateinit var searchButton:Button
+    private val databaseClient = MongoClient()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,17 +22,24 @@ class SearchCommunity : AppCompatActivity() {
             // Do something with the query, such as perform a search
         }
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+
             override fun onQueryTextSubmit(query: String?): Boolean {
-                // This method is called when the user presses the search button
-                // Do something with the search query here
+                if (query != null) {
+                    val searchResults = runBlocking {
+                        
+                        databaseClient.getSearchResults("Communities", "name", query)
+                    }
+                    // Do something with the search results, such as display them in a RecyclerView
+                }
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 // This method is called when the search text changes
-                // Do something with the new search text here
+                // You can use this method to update your search results as the user types
                 return true
             }
         })
+
     }
 }
