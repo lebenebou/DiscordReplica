@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -42,7 +43,7 @@ class SearchCommunity : AppCompatActivity() {
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
             override fun onQueryTextSubmit(query: String?): Boolean {
-                if (query==null){
+                if (query==null || query.isBlank()){
                     showMessageBox("empty Query","cannot be empty")
                     return true ;
                 }
@@ -66,7 +67,8 @@ class SearchCommunity : AppCompatActivity() {
                 return true
             }
         })
-
+        searchView.queryHint = "Search"
+        searchView.isIconified = false
     }
 
     fun processSearchResults(searchResults: JSONArray) {
@@ -99,7 +101,7 @@ class SearchCommunity : AppCompatActivity() {
         val linearLayout = LinearLayout(context)
         linearLayout.layoutParams = layoutParams
         linearLayout.orientation = LinearLayout.VERTICAL
-        linearLayout.setBackgroundResource(R.drawable.message_rectangle)
+        linearLayout.setBackgroundResource(R.drawable.community_results)
         linearLayout.isClickable = true
 
         linearLayout.setOnClickListener {
@@ -111,6 +113,7 @@ class SearchCommunity : AppCompatActivity() {
         communityName.text = community.getString("name")
         communityName.setTextColor(Color.BLACK)
         communityName.setTypeface(null, Typeface.BOLD)
+        communityName.gravity = Gravity.CENTER
         communityName.textSize = 16f
         communityName.setPadding(20, 10, 0, 0)
 
