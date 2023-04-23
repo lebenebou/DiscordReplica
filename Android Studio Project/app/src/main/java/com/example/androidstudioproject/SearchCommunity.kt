@@ -47,9 +47,10 @@ class SearchCommunity : AppCompatActivity() {
                 }
 
                 GlobalScope.launch {
+                    runOnUiThread{
+                        search_results_layout.removeAllViews()
+                    }
                     val searchResults = databaseClient.getSearchResults("Communities", "name", query)
-
-
                     runOnUiThread{
                         displaySearchResults(searchResults)
                     }
