@@ -70,7 +70,7 @@ class Login : AppCompatActivity() {
         }
         loginButton.setOnClickListener{
            //GlobalVars.currentCommunityCode = "5PPLXZ"
-           startActivity(Intent(this, RecordActivity::class.java))
+           startActivity(Intent(this, HomePage::class.java))
         }
 
         imgShowHidePassword = findViewById(R.id.imgShowHidePassword)

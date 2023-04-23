@@ -29,6 +29,9 @@ class HomePage : AppCompatActivity() {
         createCommunityButton.setOnClickListener{
             startActivity(Intent(this, CreateCommunity::class.java))
         }
+        searchButton.setOnClickListener{
+            startActivity(Intent(this, SearchCommunity::class.java))
+        }
     }
     @Deprecated("Deprecated in Java")
     override fun onBackPressed(){ // user pressed back <-
