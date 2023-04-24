@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/purple"
     tools:context=".SignUp">
 
     <ImageView
@@ -27,6 +28,8 @@
         android:paddingLeft="15dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
         android:inputType="textEmailAddress"/>
     <EditText
         android:id="@+id/identityInput"
@@ -36,6 +39,8 @@
         android:layout_below="@+id/usernameInput"
         android:drawableLeft="@drawable/baseline_email_24"
         android:layout_marginTop="10dp"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
         android:hint="Email"
         android:background="@drawable/edt_background"
         android:paddingLeft="13dp"
@@ -48,6 +53,8 @@
         android:textIsSelectable="true"
         android:layout_width="match_parent"
         android:layout_height="50dp"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
         android:layout_below="@+id/identityInput"
         android:drawableLeft="@drawable/baseline_security_24"
         android:paddingLeft="13dp"
@@ -91,5 +98,5 @@
         android:onClick="onLoginTextClick"
         android:text="Already have an account? Login"
         android:layout_marginStart="120dp"
-        android:textColor="@color/purple_700" />
+        android:textColor="@color/white" />
 </RelativeLayout>
