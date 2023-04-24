@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/purple"
     tools:context=".Login">
 
     <ImageView
@@ -26,7 +27,9 @@
         android:background="@drawable/edt_background"
         android:drawableLeft="@drawable/baseline_email_24"
         android:hint="Username or Email"
+        android:textColor="@color/white"
         android:inputType="textEmailAddress"
+        android:textColorHint="@color/white"
         android:paddingLeft="15dp"
         android:textIsSelectable="true" />
 
@@ -37,6 +40,7 @@
         android:layout_below="@+id/identityInput"
         android:layout_marginLeft="20dp"
         android:layout_marginTop="14dp"
+        android:textColorHint="@color/white"
         android:layout_marginRight="20dp"
         android:background="@drawable/edt_background"
         android:drawableLeft="@drawable/baseline_security_24"
@@ -78,7 +82,7 @@
         android:autoLink="web"
         android:clickable="true"
         android:text="Don't have an account? Sign Up"
-        android:textColor="@color/purple_700" />
+        android:textColor="@color/white" />
 
 
 </RelativeLayout>
