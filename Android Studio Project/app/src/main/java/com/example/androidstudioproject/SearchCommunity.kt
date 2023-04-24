@@ -111,7 +111,7 @@ class SearchCommunity : AppCompatActivity() {
 
         val communityName = TextView(context)
         communityName.text = community.getString("name")
-        communityName.setTextColor(Color.BLACK)
+        communityName.setTextColor(Color.WHITE)
         communityName.setTypeface(null, Typeface.BOLD)
         communityName.gravity = Gravity.CENTER
         communityName.textSize = 16f
@@ -122,6 +122,7 @@ class SearchCommunity : AppCompatActivity() {
         val description = TextView(context)
         description.text = "Description:" + community.getString("description")
 //        creatorName.setTextColor(getRandomColor(community.getString("creator")))
+        description.setTextColor(Color.WHITE)
         description.textSize = 14f
         description.setPadding(20, 10, 0, 0)
 
@@ -131,7 +132,7 @@ class SearchCommunity : AppCompatActivity() {
         members.text = "Members: " + community.getJSONArray("users").length()
         members.textSize = 14f
         members.setPadding(20, 10, 0, 10)
-
+        members.setTextColor(Color.WHITE)
         linearLayout.addView(members)
 
         search_results_layout.addView(linearLayout)
