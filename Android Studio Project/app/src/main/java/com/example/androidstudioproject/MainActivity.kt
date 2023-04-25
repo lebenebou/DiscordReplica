@@ -30,20 +30,17 @@ class MainActivity : AppCompatActivity() {
         // Get the user credentials from shared preferences
         sharedPreferences = getSharedPreferences("user_credentials", Context.MODE_PRIVATE)
         val username = sharedPreferences.getString("username", null)
-        //val password = sharedPreferences.getString("password", null)
+        val password = sharedPreferences.getString("password", null)
 
         // Check if credentials exist and redirect to home page
-        if (username == null) {
-            // Credentials does not exist, redirect to login page
-            startActivity(Intent(this, Login::class.java))
-            finish() // Remove LoginActivity from back stack
-        } else {
-            if (username != null) {
-                GlobalVars.currentUser = username
-            }
-            // Credentials do not exist, show login page
+        if (username != null && password != null) {
+            // Credentials exist, redirect to home page
+            GlobalVars.currentUser = username
             startActivity(Intent(this, HomePage::class.java))
             finish() // Remove LoginActivity from back stack
+        } else {
+            // Credentials do not exist, show login page
+            startActivity(Intent(this, Login::class.java))
         }
 
 
