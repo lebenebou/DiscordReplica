@@ -1,13 +1,14 @@
 package com.example.androidstudioproject
 
+import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
-import android.widget.VideoView
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+
 
 class HomePage : AppCompatActivity() {
 
@@ -68,7 +69,9 @@ class HomePage : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
     private fun logout(){
-
+        // Remove user credentials from shared preferences
+        getSharedPreferences("user_credentials", Context.MODE_PRIVATE).edit().clear().apply()
+        println("Credentials have been removed")
         GlobalVars.currentUser = "not_logged_in"
         GlobalVars.currentRoomCode = "000000"
         finish()
