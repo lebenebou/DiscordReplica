@@ -1,10 +1,13 @@
 package com.example.androidstudioproject
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
 import android.util.Base64
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -27,6 +30,9 @@ class Login : AppCompatActivity() {
 
     private var isPasswordShown = false
     private val databaseClient = MongoClient()
+
+    //Shared Preferences Object
+    private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -69,9 +75,17 @@ class Login : AppCompatActivity() {
             }
         }
         loginButton.setOnClickListener{
-           //GlobalVars.currentCommunityCode = "5PPLXZ"
-           startActivity(Intent(this, HomePage::class.java))
+            //GlobalVars.currentCommunityCode = "5PPLXZ"
+            sharedPreferences = getSharedPreferences("user_credentials", Context.MODE_PRIVATE)
+            val editor = sharedPreferences.edit()
+            editor.putString("username", identityInput.text.toString())
+            editor.putString("password", passwordInput.text.toString())
+            editor.apply()
+            println("Credentials all added!")
+            startActivity(Intent(this, HomePage::class.java))
         }
+
+
 
         imgShowHidePassword = findViewById(R.id.imgShowHidePassword)
 
@@ -86,9 +100,13 @@ class Login : AppCompatActivity() {
             }
             passwordInput.setSelection(passwordInput.text.length)
         }
-    }
-    private fun handleLogin(userInput: JSONObject, usernameResult: JSONObject, emailResult: JSONObject){
 
+
+    }
+
+
+
+    private fun handleLogin(userInput: JSONObject, usernameResult: JSONObject, emailResult: JSONObject){
         // findOne returned null for both username and email
         if(usernameResult.length()==0 && emailResult.length()==0){
             showMessageBox("Account Not Found","Invalid username or E-mail.")
@@ -104,8 +122,10 @@ class Login : AppCompatActivity() {
             return
         }
 
+
         // set global user variable
         GlobalVars.currentUser = validResult.getString("username")
+
         // switch to homepage screen
         startActivity(Intent(this, HomePage::class.java))
     }
