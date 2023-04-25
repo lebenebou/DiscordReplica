@@ -7,12 +7,15 @@
     android:background="@drawable/purple"
     tools:context=".SearchCommunity">
 
-    <androidx.appcompat.widget.SearchView
+    <SearchView
         android:id="@+id/searchView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:iconifiedByDefault="false"
         android:queryHint="Search"
+        android:textColor="@color/white"
+        android:searchHintIcon="@color/white"
+        android:searchIcon="@drawable/baseline_search_24"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="0dp" />
 

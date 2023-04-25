@@ -70,12 +70,12 @@
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/passwordInput"
-        android:text="Sign up"
-        android:background="@drawable/normal_btn_bg"
         android:layout_centerHorizontal="true"
+        android:layout_marginTop="53dp"
+        android:background="@drawable/normal_btn_bg"
+        android:text="Sign up"
         android:textColor="@color/white"
-        android:textSize="20sp"
-        android:layout_marginTop="22dp"/>
+        android:textSize="20sp" />
 
     <ImageView
         android:id="@+id/imgShowHidePassword"
@@ -92,11 +92,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/signUpButton"
-        android:layout_marginTop="21dp"
+        android:layout_marginStart="120dp"
+        android:layout_marginTop="28dp"
         android:autoLink="web"
         android:clickable="true"
         android:onClick="onLoginTextClick"
         android:text="Already have an account? Login"
-        android:layout_marginStart="120dp"
         android:textColor="@color/white" />
+
+    <CheckBox
+        android:id="@+id/checkBox2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/passwordInput"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="9dp"
+        android:layout_marginEnd="259dp"
+        android:buttonTint="@color/white"
+        android:text="Remember Me"
+        android:textColor="@color/white" />
+
 </RelativeLayout>
