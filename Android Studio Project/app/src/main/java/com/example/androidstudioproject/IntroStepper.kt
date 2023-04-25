@@ -1,28 +1,43 @@
 package com.example.androidstudioproject
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
-import androidx.fragment.app.FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT
 import androidx.viewpager.widget.ViewPager
 
+
+
 class IntroStepper : AppCompatActivity() {
-    private lateinit var stepper_view_pager:ViewPager
+    private lateinit var stepper_view_pager : ViewPager
+    private lateinit var prefs: SharedPreferences
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_intro_stepper)
-        stepper_view_pager = findViewById(R.id.stepper_view_pager)
-        val adapter = StepperPagerAdapter(supportFragmentManager)
+        prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        if (prefs.getBoolean("isFirstRun", true)) {
+            // show the IntroStepper
+            setContentView(R.layout.activity_intro_stepper)
+            stepper_view_pager = findViewById(R.id.stepper_view_pager)
+            val adapter = StepperPagerAdapter(supportFragmentManager)
+            stepper_view_pager.adapter = adapter
 
-        stepper_view_pager.adapter = adapter
+            // mark first run as false
+            prefs.edit().putBoolean("isFirstRun", false).apply()
+        } else {
+            // intro has already been shown, skip to the next activity
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
     }
 }
 
