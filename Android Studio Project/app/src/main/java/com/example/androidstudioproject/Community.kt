@@ -134,7 +134,7 @@ class Community : AppCompatActivity() {
 
         val roomName = TextView(context)
         roomName.text = room.getString("name")
-        roomName.setTextColor(Color.BLACK)
+        roomName.setTextColor(Color.WHITE)
         roomName.setTypeface(null, Typeface.BOLD)
         roomName.textSize = 16f
         roomName.setPadding(20, 10, 0, 0)
@@ -146,13 +146,13 @@ class Community : AppCompatActivity() {
         creatorName.setTextColor(getRandomColor(room.getString("creator")))
         creatorName.textSize = 14f
         creatorName.setPadding(20, 10, 0, 0)
-
         linearLayout.addView(creatorName)
 
         val onlineUsers = TextView(context)
         onlineUsers.text = "Online: " + room.getJSONArray("active_users").length()
         onlineUsers.textSize = 14f
         onlineUsers.setPadding(20, 10, 0, 10)
+        onlineUsers.setTextColor(Color.WHITE)
 
         linearLayout.addView(onlineUsers)
 

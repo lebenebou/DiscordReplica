@@ -244,6 +244,7 @@ class ChatRoom : AppCompatActivity() {
         messageLayout.orientation = LinearLayout.VERTICAL
         messageLayout.setPadding(20, 20, 20, 20)
 
+
         // Username
         val usernameTextView = TextView(this)
         usernameTextView.text = message.getString("username")
@@ -255,7 +256,7 @@ class ChatRoom : AppCompatActivity() {
         val contentTextView = TextView(this)
         contentTextView.text = message.getString("content")
         contentTextView.setTypeface(null, Typeface.BOLD)
-        contentTextView.setTextColor(Color.BLACK)
+        contentTextView.setTextColor(Color.WHITE)
         messageLayout.addView(contentTextView)
 
         // Timestamp

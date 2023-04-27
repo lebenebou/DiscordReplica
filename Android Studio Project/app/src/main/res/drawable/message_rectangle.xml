@@ -3,8 +3,8 @@
     <!-- Rectangle shape with rounded corners and grey background -->
     <item>
         <shape android:shape="rectangle" android:id="@+id/outerRect">
-            <solid android:color="#EDEDED" />
-            <stroke android:width="3dp" android:color="#000000" />
+
+            <stroke android:width="3dp" android:color="#fff" />
             <corners android:radius="10dp" />
         </shape>
     </item>

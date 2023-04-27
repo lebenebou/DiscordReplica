@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/purple"
     tools:context=".Community">
 
     <TextView
@@ -12,7 +13,8 @@
         android:layout_height="38dp"
         android:layout_marginTop="56dp"
         android:text="Loading..."
-        android:textColor="@color/black"
+        android:fontFamily="@font/montserratblack"
+        android:textColor="@color/white"
         android:textSize="25sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.28"
@@ -39,6 +41,7 @@
         android:layout_width="308dp"
         android:layout_height="40dp"
         android:text="Loading..."
+        android:textColor="@color/white"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.145"

@@ -18,7 +18,6 @@ import org.json.JSONObject
 
 class SearchCommunity : AppCompatActivity() {
     private lateinit var searchView:SearchView
-//    private lateinit var searchButton:Button
     private lateinit var search_results_layout:LinearLayout
     private lateinit var search_results_scroll_view:ScrollView
 
@@ -30,15 +29,9 @@ class SearchCommunity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search_community)
         searchView = findViewById(R.id.searchView)
-//        searchButton = findViewById(R.id.searchButton)
         search_results_layout = findViewById(R.id.search_results_layout)
 
         search_results_scroll_view=findViewById(R.id.search_results_scroll_view)
-//        searchButton.setOnClickListener {
-//            val query = searchView.query.toString()
-//        }
-
-
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 

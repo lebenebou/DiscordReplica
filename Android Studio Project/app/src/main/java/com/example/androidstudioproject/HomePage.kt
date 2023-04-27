@@ -31,6 +31,7 @@ class HomePage : AppCompatActivity() {
             startActivity(Intent(this, CreateCommunity::class.java))
         }
         searchButton.setOnClickListener{
+            finish()
             startActivity(Intent(this, SearchCommunity::class.java))
         }
     }
