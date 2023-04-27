@@ -7,7 +7,11 @@ import android.preference.PreferenceManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AlphaAnimation
+import android.view.animation.AnimationSet
+import android.view.animation.TranslateAnimation
 import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -50,6 +54,44 @@ class IntroFragment : Fragment() {
     ): View? {
         return inflater.inflate(R.layout.fragment_intro, container, false)
     }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        lateinit var textView3:TextView
+        lateinit var textView5:TextView
+        lateinit var textView6:TextView
+
+        // Get references to the TextViews
+        textView3 = requireView().findViewById(R.id.textView3)
+        textView5 = requireView().findViewById(R.id.textView5)
+        textView6 = requireView().findViewById(R.id.textView6)
+
+        // Create the animations
+        val animation1 = AnimationSet(true).apply {
+            addAnimation(TranslateAnimation(0f, 0f, -200f, 0f))
+            addAnimation(AlphaAnimation(0f, 1f))
+            duration = 1000
+        }
+
+        val animation2 = AnimationSet(true).apply {
+            addAnimation(TranslateAnimation(0f, 0f, -200f, 0f))
+            addAnimation(AlphaAnimation(0f, 1f))
+            duration = 1000
+            startOffset = 2000 // Delay the start of the animation by 1 second
+        }
+
+        val animation3 = AnimationSet(true).apply {
+            addAnimation(TranslateAnimation(0f, 0f, -200f, 0f))
+            addAnimation(AlphaAnimation(0f, 1f))
+            duration = 1000
+            startOffset = 3000 // Delay the start of the animation by 2 seconds
+        }
+
+        // Apply the animations to the TextViews
+        textView3.startAnimation(animation1)
+        textView5.startAnimation(animation2)
+        textView6.startAnimation(animation3)
+    }
 }
 class SecondFragment : Fragment() {
 
@@ -59,6 +101,44 @@ class SecondFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.second_stepper, container, false)
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        lateinit var textView10:TextView
+        lateinit var textView11:TextView
+        lateinit var textView12:TextView
+
+        // Get references to the TextViews
+        textView10 = requireView().findViewById(R.id.textView10)
+        textView11 = requireView().findViewById(R.id.textView11)
+        textView12 = requireView().findViewById(R.id.textView12)
+
+        // Create the animations
+        val animation1 = AnimationSet(true).apply {
+            addAnimation(TranslateAnimation(0f, 0f, -200f, 0f))
+            addAnimation(AlphaAnimation(0f, 1f))
+            duration = 1000
+        }
+
+        val animation2 = AnimationSet(true).apply {
+            addAnimation(TranslateAnimation(0f, 0f, -200f, 0f))
+            addAnimation(AlphaAnimation(0f, 1f))
+            duration = 1000
+            startOffset = 2000 // Delay the start of the animation by 1 second
+        }
+
+        val animation3 = AnimationSet(true).apply {
+            addAnimation(TranslateAnimation(0f, 0f, -200f, 0f))
+            addAnimation(AlphaAnimation(0f, 1f))
+            duration = 1000
+            startOffset = 3000 // Delay the start of the animation by 2 seconds
+        }
+
+        // Apply the animations to the TextViews
+        textView10.startAnimation(animation1)
+        textView11.startAnimation(animation2)
+        textView12.startAnimation(animation3)
     }
 }
 class ThirdFragment : Fragment() {
