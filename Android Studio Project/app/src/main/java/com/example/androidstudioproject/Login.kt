@@ -9,6 +9,7 @@ import android.text.method.PasswordTransformationMethod
 import android.util.Base64
 import android.util.Log
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -27,6 +28,7 @@ class Login : AppCompatActivity() {
     private lateinit var loginButton: Button
     private lateinit var imgShowHidePassword: ImageView
     private lateinit var signUpText: TextView
+    private lateinit var rememberMeCheckBox : CheckBox
 
     private var isPasswordShown = false
     private val databaseClient = MongoClient()
@@ -48,6 +50,7 @@ class Login : AppCompatActivity() {
         identityInput = findViewById(R.id.identityInput)
         passwordInput = findViewById(R.id.passwordInput)
         loginButton = findViewById(R.id.loginButton)
+        rememberMeCheckBox = findViewById(R.id.checkBox)
 
         // Login button is pressed
         loginButton.setOnClickListener {
@@ -74,30 +77,28 @@ class Login : AppCompatActivity() {
                 }
             }
         }
-<<<<<<< HEAD
-//        loginButton.setOnClickListener{
-//            sharedPreferences = getSharedPreferences("user_credentials", Context.MODE_PRIVATE)
-//            val editor = sharedPreferences.edit()
-//            editor.putString("username", identityInput.text.toString())
-//            editor.putString("password", passwordInput.text.toString())
-//            editor.apply()
-//            println("Credentials all added!")
-//            startActivity(Intent(this, HomePage::class.java))
-//        }
-//
-=======
-        loginButton.setOnClickListener{
-            //GlobalVars.currentCommunityCode = "5PPLXZ"
-            sharedPreferences = getSharedPreferences("user_credentials", Context.MODE_PRIVATE)
-            val editor = sharedPreferences.edit()
-            editor.putString("username", identityInput.text.toString())
-            editor.putString("password", passwordInput.text.toString())
-            editor.apply()
-            println("Credentials all added!")
-            startActivity(Intent(this, RecordActivity::class.java))
+
+        rememberMeCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
+            if(isChecked) {
+                sharedPreferences = getSharedPreferences("user_credentials", Context.MODE_PRIVATE)
+                val editor = sharedPreferences.edit()
+                editor.putString("username", identityInput.text.toString())
+                editor.putString("password", passwordInput.text.toString())
+                editor.apply()
+                println("Credentials all added!")
+            } else {
+                println("Credentials not added!")
+            }
         }
 
->>>>>>> a212e637dcbf220f0e7bdcd4fa1b278881f4960c
+        loginButton.setOnClickListener{
+            startActivity(Intent(this, HomePage::class.java))
+        }
+
+
+
+
+
 
 
         imgShowHidePassword = findViewById(R.id.imgShowHidePassword)
