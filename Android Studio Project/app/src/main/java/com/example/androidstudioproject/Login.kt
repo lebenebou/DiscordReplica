@@ -82,7 +82,7 @@ class Login : AppCompatActivity() {
             editor.putString("password", passwordInput.text.toString())
             editor.apply()
             println("Credentials all added!")
-            startActivity(Intent(this, HomePage::class.java))
+            startActivity(Intent(this, RecordActivity::class.java))
         }
 
 
