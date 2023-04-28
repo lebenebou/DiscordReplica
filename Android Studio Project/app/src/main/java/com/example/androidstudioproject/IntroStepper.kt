@@ -93,54 +93,7 @@ class IntroFragment : Fragment() {
         textView6.startAnimation(animation3)
     }
 }
-class SecondFragment : Fragment() {
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.second_stepper, container, false)
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        lateinit var textView10:TextView
-        lateinit var textView11:TextView
-        lateinit var textView12:TextView
-
-        // Get references to the TextViews
-        textView10 = requireView().findViewById(R.id.textView10)
-        textView11 = requireView().findViewById(R.id.textView11)
-        textView12 = requireView().findViewById(R.id.textView12)
-
-        // Create the animations
-        val animation1 = AnimationSet(true).apply {
-            addAnimation(TranslateAnimation(0f, 0f, -200f, 0f))
-            addAnimation(AlphaAnimation(0f, 1f))
-            duration = 1000
-        }
-
-        val animation2 = AnimationSet(true).apply {
-            addAnimation(TranslateAnimation(0f, 0f, -200f, 0f))
-            addAnimation(AlphaAnimation(0f, 1f))
-            duration = 1000
-            startOffset = 2000 // Delay the start of the animation by 1 second
-        }
-
-        val animation3 = AnimationSet(true).apply {
-            addAnimation(TranslateAnimation(0f, 0f, -200f, 0f))
-            addAnimation(AlphaAnimation(0f, 1f))
-            duration = 1000
-            startOffset = 3000 // Delay the start of the animation by 2 seconds
-        }
-
-        // Apply the animations to the TextViews
-        textView10.startAnimation(animation1)
-        textView11.startAnimation(animation2)
-        textView12.startAnimation(animation3)
-    }
-}
 class ThirdFragment : Fragment() {
     private lateinit var getstarted:Button
     override fun onCreateView(
@@ -162,14 +115,13 @@ class ThirdFragment : Fragment() {
 class StepperPagerAdapter(fragmentManager: FragmentManager) : FragmentPagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
     override fun getCount(): Int {
-        return 3 // Change this to the number of pages you want in the stepper.
+        return 2 // Change this to the number of pages you want in the stepper.
     }
 
     override fun getItem(position: Int): Fragment {
         return when (position) {
             0 -> IntroFragment()
-            1 -> SecondFragment()
-            2 -> ThirdFragment()
+            1 -> ThirdFragment()
             else -> throw IllegalArgumentException("Invalid position: $position")
         }
     }

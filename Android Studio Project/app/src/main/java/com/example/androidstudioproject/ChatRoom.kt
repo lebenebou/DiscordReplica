@@ -76,7 +76,7 @@ class ChatRoom : AppCompatActivity() {
                 sendButton.setBackgroundResource(R.drawable.normal_btn_bg)
 
                 showRoomInfo()
-                syncMessages(currentRoom.getJSONArray("messages"))
+//                syncMessages(currentRoom.getJSONArray("messages"))
             }
         }
 

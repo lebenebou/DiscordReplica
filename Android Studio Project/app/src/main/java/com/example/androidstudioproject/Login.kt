@@ -74,17 +74,16 @@ class Login : AppCompatActivity() {
                 }
             }
         }
-        loginButton.setOnClickListener{
-            //GlobalVars.currentCommunityCode = "5PPLXZ"
-            sharedPreferences = getSharedPreferences("user_credentials", Context.MODE_PRIVATE)
-            val editor = sharedPreferences.edit()
-            editor.putString("username", identityInput.text.toString())
-            editor.putString("password", passwordInput.text.toString())
-            editor.apply()
-            println("Credentials all added!")
-            startActivity(Intent(this, HomePage::class.java))
-        }
-
+//        loginButton.setOnClickListener{
+//            sharedPreferences = getSharedPreferences("user_credentials", Context.MODE_PRIVATE)
+//            val editor = sharedPreferences.edit()
+//            editor.putString("username", identityInput.text.toString())
+//            editor.putString("password", passwordInput.text.toString())
+//            editor.apply()
+//            println("Credentials all added!")
+//            startActivity(Intent(this, HomePage::class.java))
+//        }
+//
 
 
         imgShowHidePassword = findViewById(R.id.imgShowHidePassword)
