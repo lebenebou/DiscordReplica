@@ -5,8 +5,6 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.media.*
 import android.os.Bundle
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -18,8 +16,6 @@ import kotlinx.coroutines.launch
 
 class RecordActivity : AppCompatActivity() {
     private lateinit var playButton: Button
-    private lateinit var startButton: Button
-    private lateinit var stopButton: Button
     private lateinit var recordButton: Button
 
     private var audioRecord: AudioRecord? = null
@@ -30,12 +26,12 @@ class RecordActivity : AppCompatActivity() {
     private var audioThread: Thread? = null
     private val deferred = CompletableDeferred<Boolean>()
 
-    private val audioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION //so we can use earphones
+    private val audioSource = MediaRecorder.AudioSource.VOICE_CALL //so we can use earphones
     private val sampleRate = 44100
     private val channelConfig = AudioFormat.CHANNEL_IN_MONO
     private val audioFormat = AudioFormat.ENCODING_PCM_16BIT
 
-    private val intRecordSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_MUSIC)
+    private val intRecordSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL)
 
     private val theRecord: MutableList<Short> = mutableListOf()
     private var compressedByteArray: String = ""
@@ -48,12 +44,8 @@ class RecordActivity : AppCompatActivity() {
         setContentView(R.layout.activity_record)
 
         playButton = findViewById(R.id.playbutton)
-        //startButton = findViewById(R.id.startbutton)
-        //stopButton = findViewById(R.id.stopbutton)
         recordButton = findViewById(R.id.recordbutton)
-        var isRecording = false;
-
-
+        var isRecording = false
 
         recordButton.setOnClickListener {
             if (!isRecording) {
