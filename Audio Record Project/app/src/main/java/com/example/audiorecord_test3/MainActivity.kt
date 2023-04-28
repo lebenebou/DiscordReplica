@@ -3,10 +3,8 @@ package com.example.audiorecord_test3
 import android.Manifest
 import android.content.pm.PackageManager
 import android.media.*
-import android.os.Build
 import android.os.Bundle
 import android.widget.Button
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import kotlinx.coroutines.CompletableDeferred
@@ -23,10 +21,10 @@ class MainActivity : AppCompatActivity() {
     private var audioThread: Thread? = null
     private val deferred = CompletableDeferred<Boolean>()
 
-    private val audioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION //so we can't use earphones??
+    private val audioSource = MediaRecorder.AudioSource.VOICE_CALL
     private val sampleRate = 44100
     private val channelConfig = AudioFormat.CHANNEL_IN_MONO
-    private val audioFormat = AudioFormat.ENCODING_PCM_8BIT
+    private val audioFormat = AudioFormat.ENCODING_PCM_16BIT
 
     private val intRecordSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL)
 
