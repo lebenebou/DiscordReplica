@@ -26,7 +26,7 @@ class RecordActivity : AppCompatActivity() {
     private var audioThread: Thread? = null
     private val deferred = CompletableDeferred<Boolean>()
 
-    private val audioSource = MediaRecorder.AudioSource.VOICE_CALL //so we can use earphones
+    private val audioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION
     private val sampleRate = 44100
     private val channelConfig = AudioFormat.CHANNEL_IN_MONO
     private val audioFormat = AudioFormat.ENCODING_PCM_16BIT

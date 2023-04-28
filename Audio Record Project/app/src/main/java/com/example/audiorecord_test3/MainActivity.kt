@@ -3,8 +3,10 @@ package com.example.audiorecord_test3
 import android.Manifest
 import android.content.pm.PackageManager
 import android.media.*
+import android.os.Build
 import android.os.Bundle
 import android.widget.Button
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import kotlinx.coroutines.CompletableDeferred
@@ -21,12 +23,12 @@ class MainActivity : AppCompatActivity() {
     private var audioThread: Thread? = null
     private val deferred = CompletableDeferred<Boolean>()
 
-    private val audioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION //so we can use earphones
+    private val audioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION //so we can't use earphones??
     private val sampleRate = 44100
     private val channelConfig = AudioFormat.CHANNEL_IN_MONO
-    private val audioFormat = AudioFormat.ENCODING_PCM_16BIT
+    private val audioFormat = AudioFormat.ENCODING_PCM_8BIT
 
-    private val intRecordSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_MUSIC)
+    private val intRecordSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL)
 
     private val theRecord: MutableList<Short> = mutableListOf()
     private var compressedByteArray: String = ""
@@ -75,13 +77,14 @@ class MainActivity : AppCompatActivity() {
         audioRecord?.release()
         audioTrack?.release()
 
+
+        println("theRecord before encoding $theRecord")
+        println("theRecord before encoding: ${theRecord.size}")
         sendToServer(theRecord)
-        println("theRecord Not cleared $theRecord")
-        println("theRecord Not cleared, size: ${theRecord.size}")
+        println("theRecord after encoding $theRecord")
+        println("theRecord after encoding: ${theRecord.size}")
         //we clear the buffer after sending it
         theRecord.clear()
-        println("theRecord cleared $theRecord")
-        println("theRecord cleared, size: ${theRecord.size}")
     }
 
 

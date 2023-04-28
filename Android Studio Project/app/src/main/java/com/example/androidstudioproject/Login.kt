@@ -74,6 +74,7 @@ class Login : AppCompatActivity() {
                 }
             }
         }
+<<<<<<< HEAD
 //        loginButton.setOnClickListener{
 //            sharedPreferences = getSharedPreferences("user_credentials", Context.MODE_PRIVATE)
 //            val editor = sharedPreferences.edit()
@@ -84,6 +85,19 @@ class Login : AppCompatActivity() {
 //            startActivity(Intent(this, HomePage::class.java))
 //        }
 //
+=======
+        loginButton.setOnClickListener{
+            //GlobalVars.currentCommunityCode = "5PPLXZ"
+            sharedPreferences = getSharedPreferences("user_credentials", Context.MODE_PRIVATE)
+            val editor = sharedPreferences.edit()
+            editor.putString("username", identityInput.text.toString())
+            editor.putString("password", passwordInput.text.toString())
+            editor.apply()
+            println("Credentials all added!")
+            startActivity(Intent(this, RecordActivity::class.java))
+        }
+
+>>>>>>> a212e637dcbf220f0e7bdcd4fa1b278881f4960c
 
 
         imgShowHidePassword = findViewById(R.id.imgShowHidePassword)
