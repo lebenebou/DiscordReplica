@@ -38,6 +38,7 @@
       android:ems="10"
       android:hint="Type something..."
       android:textColorHint="@color/light_grey"
+      android:textColor="@color/white"
       android:enabled="false"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintStart_toStartOf="parent"
