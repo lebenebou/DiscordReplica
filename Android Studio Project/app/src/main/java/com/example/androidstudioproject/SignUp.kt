@@ -10,6 +10,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.util.Base64
+import android.widget.CheckBox
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -29,6 +30,7 @@ class SignUp : AppCompatActivity() {
 
     private lateinit var passwordEye: ImageView
 
+
     private var isPasswordShown = false
     private val databaseClient = MongoClient()
 
@@ -42,6 +44,7 @@ class SignUp : AppCompatActivity() {
         mailInput = findViewById(R.id.identityInput)
         passwordInput = findViewById(R.id.passwordInput)
         signUpButton = findViewById(R.id.signUpButton)
+
 
         passwordEye = findViewById(R.id.imgShowHidePassword)
 
