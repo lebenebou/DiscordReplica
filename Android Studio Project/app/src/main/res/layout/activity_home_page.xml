@@ -69,9 +69,9 @@
         android:id="@+id/exploreText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Explore"
+        android:layout_marginTop="24dp"
         android:fontFamily="@font/montserratblack"
+        android:text="Explore"
         android:textColor="@color/white"
         android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -80,17 +80,30 @@
 
     <ScrollView
         android:id="@+id/scrollView2"
-        android:layout_width="match_parent"
-        android:layout_height="302dp"
-        android:layout_marginTop="28dp"
+        android:layout_width="380dp"
+        android:layout_height="319dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/message_rectangle"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.516"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/myComsText">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" />
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:paddingTop="140dp"
+                android:text="Looks like you haven't joined any communities yet.\nSearch for communities or create your own below!"
+                android:textColor="@color/white" />
+
+        </LinearLayout>
     </ScrollView>
 
 
