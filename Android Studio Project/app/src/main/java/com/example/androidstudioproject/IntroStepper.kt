@@ -19,9 +19,8 @@ import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 
 
-
 class IntroStepper : AppCompatActivity() {
-    private lateinit var stepper_view_pager : ViewPager
+    private lateinit var stepper_view_pager: ViewPager
     private lateinit var prefs: SharedPreferences
 
 
@@ -57,9 +56,9 @@ class IntroFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        lateinit var textView3:TextView
-        lateinit var textView5:TextView
-        lateinit var textView6:TextView
+        lateinit var textView3: TextView
+        lateinit var textView5: TextView
+        lateinit var textView6: TextView
 
         // Get references to the TextViews
         textView3 = requireView().findViewById(R.id.textView3)
@@ -95,24 +94,26 @@ class IntroFragment : Fragment() {
 }
 
 class ThirdFragment : Fragment() {
-    private lateinit var getstarted:Button
+    private lateinit var getstarted: Button
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
 
-            val view = inflater.inflate(R.layout.third_stepper, container, false)
-             getstarted = view.findViewById(R.id.getstarted)
+        val view = inflater.inflate(R.layout.third_stepper, container, false)
+        getstarted = view.findViewById(R.id.getstarted)
         getstarted.setOnClickListener {
-                val intent = Intent(activity, Login::class.java)
-                startActivity(intent)
-            }
+
+            val intent = Intent(activity, SignUp::class.java)
+            startActivity(intent)
+        }
         return view
     }
 }
 
-class StepperPagerAdapter(fragmentManager: FragmentManager) : FragmentPagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+class StepperPagerAdapter(fragmentManager: FragmentManager) :
+    FragmentPagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
     override fun getCount(): Int {
         return 2 // Change this to the number of pages you want in the stepper.
