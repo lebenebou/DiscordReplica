@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/purple"
+    android:background="@drawable/yellow"
     tools:context=".SearchCommunity">
 
     <androidx.appcompat.widget.SearchView
