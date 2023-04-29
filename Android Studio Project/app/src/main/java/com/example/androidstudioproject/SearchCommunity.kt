@@ -17,21 +17,21 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 class SearchCommunity : AppCompatActivity() {
-    private lateinit var searchView:SearchView
-    private lateinit var search_results_layout:LinearLayout
-    private lateinit var search_results_scroll_view:ScrollView
+
+    private lateinit var searchView : SearchView
+    private lateinit var searchResultsLayout : LinearLayout
+    private lateinit var searchResultsScrollView : ScrollView
 
     private val databaseClient = MongoClient()
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search_community)
         searchView = findViewById(R.id.searchView)
-        search_results_layout = findViewById(R.id.search_results_layout)
+        searchResultsLayout = findViewById(R.id.search_results_layout)
 
-        search_results_scroll_view=findViewById(R.id.search_results_scroll_view)
+        searchResultsScrollView=findViewById(R.id.search_results_scroll_view)
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
@@ -43,14 +43,13 @@ class SearchCommunity : AppCompatActivity() {
 
                 GlobalScope.launch {
                     runOnUiThread{
-                        search_results_layout.removeAllViews()
+                        searchResultsLayout.removeAllViews()
                     }
                     val searchResults = databaseClient.getSearchResults("Communities", "name", query)
                     runOnUiThread{
                         displaySearchResults(searchResults)
                     }
                 }
-
                 return true
             }
 
@@ -63,27 +62,21 @@ class SearchCommunity : AppCompatActivity() {
         searchView.queryHint = "Search"
         searchView.isIconified = false
     }
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
 
-    fun processSearchResults(searchResults: JSONArray) {
-        for (i in 0 until searchResults.length()) {
-            val community = searchResults.getJSONObject(i)
-            val name = community.getString("name")
-            val description = community.getString("description")
-            // Do something with name and description
-            println("Name: $name, Description: $description")
-        }
+        finish()
+        startActivity(Intent(this, HomePage::class.java))
     }
+    private fun displaySearchResults(searchResults: JSONArray) {
 
-    fun displaySearchResults(searchResults: JSONArray) {
         for (i in 0 until searchResults.length()) {
             addCommunityToScrollView(searchResults.getJSONObject(i))
         }
     }
-
-
     private fun addCommunityToScrollView(community: JSONObject) {
 
-        val context = search_results_scroll_view.context
+        val context = searchResultsScrollView.context
 
         val layoutParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
@@ -128,10 +121,8 @@ class SearchCommunity : AppCompatActivity() {
         members.setTextColor(Color.WHITE)
         linearLayout.addView(members)
 
-        search_results_layout.addView(linearLayout)
+        searchResultsLayout.addView(linearLayout)
     }
-
-
     private fun showMessageBox(title: String, message: String) {
 
         val builder = AlertDialog.Builder(this)

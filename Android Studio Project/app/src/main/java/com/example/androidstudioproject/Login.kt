@@ -33,7 +33,7 @@ class Login : AppCompatActivity() {
     private var isPasswordShown = false
     private val databaseClient = MongoClient()
 
-    //Shared Preferences Object
+    // Shared Preferences Object
     private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,7 +78,8 @@ class Login : AppCompatActivity() {
             }
         }
 
-        rememberMeCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
+        rememberMeCheckBox.setOnCheckedChangeListener { _, isChecked ->
+
             if(isChecked) {
                 sharedPreferences = getSharedPreferences("user_credentials", Context.MODE_PRIVATE)
                 val editor = sharedPreferences.edit()
@@ -95,12 +96,6 @@ class Login : AppCompatActivity() {
             startActivity(Intent(this, HomePage::class.java))
         }
 
-
-
-
-
-
-
         imgShowHidePassword = findViewById(R.id.imgShowHidePassword)
 
         imgShowHidePassword.setOnClickListener {
@@ -114,13 +109,9 @@ class Login : AppCompatActivity() {
             }
             passwordInput.setSelection(passwordInput.text.length)
         }
-
-
     }
-
-
-
     private fun handleLogin(userInput: JSONObject, usernameResult: JSONObject, emailResult: JSONObject){
+
         // findOne returned null for both username and email
         if(usernameResult.length()==0 && emailResult.length()==0){
             showMessageBox("Account Not Found","Invalid username or E-mail.")
@@ -136,11 +127,13 @@ class Login : AppCompatActivity() {
             return
         }
 
-
         // set global user variable
         GlobalVars.currentUser = validResult.getString("username")
 
+
+
         // switch to homepage screen
+        finish()
         startActivity(Intent(this, HomePage::class.java))
     }
     private fun showMessageBox(title: String, message: String) {

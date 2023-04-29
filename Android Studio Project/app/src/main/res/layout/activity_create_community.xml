@@ -70,25 +70,25 @@
         android:id="@+id/explanationText"
         android:layout_width="341dp"
         android:layout_height="39dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:text="Friends with similar interests can join this community and open rooms to chat."
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.228"
+        app:layout_constraintHorizontal_bias="0.257"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/mainText1" />
 
     <TextView
         android:id="@+id/mainText1"
-        android:layout_width="397dp"
-        android:layout_height="66dp"
-        android:layout_marginTop="36dp"
+        android:layout_width="381dp"
+        android:layout_height="69dp"
+        android:layout_marginTop="32dp"
         android:fontFamily="@font/montserratblack"
         android:text="Create a public community that represents you."
         android:textColor="@color/white"
         android:textSize="25sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.266"
+        app:layout_constraintHorizontal_bias="0.592"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
