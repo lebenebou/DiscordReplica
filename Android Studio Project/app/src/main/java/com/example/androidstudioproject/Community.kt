@@ -8,6 +8,7 @@ import android.graphics.drawable.LayerDrawable
 import android.graphics.drawable.ShapeDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
@@ -24,6 +25,7 @@ class Community : AppCompatActivity() {
     private lateinit var openRoomButton: Button
     private lateinit var refreshButton: Button
     private lateinit var descriptionText: TextView
+    private lateinit var noroom: TextView
     private lateinit var roomsLayout: LinearLayout
 
     private val databaseClient = MongoClient()
@@ -42,6 +44,7 @@ class Community : AppCompatActivity() {
         refreshButton = findViewById(R.id.refreshButton)
         scrollView = findViewById(R.id.scrollView3)
         roomsLayout= findViewById(R.id.roomsLayout)
+        noroom= findViewById(R.id.noroom)
 
         GlobalScope.launch {
 
@@ -101,16 +104,30 @@ class Community : AppCompatActivity() {
             .put("code", JSONObject()
                 .put("\$in", currentCommunity.getJSONArray("rooms"))))
     }
-    private fun syncScrollView(){
-
+    private fun syncScrollView() {
         roomsLayout.removeAllViews()
 
-        for(i in 0 until localAvailableRooms.length()){
 
-            val room = localAvailableRooms.getJSONObject(i)
-            addRoomToScrollView(room)
+        if (localAvailableRooms.length() == 0) {
+            val context = noroom.context
+            val noroom = TextView(context)
+            noroom.text = "No available rooms,create your own"
+            noroom.setTextColor(Color.WHITE)
+            noroom.gravity = Gravity.CENTER
+            noroom.setPadding(0, 250, 0, 0)
+            roomsLayout.addView(noroom)
+            return;
         }
-        scrollToBottom()
+
+
+
+            for (i in 0 until localAvailableRooms.length()) {
+
+                val room = localAvailableRooms.getJSONObject(i)
+                addRoomToScrollView(room)
+            }
+            scrollToBottom()
+
     }
     private fun addRoomToScrollView(room: JSONObject) {
 

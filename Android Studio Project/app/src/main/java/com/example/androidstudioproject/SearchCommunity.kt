@@ -21,6 +21,8 @@ class SearchCommunity : AppCompatActivity() {
     private lateinit var searchView : SearchView
     private lateinit var searchResultsLayout : LinearLayout
     private lateinit var searchResultsScrollView : ScrollView
+    private lateinit var nocomm : TextView
+
 
     private val databaseClient = MongoClient()
 
@@ -30,6 +32,8 @@ class SearchCommunity : AppCompatActivity() {
         setContentView(R.layout.activity_search_community)
         searchView = findViewById(R.id.searchView)
         searchResultsLayout = findViewById(R.id.search_results_layout)
+        nocomm = findViewById(R.id.nocomm)
+
 
         searchResultsScrollView=findViewById(R.id.search_results_scroll_view)
 
@@ -68,6 +72,16 @@ class SearchCommunity : AppCompatActivity() {
     }
     private fun displaySearchResults(searchResults: JSONArray) {
 
+        if (searchResults.length() == 0) {
+            val context = nocomm.context
+            val nocomm = TextView(context)
+            nocomm.text = "No results found."
+            nocomm.setTextColor(Color.WHITE)
+            nocomm.gravity = Gravity.CENTER
+            nocomm.setPadding(0, 250, 0, 0)
+            searchResultsLayout.addView(nocomm)
+            return;
+        }
         for (i in 0 until searchResults.length()) {
             addCommunityToScrollView(searchResults.getJSONObject(i))
         }

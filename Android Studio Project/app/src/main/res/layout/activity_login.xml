@@ -79,7 +79,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/loginButton"
         android:layout_marginStart="120dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="10dp"
         android:autoLink="web"
         android:clickable="true"
         android:text="Don't have an account? Sign Up"

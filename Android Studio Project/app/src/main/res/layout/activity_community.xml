@@ -93,6 +93,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/noroom"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textColor="@color/white"
+                android:paddingLeft="100dp"
+                android:paddingTop="150dp"
+            />
         </LinearLayout>
 
     </ScrollView>

@@ -45,7 +45,7 @@
         android:id="@+id/createComButton"
         android:layout_width="260dp"
         android:layout_height="50dp"
-        android:background="@drawable/green_btn_bg"
+        android:background="@drawable/getstartedbg"
         android:inputType="textMultiLine"
         android:text="Create Community"
         android:textColor="@color/white"
