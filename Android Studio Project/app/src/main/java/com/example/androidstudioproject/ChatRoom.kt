@@ -1,9 +1,13 @@
 package com.example.androidstudioproject
 
+import android.app.ActivityManager
+import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.*
 import android.graphics.Color
 import android.graphics.Typeface
+import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.InputMethodManager
@@ -39,6 +43,9 @@ class ChatRoom : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_room)
+
+        val notificationIntent = Intent(this, pushNotification::class.java)
+//        startService(notificationIntent)
 
         // this scope runs every 2 seconds
         val scope = CoroutineScope(Dispatchers.Default)
@@ -144,6 +151,9 @@ class ChatRoom : AppCompatActivity() {
 
         builder.setPositiveButton("Yes") { _, _ ->
 
+            val notificationIntent = Intent(this, pushNotification::class.java)
+//            stopService(notificationIntent)
+
             GlobalScope.launch {
 
                 try {
@@ -238,11 +248,6 @@ class ChatRoom : AppCompatActivity() {
         val alertDialog = builder.create()
         alertDialog.show()
     }
-
-
-
-
-
     private fun addMessageToScrollView(message: JSONObject){
 
         val messageLayout = LinearLayout(this)
@@ -288,21 +293,63 @@ class ChatRoom : AppCompatActivity() {
     private fun syncMessages(newMessages: JSONArray){
 
         for(i in localMessages.length() until newMessages.length()){
+
+            if(appInBackGround()) sendNotification("Discord Replica", "New Unread Message")
+
             addMessageToScrollView(newMessages.getJSONObject(i))
             scrollToBottom()
-
-//            val message = newMessages.getJSONObject(i)
-//            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-//            val builder = NotificationCompat.Builder(this, "default")
-//                .setSmallIcon(R.drawable.baseline_email_24)
-//                .setContentTitle("New Message")
-//                .setContentText(message.getString("text"))
-//                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-//                .setAutoCancel(true)
-//            notificationManager.notify(0, builder.build())
         }
 
         localMessages = newMessages // update the local messages
+    }
+    private fun sendNotification(title: String, message: String) {
+
+        val channelId = "my_channel_id"
+        val notificationId = Random().nextInt()
+
+        // Create an intent for when the user taps the notification
+        val intent = Intent(this, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+        // Create a notification builder
+        val builder = NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(R.drawable.baseline_email_24)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_HIGH) // Set the priority to high
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+
+        // Set vibration and sound
+        val vibrate = longArrayOf(1000, 1000, 1000, 1000, 1000)
+//        builder.setVibration(vibrate)
+//        builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+
+        // Create a notification manager and show the notification
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(channelId, "My Channel", NotificationManager.IMPORTANCE_HIGH)
+            notificationManager.createNotificationChannel(channel)
+        }
+        notificationManager.notify(notificationId, builder.build())
+    }
+    private fun appInBackGround(): Boolean {
+
+        val activityManager = this.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        val appProcesses = activityManager.runningAppProcesses ?: return false
+
+        for (appProcess in appProcesses) {
+            if (appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+                for (activeProcess in appProcess.pkgList) {
+                    if (activeProcess == this.packageName) {
+                        // App is running in the foreground
+                        return false
+                    }
+                }
+            }
+        }
+        // App is running in the background
+        return true
     }
     private fun connectionDropped(){
 
