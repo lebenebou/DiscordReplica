@@ -9,9 +9,10 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-
+import org.json.JSONObject
 
 
 class RecordActivity : AppCompatActivity() {
@@ -81,7 +82,10 @@ class RecordActivity : AppCompatActivity() {
         audioRecord?.release()
         audioTrack?.release()
 
-        sendToServer(theRecord)
+
+        GlobalScope.launch(Dispatchers.IO){
+            sendToServer(theRecord)
+        }
         println("theRecord Not cleared $theRecord")
         println("theRecord Not cleared, size: ${theRecord.size}")
         //we clear the buffer after sending it
@@ -92,7 +96,9 @@ class RecordActivity : AppCompatActivity() {
 
 
     private fun playAudio(){
-        playRecording()
+        GlobalScope.launch{
+            playRecording()
+        }
     }
 
     @Override
@@ -163,20 +169,31 @@ class RecordActivity : AppCompatActivity() {
     }
 
 
-    private fun sendToServer(record: MutableList<Short>){
+    private suspend fun sendToServer(record: MutableList<Short>){
         val mongodbClient = MongoClient()
         //element that we will send to the server
         compressedByteArray= mongodbClient.compressList(record)
         println("this is the length of the String that we send to the server ${compressedByteArray.length}")
+
+
+        val newVoiceNotes= JSONObject()
+            .put("name","record1")
+            .put("data",compressedByteArray)
+
+        mongodbClient.insertOne("Records", newVoiceNotes)
+        println("sent to server")
     }
 
     private fun receivedFromServer(compressedString:String):MutableList<Short>{
         val mongodbClient = MongoClient()
+
         return mongodbClient.decompressString(compressedString)
     }
 
 
-    private fun playRecording(){
+    private suspend fun playRecording(){
+        val mongodbClient = MongoClient()
+
         val audioAttributes = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
@@ -200,7 +217,12 @@ class RecordActivity : AppCompatActivity() {
         audioTrack!!.play()
 
 
-        val theVoiceToPlay = receivedFromServer(compressedByteArray)
+
+
+        val result = mongodbClient.findOne("Records", JSONObject().put("name", "record1"))
+
+
+        val theVoiceToPlay = receivedFromServer(result.getString("data"))
 
         println("TheVoiceToPlay which is theRecord that the user receive $theVoiceToPlay")
         println("TheVoiceToPlay which is theRecord that the user receive, size: ${theVoiceToPlay.size}")

@@ -1,8 +1,10 @@
 package com.example.androidstudioproject
 
+import android.app.Instrumentation.ActivityResult
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.icu.text.AlphabeticIndex.Record
 import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
@@ -78,7 +80,17 @@ class Login : AppCompatActivity() {
             }
         }
 
+
+        loginButton.setOnClickListener{
+            startActivity(Intent(this, RecordActivity::class.java))
+        }
+
+
+
         imgShowHidePassword = findViewById(R.id.imgShowHidePassword)
+
+
+
 
         imgShowHidePassword.setOnClickListener {
             isPasswordShown = !isPasswordShown
