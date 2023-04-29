@@ -78,24 +78,6 @@ class Login : AppCompatActivity() {
             }
         }
 
-        rememberMeCheckBox.setOnCheckedChangeListener { _, isChecked ->
-
-            if(isChecked) {
-                sharedPreferences = getSharedPreferences("user_credentials", Context.MODE_PRIVATE)
-                val editor = sharedPreferences.edit()
-                editor.putString("username", identityInput.text.toString())
-                editor.putString("password", passwordInput.text.toString())
-                editor.apply()
-                println("Credentials all added!")
-            } else {
-                println("Credentials not added!")
-            }
-        }
-
-        loginButton.setOnClickListener{
-            startActivity(Intent(this, HomePage::class.java))
-        }
-
         imgShowHidePassword = findViewById(R.id.imgShowHidePassword)
 
         imgShowHidePassword.setOnClickListener {
@@ -130,7 +112,15 @@ class Login : AppCompatActivity() {
         // set global user variable
         GlobalVars.currentUser = validResult.getString("username")
 
+        if(rememberMeCheckBox.isChecked){
 
+            sharedPreferences = getSharedPreferences("user_credentials", Context.MODE_PRIVATE)
+            val editor = sharedPreferences.edit()
+
+            editor.putString("username", validResult.getString("username"))
+            editor.putString("password", validResult.getString("password"))
+            editor.apply()
+        }
 
         // switch to homepage screen
         finish()

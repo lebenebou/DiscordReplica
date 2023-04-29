@@ -70,11 +70,15 @@ class HomePage : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
     private fun logout(){
+
         // Remove user credentials from shared preferences
         getSharedPreferences("user_credentials", Context.MODE_PRIVATE).edit().clear().apply()
-        println("Credentials have been removed")
+        // println("Credentials have been removed")
+
         GlobalVars.currentUser = "not_logged_in"
         GlobalVars.currentRoomCode = "000000"
+        GlobalVars.currentCommunityCode = "000000"
+
         finish()
         startActivity(Intent(this@HomePage, Login::class.java))
     }
