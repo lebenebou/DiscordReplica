@@ -308,7 +308,7 @@ class ChatRoom : AppCompatActivity() {
         val notificationId = Random().nextInt()
 
         // Create an intent for when the user taps the notification
-        val intent = Intent(this, MainActivity::class.java)
+//        val intent = Intent(this, ChatRoom::class.java)
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
         // Create a notification builder
