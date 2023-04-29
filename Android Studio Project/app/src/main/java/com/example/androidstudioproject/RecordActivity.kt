@@ -9,7 +9,6 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -33,9 +32,8 @@ class RecordActivity : AppCompatActivity() {
     private val audioFormat = AudioFormat.ENCODING_PCM_16BIT
 
     private val intRecordSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL)
-
-    private val theRecord: MutableList<Short> = mutableListOf()
     private var compressedByteArray: String = ""
+    var theRecord: MutableList<Short> = mutableListOf()
 
 
 
@@ -60,10 +58,11 @@ class RecordActivity : AppCompatActivity() {
             }
         }
 
-
         playButton.setOnClickListener {
             println("Play was pressed")
-            playAudio()
+            GlobalScope.launch {
+                buttonPlayAudio()
+            }
         }
     }
 
@@ -71,7 +70,7 @@ class RecordActivity : AppCompatActivity() {
 
     private fun buttonStart() {
         GlobalScope.launch {
-            setUpRecording()
+            theRecord = StartTheRecording()
         }
     }
 
@@ -81,164 +80,158 @@ class RecordActivity : AppCompatActivity() {
         audioRecord?.stop()
         audioRecord?.release()
         audioTrack?.release()
-
-
+        /*
         GlobalScope.launch(Dispatchers.IO){
             sendToServer(theRecord)
         }
-        println("theRecord Not cleared $theRecord")
-        println("theRecord Not cleared, size: ${theRecord.size}")
+        */
+
         //we clear the buffer after sending it
         theRecord.clear()
-        println("theRecord cleared $theRecord")
-        println("theRecord cleared, size: ${theRecord.size}")
     }
 
 
-    private fun playAudio(){
-        GlobalScope.launch{
-            playRecording()
-        }
-    }
+    private suspend fun buttonPlayAudio(){
+        /*
+       val mongodbClient = MongoClient()
 
-    @Override
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            0 -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //to continue the code when the user check permission
-                    deferred.complete(true)
+       val result = mongodbClient.findOne("Records", JSONObject().put("name", "record1"))
+        */
+       val theVoiceToPlay = receivedFromServer(result.getString("data"))
 
-                } else {
-                    buttonStop()
-                    println("ACCESS DENIED, PLEASE ENABLE MICROPHONE SO YOU WILL BE ABLE TO CALL")
-                }
-            }
-        }
-    }
-
-
-    private suspend fun setUpRecording() {
-        //we calculate the optimal size of the buffer (7680 bytes)
-        intBufferSize = AudioRecord.getMinBufferSize(
-            intRecordSampleRate,
-            channelConfig,
-            audioFormat
-        )
-
-        //create an array containing intBufferSize values initialized with 0
-        shortAudioData = ShortArray(intBufferSize)
-
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 0)
-            deferred.await() //we suspend the activity till the user answer
-        }
-
-        audioRecord = AudioRecord(
-            audioSource,
-            sampleRate,
-            channelConfig,
-            audioFormat,
-            intBufferSize
-        )
-
-        audioRecord!!.startRecording()
-
-        isActive = true
-        audioThread = startTheRecording()
-
-        audioThread!!.start()
-    }
-
-    private fun startTheRecording(): Thread {
-        return Thread {//The thread prevents the code from blocking on the while loop and thus allows accessing the stop button
-            while (isActive) {
-                //we read the bytes captured by audioRecord and save them in SHORT FORMAT inside shortAudioData (not bytes)
-                audioRecord!!.read(shortAudioData, 0, shortAudioData.size)
-
-
-                //we add all shortAudioData inside a buffer
-                for (element in shortAudioData) {
-                    theRecord.add(element)
-                }
-            }
-
-        }
-    }
-
-
-    private suspend fun sendToServer(record: MutableList<Short>){
-        val mongodbClient = MongoClient()
-        //element that we will send to the server
-        compressedByteArray= mongodbClient.compressList(record)
-        println("this is the length of the String that we send to the server ${compressedByteArray.length}")
-
-
-        val newVoiceNotes= JSONObject()
-            .put("name","record1")
-            .put("data",compressedByteArray)
-
-        mongodbClient.insertOne("Records", newVoiceNotes)
-        println("sent to server")
-    }
-
-    private fun receivedFromServer(compressedString:String):MutableList<Short>{
-        val mongodbClient = MongoClient()
-
-        return mongodbClient.decompressString(compressedString)
-    }
-
-
-    private suspend fun playRecording(){
-        val mongodbClient = MongoClient()
-
-        val audioAttributes = AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-            .build()
-
-        audioTrack = AudioTrack.Builder()
-            .setAudioAttributes(audioAttributes)
-            .setAudioFormat(
-                AudioFormat.Builder()
-                    .setEncoding(audioFormat)
-                    .setSampleRate(intRecordSampleRate)
-                    .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
-                    .build()
-            )
-            .setBufferSizeInBytes(intBufferSize)
-            .build()
-
-        //Set the playback rate to the sampleRate
-        audioTrack!!.playbackRate = intRecordSampleRate
-
-        audioTrack!!.play()
+       playRecording(theVoiceToPlay)
+   }
 
 
 
+   @Override
+   override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+       super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+       when (requestCode) {
+           0 -> {
+               if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                   //to continue the code when the user check permission
+                   deferred.complete(true)
 
-        val result = mongodbClient.findOne("Records", JSONObject().put("name", "record1"))
+               } else {
+                   buttonStop()
+                   println("ACCESS DENIED, PLEASE ENABLE MICROPHONE SO YOU WILL BE ABLE TO CALL")
+               }
+           }
+       }
+   }
 
 
-        val theVoiceToPlay = receivedFromServer(result.getString("data"))
+   private suspend fun StartTheRecording(): MutableList<Short> {
+       val theRecording: MutableList<Short> = mutableListOf()
+       //we calculate the optimal size of the buffer (7680 bytes)
+       intBufferSize = AudioRecord.getMinBufferSize(
+           intRecordSampleRate,
+           channelConfig,
+           audioFormat
+       )
 
-        println("TheVoiceToPlay which is theRecord that the user receive $theVoiceToPlay")
-        println("TheVoiceToPlay which is theRecord that the user receive, size: ${theVoiceToPlay.size}")
+       //create an array containing intBufferSize values initialized with 0
+       shortAudioData = ShortArray(intBufferSize)
 
 
-        val shortAudioDataForPlaying = ShortArray(theVoiceToPlay.size)
+       if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+           ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 0)
+           deferred.await() //we suspend the activity till the user answer
+       }
 
-        var i=0
-        while(i< theVoiceToPlay.size){
-            shortAudioDataForPlaying[i]= theVoiceToPlay[i]
-            i++
-        }
+       audioRecord = AudioRecord(
+           audioSource,
+           sampleRate,
+           channelConfig,
+           audioFormat,
+           intBufferSize
+       )
 
-        if (audioTrack?.playState == AudioTrack.PLAYSTATE_PLAYING) {
-            audioTrack!!.write(shortAudioDataForPlaying, 0, shortAudioDataForPlaying.size)
-        }
-    }
+       audioRecord!!.startRecording()
+
+       isActive = true
+       audioThread = Thread {//The thread prevents the code from blocking on the while loop and thus allows accessing the stop button
+           while (isActive) {
+               //we read the bytes captured by audioRecord and save them in SHORT FORMAT inside shortAudioData (not bytes)
+               audioRecord!!.read(shortAudioData, 0, shortAudioData.size)
+
+
+               //we add all shortAudioData inside a buffer
+               for (element in shortAudioData) {
+                   theRecording.add(element)
+               }
+           }
+       }
+
+       audioThread!!.start()
+
+       return theRecording
+   }
+
+/*
+   private suspend fun sendToServer(record: MutableList<Short>){
+       val mongodbClient = MongoClient()
+       //element that we will send to the server
+       compressedByteArray= mongodbClient.compressList(record)
+       println("this is the length of the String that we send to the server ${compressedByteArray.length}")
+
+
+       val newVoiceNotes= JSONObject()
+           .put("name","record1")
+           .put("data",compressedByteArray)
+
+       mongodbClient.insertOne("Records", newVoiceNotes)
+       println("sent to server")
+   }
+
+   private fun receivedFromServer(compressedString:String):MutableList<Short>{
+       val mongodbClient = MongoClient()
+
+       return mongodbClient.decompressString(compressedString)
+   }
+*/
+
+   private fun playRecording(theVoiceToPlay: MutableList<Short>){
+
+       val audioAttributes = AudioAttributes.Builder()
+           .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+           .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+           .build()
+
+       audioTrack = AudioTrack.Builder()
+           .setAudioAttributes(audioAttributes)
+           .setAudioFormat(
+               AudioFormat.Builder()
+                   .setEncoding(audioFormat)
+                   .setSampleRate(intRecordSampleRate)
+                   .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
+                   .build()
+           )
+           .setBufferSizeInBytes(intBufferSize)
+           .build()
+
+       //Set the playback rate to the sampleRate
+       audioTrack!!.playbackRate = intRecordSampleRate
+
+       audioTrack!!.play()
+
+
+       println("TheVoiceToPlay which is theRecord that the user receive $theVoiceToPlay")
+       println("TheVoiceToPlay which is theRecord that the user receive, size: ${theVoiceToPlay.size}")
+
+
+       val shortAudioDataForPlaying = ShortArray(theVoiceToPlay.size)
+
+       var i=0
+       while(i< theVoiceToPlay.size){
+           shortAudioDataForPlaying[i]= theVoiceToPlay[i]
+           i++
+       }
+
+       if (audioTrack?.playState == AudioTrack.PLAYSTATE_PLAYING) {
+           audioTrack!!.write(shortAudioDataForPlaying, 0, shortAudioDataForPlaying.size)
+       }
+   }
 
 }
