@@ -86,6 +86,7 @@ class Community : AppCompatActivity() {
         }
 
         openRoomButton.setOnClickListener{
+            finish()
             startActivity(Intent(this, CreateRoom::class.java))
         }
 
@@ -161,20 +162,24 @@ class Community : AppCompatActivity() {
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
 
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Back to Homepage")
-        builder.setMessage("Go back to home page?")
+        finish()
+        GlobalVars.currentCommunityCode = "000000"
+        startActivity(Intent(this, HomePage::class.java))
 
-        builder.setPositiveButton("Yes") { _, _ ->
-
-            finish()
-            GlobalVars.currentCommunityCode = "000000"
-            startActivity(Intent(this, HomePage::class.java))
-        }
-        builder.setNegativeButton("No") { dialog, _ ->
-            dialog.dismiss()
-        }
-        builder.show()
+//        val builder = AlertDialog.Builder(this)
+//        builder.setTitle("Back to Homepage")
+//        builder.setMessage("Go back to home page?")
+//
+//        builder.setPositiveButton("Yes") { _, _ ->
+//
+//            finish()
+//            GlobalVars.currentCommunityCode = "000000"
+//            startActivity(Intent(this, HomePage::class.java))
+//        }
+//        builder.setNegativeButton("No") { dialog, _ ->
+//            dialog.dismiss()
+//        }
+//        builder.show()
     }
     private fun showMessageBox(title: String, message: String) {
 

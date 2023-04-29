@@ -214,7 +214,7 @@ class ChatRoom : AppCompatActivity() {
 
             messageText += "\n" +
                     "\nThis room's code is ${GlobalVars.currentRoomCode}.\n" +
-                    "This code is only shown to you.\nPlease copy it or save it elsewhere.\n" +
+                    "This code is only shown to you.\n" +
                     "\nShare it with friends who wish to join this room."
         }
         builder.setMessage(messageText)
