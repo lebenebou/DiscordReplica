@@ -64,9 +64,7 @@ class SearchCommunity : AppCompatActivity() {
     }
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-
         finish()
-        startActivity(Intent(this, HomePage::class.java))
     }
     private fun displaySearchResults(searchResults: JSONArray) {
 
