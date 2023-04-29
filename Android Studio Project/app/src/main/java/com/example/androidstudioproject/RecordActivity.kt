@@ -97,9 +97,9 @@ class RecordActivity : AppCompatActivity() {
 
        val result = mongodbClient.findOne("Records", JSONObject().put("name", "record1"))
         */
-       val theVoiceToPlay = receivedFromServer(result.getString("data"))
+//       val theVoiceToPlay = receivedFromServer(result.getString("data"))
 
-       playRecording(theVoiceToPlay)
+//       playRecording(theVoiceToPlay)
    }
 
 

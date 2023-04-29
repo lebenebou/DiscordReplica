@@ -26,7 +26,8 @@ class MainActivity : AppCompatActivity() {
         joinCreateButton = findViewById(R.id.joinCreateButton)
         chatroomsButton = findViewById(R.id.chatroomsButton)
 
-
+        val intent = Intent(this, pushNotification::class.java)
+        startService(intent)
         // Get the user credentials from shared preferences
         sharedPreferences = getSharedPreferences("user_credentials", Context.MODE_PRIVATE)
         val username = sharedPreferences.getString("username", null)

@@ -82,7 +82,7 @@ class Login : AppCompatActivity() {
 
 
         loginButton.setOnClickListener{
-            startActivity(Intent(this, RecordActivity::class.java))
+            startActivity(Intent(this, HomePage::class.java))
         }
 
 

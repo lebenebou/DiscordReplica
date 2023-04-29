@@ -1,5 +1,6 @@
 package com.example.androidstudioproject
 
+import android.app.NotificationManager
 import android.content.*
 import android.graphics.Color
 import android.graphics.Typeface
@@ -9,6 +10,8 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -55,6 +58,8 @@ class ChatRoom : AppCompatActivity() {
                 runOnUiThread{ // sync messages from currentRoom to the UI
                     syncMessages(currentRoom.getJSONArray("messages"))
                     endSendingMode()
+
+
                 }
             }
         }
@@ -285,7 +290,18 @@ class ChatRoom : AppCompatActivity() {
         for(i in localMessages.length() until newMessages.length()){
             addMessageToScrollView(newMessages.getJSONObject(i))
             scrollToBottom()
+
+//            val message = newMessages.getJSONObject(i)
+//            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+//            val builder = NotificationCompat.Builder(this, "default")
+//                .setSmallIcon(R.drawable.baseline_email_24)
+//                .setContentTitle("New Message")
+//                .setContentText(message.getString("text"))
+//                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+//                .setAutoCancel(true)
+//            notificationManager.notify(0, builder.build())
         }
+
         localMessages = newMessages // update the local messages
     }
     private fun connectionDropped(){
