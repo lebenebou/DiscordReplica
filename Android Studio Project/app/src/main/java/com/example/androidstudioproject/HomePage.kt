@@ -2,12 +2,23 @@ package com.example.androidstudioproject
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.ScrollView
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.res.ResourcesCompat
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import org.json.JSONArray
+import org.json.JSONObject
+import org.w3c.dom.Text
 
 
 class HomePage : AppCompatActivity() {
@@ -15,6 +26,11 @@ class HomePage : AppCompatActivity() {
     private lateinit var quickJoinButton: Button
     private lateinit var createCommunityButton: Button
     private lateinit var searchButton: Button
+    private lateinit var scrollView: ScrollView
+    private lateinit var communitiesLayout: LinearLayout
+
+    private val databaseClient = MongoClient()
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -23,6 +39,8 @@ class HomePage : AppCompatActivity() {
         quickJoinButton = findViewById(R.id.quickJoinButton)
         createCommunityButton = findViewById(R.id.createCommunityButton)
         searchButton = findViewById(R.id.searchButton)
+        scrollView = findViewById(R.id.scrollView2)
+        communitiesLayout= findViewById(R.id.communitiesLayout)
 
         quickJoinButton.setOnClickListener{
             startActivity(Intent(this, QuickJoin::class.java))
@@ -32,6 +50,20 @@ class HomePage : AppCompatActivity() {
         }
         searchButton.setOnClickListener{
             startActivity(Intent(this, SearchCommunity::class.java))
+        }
+
+        GlobalScope.launch {
+
+            val userInfo = databaseClient.findOne("Users", JSONObject().put("username", GlobalVars.currentUser))
+            val communityCodes = userInfo.getJSONArray("communities")
+
+            val joinedCommunities = databaseClient.findMultiple("Communities", JSONObject()
+                .put("code", JSONObject()
+                    .put("\$in", communityCodes)))
+
+            runOnUiThread {
+                syncScrollView(joinedCommunities)
+            }
         }
     }
     @Deprecated("Deprecated in Java")
@@ -80,5 +112,67 @@ class HomePage : AppCompatActivity() {
 
         finish()
         startActivity(Intent(this@HomePage, Login::class.java))
+    }
+    private fun addCommunityToScrollView(community: JSONObject) {
+
+        val context = scrollView.context
+
+        val layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        layoutParams.setMargins(16, 16, 16, 16)
+
+        val linearLayout = LinearLayout(context)
+        linearLayout.layoutParams = layoutParams
+        linearLayout.orientation = LinearLayout.VERTICAL
+        linearLayout.setBackgroundResource(R.drawable.community_results)
+        linearLayout.isClickable = true
+
+        linearLayout.setOnClickListener {
+
+            GlobalVars.currentCommunityCode = community.getString("code")
+
+            startActivity(Intent(this, Community::class.java))
+        }
+
+        val communityName = TextView(context)
+        communityName.text = community.getString("name")
+        communityName.setTextColor(Color.WHITE)
+        communityName.typeface = ResourcesCompat.getFont(context, R.font.montserratextrabold)
+        communityName.gravity = Gravity.CENTER
+        communityName.textSize = 15f
+        communityName.setPadding(20, 10, 0, 0)
+
+        linearLayout.addView(communityName)
+
+        val description = TextView(context)
+        description.text = "Description: " + community.getString("description")
+        description.setTextColor(Color.WHITE)
+        description.textSize = 14f
+        description.setPadding(20, 10, 0, 0)
+
+        linearLayout.addView(description)
+
+        val members = TextView(context)
+        members.text = "Members: " + community.getJSONArray("users").length()
+        members.textSize = 14f
+        members.setPadding(20, 10, 0, 10)
+        members.setTextColor(Color.WHITE)
+        linearLayout.addView(members)
+
+        communitiesLayout.addView(linearLayout)
+    }
+
+    private fun syncScrollView(communityResults: JSONArray){
+
+        if (communityResults.length() == 0) return
+
+        communitiesLayout.removeAllViews()
+
+        for(i in 0 until communityResults.length()){
+
+            addCommunityToScrollView(communityResults.getJSONObject(i))
+        }
     }
 }

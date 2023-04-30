@@ -118,14 +118,12 @@ class Community : AppCompatActivity() {
             return
         }
 
+        for (i in 0 until localAvailableRooms.length()) {
 
-
-            for (i in 0 until localAvailableRooms.length()) {
-
-                val room = localAvailableRooms.getJSONObject(i)
-                addRoomToScrollView(room)
-            }
-            scrollToBottom()
+            val room = localAvailableRooms.getJSONObject(i)
+            addRoomToScrollView(room)
+        }
+        scrollToBottom()
 
     }
     private fun addRoomToScrollView(room: JSONObject) {
@@ -141,7 +139,7 @@ class Community : AppCompatActivity() {
         val linearLayout = LinearLayout(context)
         linearLayout.layoutParams = layoutParams
         linearLayout.orientation = LinearLayout.VERTICAL
-        linearLayout.setBackgroundResource(R.drawable.message_rectangle)
+        linearLayout.setBackgroundResource(R.drawable.room_result_bg)
         linearLayout.isClickable = true
 
         linearLayout.setOnClickListener {
