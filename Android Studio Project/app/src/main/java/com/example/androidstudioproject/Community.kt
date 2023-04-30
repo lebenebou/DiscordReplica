@@ -3,15 +3,12 @@ package com.example.androidstudioproject
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.LayerDrawable
-import android.graphics.drawable.ShapeDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Gravity
-import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.res.ResourcesCompat
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.json.JSONArray
@@ -89,7 +86,6 @@ class Community : AppCompatActivity() {
         }
 
         openRoomButton.setOnClickListener{
-            finish()
             startActivity(Intent(this, CreateRoom::class.java))
         }
 
@@ -105,18 +101,21 @@ class Community : AppCompatActivity() {
                 .put("\$in", currentCommunity.getJSONArray("rooms"))))
     }
     private fun syncScrollView() {
+
         roomsLayout.removeAllViews()
 
-
         if (localAvailableRooms.length() == 0) {
+
             val context = noroom.context
-            val noroom = TextView(context)
-            noroom.text = "No available rooms,create your own"
-            noroom.setTextColor(Color.WHITE)
-            noroom.gravity = Gravity.CENTER
-            noroom.setPadding(0, 250, 0, 0)
-            roomsLayout.addView(noroom)
-            return;
+            val noRoomText = TextView(context)
+            noRoomText.text = "No currently open rooms.\n\nBe the first and open one below!"
+            noRoomText.textSize = 15F
+            noRoomText.typeface = ResourcesCompat.getFont(context, R.font.montserratextrabold)
+            noRoomText.setTextColor(Color.WHITE)
+            noRoomText.gravity = Gravity.CENTER
+            noRoomText.setPadding(0, 350, 0, 0)
+            roomsLayout.addView(noRoomText)
+            return
         }
 
 

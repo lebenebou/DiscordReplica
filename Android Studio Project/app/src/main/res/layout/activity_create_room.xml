@@ -30,7 +30,7 @@
         android:layout_width="260dp"
         android:layout_height="50dp"
         android:layout_marginBottom="272dp"
-        android:background="@drawable/green_btn_bg"
+        android:background="@drawable/getstartedbg"
         android:inputType="textMultiLine"
         android:text="Create Room"
         android:textColor="@color/white"
@@ -39,7 +39,7 @@
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/nameInput"
-        app:layout_constraintVertical_bias="0.365" />
+        app:layout_constraintVertical_bias="0.351" />
 
     <Button
         android:id="@+id/goBackButton"

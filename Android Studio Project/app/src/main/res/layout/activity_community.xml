@@ -80,11 +80,11 @@
 
     <ScrollView
         android:id="@+id/scrollView3"
-        android:layout_width="match_parent"
-        android:layout_height="365dp"
-        android:layout_marginTop="4dp"
+        android:layout_width="395dp"
+        android:layout_height="357dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/message_rectangle"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/mainText2">
 
@@ -98,10 +98,9 @@
                 android:id="@+id/noroom"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:textColor="@color/white"
                 android:paddingLeft="100dp"
                 android:paddingTop="150dp"
-            />
+                android:textColor="@color/white" />
         </LinearLayout>
 
     </ScrollView>
