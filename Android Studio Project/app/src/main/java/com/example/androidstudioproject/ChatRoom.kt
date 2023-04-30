@@ -15,7 +15,6 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import kotlinx.coroutines.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -284,7 +283,7 @@ class ChatRoom : AppCompatActivity() {
 
         for(i in localMessages.length() until newMessages.length()){
 
-            if(appInBackGround()) sendNotification("Discord Replica", "New Unread Message")
+            if(appInBackground()) sendNotification("New Message", newMessages.getJSONObject(i).getString("username") + ": " + newMessages.getJSONObject(i).getString("content"))
 
             addMessageToScrollView(newMessages.getJSONObject(i))
             scrollToBottom()
@@ -323,7 +322,7 @@ class ChatRoom : AppCompatActivity() {
         }
         notificationManager.notify(notificationId, builder.build())
     }
-    private fun appInBackGround(): Boolean {
+    private fun appInBackground(): Boolean {
 
         val activityManager = this.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val appProcesses = activityManager.runningAppProcesses ?: return false

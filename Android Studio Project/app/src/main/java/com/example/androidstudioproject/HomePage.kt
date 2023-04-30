@@ -54,23 +54,27 @@ class HomePage : AppCompatActivity() {
 
         GlobalScope.launch {
 
+            var userInfo = JSONObject()
+
             try {
-                val userInfo = databaseClient.findOne("Users", JSONObject().put("username", GlobalVars.currentUser))
-                val communityCodes = userInfo.getJSONArray("communities")
-
-                val joinedCommunities = databaseClient.findMultiple("Communities", JSONObject()
-                    .put("code", JSONObject()
-                        .put("\$in", communityCodes)))
-
-                runOnUiThread {
-                    syncScrollView(joinedCommunities)
-                }
+                userInfo = databaseClient.findOne("Users", JSONObject().put("username", GlobalVars.currentUser))
             }
             catch (e : Exception){
                 connectionDropped()
             }
 
+            val communityCodes = userInfo.getJSONArray("communities")
+            var joinedCommunities = JSONArray()
 
+            try {
+                joinedCommunities = databaseClient.findMultiple("Communities", JSONObject()
+                    .put("code", JSONObject()
+                        .put("\$in", communityCodes)))
+            }
+            catch (e : java.lang.Exception){
+                connectionDropped()
+            }
+            runOnUiThread{ syncScrollView(joinedCommunities) }
         }
     }
     @Deprecated("Deprecated in Java")
@@ -173,23 +177,20 @@ class HomePage : AppCompatActivity() {
 
     private fun syncScrollView(communityResults: JSONArray){
 
+        communitiesLayout.removeAllViews()
+
         if (communityResults.length() == 0) {
 
-            communitiesLayout.removeAllViews()
-
-            val context = findViewById<TextView>(R.id.noCommunitiesText).context
-            val noResultsText = TextView(context)
-            noResultsText.text = "Looks like you haven't joined any communities yet.\n\nSearch for communities or create your own below!"
+            val noResultsText = TextView(this)
+            noResultsText.text = "Looks like you haven't joined\nany communities yet.\n\nSearch for communities\nor create your own below!"
             noResultsText.setTextColor(Color.WHITE)
             noResultsText.gravity = Gravity.CENTER
             noResultsText.setPadding(0, 250, 0, 0)
             noResultsText.textSize = 15F
-            noResultsText.typeface = ResourcesCompat.getFont(context, R.font.montserratextrabold)
+            noResultsText.typeface = ResourcesCompat.getFont(this, R.font.montserratextrabold)
             communitiesLayout.addView(noResultsText)
             return
         }
-
-        communitiesLayout.removeAllViews()
 
         for(i in 0 until communityResults.length()){
 
