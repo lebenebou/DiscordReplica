@@ -1,10 +1,7 @@
 
 package com.example.androidstudioproject
 
-import android.content.Context
 import android.util.Base64
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -13,14 +10,10 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.io.IOException
-import java.net.HttpURLConnection
-import java.net.URL
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
-
 
 class MongoClient {
 
@@ -233,8 +226,7 @@ class MongoClient {
         return String(decoded)
     }
 
-
-    //Voice record encoding:
+    // Voice record encoding
     fun compressList(list: MutableList<Short>): String {
         // Convert the list to a delta-encoded byte array
         val deltaEncoded = deltaEncode(list)
