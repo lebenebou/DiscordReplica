@@ -44,16 +44,28 @@ class SearchCommunity : AppCompatActivity() {
 
                 if (query==null || query.isBlank()){
                     showMessageBox("empty Query","cannot be empty")
-                    return true ;
+                    return true
                 }
 
                 GlobalScope.launch {
+
                     runOnUiThread{
                         searchResultsLayout.removeAllViews()
                         startLoadingMode()
                     }
-                    val searchResults = databaseClient.getSearchResults("Communities", "name", query)
+
+                    var searchResults = JSONArray()
+
+                    try {
+                        searchResults = databaseClient.getSearchResults("Communities", "name", query)
+                    }
+                    catch(e : Exception){
+                        connectionDropped()
+                    }
+
+
                     runOnUiThread{
+                        searchResultsLayout.removeAllViews()
                         displaySearchResults(searchResults)
                     }
                 }
@@ -73,6 +85,19 @@ class SearchCommunity : AppCompatActivity() {
     override fun onBackPressed() {
         finish()
     }
+    private fun connectionDropped(){
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Connection Failure")
+        builder.setMessage("Your internet connection dropped.")
+            .setCancelable(false)
+            .setPositiveButton("OK") { _, _ ->
+
+            }
+
+        val alert = builder.create()
+        alert.show()
+    }
     private fun startLoadingMode(){
 
         val context = nocomm.context
@@ -88,8 +113,6 @@ class SearchCommunity : AppCompatActivity() {
     }
 
     private fun displaySearchResults(searchResults: JSONArray) {
-
-        searchResultsLayout.removeAllViews()
 
         if (searchResults.length() == 0) {
 
@@ -133,7 +156,8 @@ class SearchCommunity : AppCompatActivity() {
         val communityName = TextView(context)
         communityName.text = community.getString("name")
         communityName.setTextColor(Color.WHITE)
-        communityName.setTypeface(null, Typeface.BOLD)
+        communityName.typeface = ResourcesCompat.getFont(context, R.font.montserratextrabold)
+//        communityName.setTypeface(null, Typeface.BOLD)
         communityName.gravity = Gravity.CENTER
         communityName.textSize = 16f
         communityName.setPadding(20, 10, 0, 0)
@@ -141,7 +165,7 @@ class SearchCommunity : AppCompatActivity() {
         linearLayout.addView(communityName)
 
         val description = TextView(context)
-        description.text = "Description:" + community.getString("description")
+        description.text = "Description: " + community.getString("description")
         description.setTextColor(Color.WHITE)
         description.textSize = 14f
         description.setPadding(20, 10, 0, 0)

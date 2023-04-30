@@ -248,7 +248,6 @@ class ChatRoom : AppCompatActivity() {
         messageLayout.orientation = LinearLayout.VERTICAL
         messageLayout.setPadding(20, 20, 20, 20)
 
-
         // Username
         val usernameTextView = TextView(this)
         usernameTextView.text = message.getString("username")
@@ -269,10 +268,7 @@ class ChatRoom : AppCompatActivity() {
         timestampTextView.setTextColor(Color.GRAY)
         messageLayout.addView(timestampTextView)
 
-//        messageLayout.setBackgroundResource(R.drawable.message_rectangle)
-//        messageLayout.setBackgroundResource(R.color.grey38)
         messageList.addView(messageLayout)
-
     }
     private suspend fun handleSend(newMessage: JSONObject){
 
