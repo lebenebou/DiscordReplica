@@ -54,16 +54,23 @@ class HomePage : AppCompatActivity() {
 
         GlobalScope.launch {
 
-            val userInfo = databaseClient.findOne("Users", JSONObject().put("username", GlobalVars.currentUser))
-            val communityCodes = userInfo.getJSONArray("communities")
+            try {
+                val userInfo = databaseClient.findOne("Users", JSONObject().put("username", GlobalVars.currentUser))
+                val communityCodes = userInfo.getJSONArray("communities")
 
-            val joinedCommunities = databaseClient.findMultiple("Communities", JSONObject()
-                .put("code", JSONObject()
-                    .put("\$in", communityCodes)))
+                val joinedCommunities = databaseClient.findMultiple("Communities", JSONObject()
+                    .put("code", JSONObject()
+                        .put("\$in", communityCodes)))
 
-            runOnUiThread {
-                syncScrollView(joinedCommunities)
+                runOnUiThread {
+                    syncScrollView(joinedCommunities)
+                }
             }
+            catch (e : Exception){
+                connectionDropped()
+            }
+
+
         }
     }
     @Deprecated("Deprecated in Java")
@@ -166,7 +173,21 @@ class HomePage : AppCompatActivity() {
 
     private fun syncScrollView(communityResults: JSONArray){
 
-        if (communityResults.length() == 0) return
+        if (communityResults.length() == 0) {
+
+            communitiesLayout.removeAllViews()
+
+            val context = findViewById<TextView>(R.id.noCommunitiesText).context
+            val noResultsText = TextView(context)
+            noResultsText.text = "Looks like you haven't joined any communities yet.\n\nSearch for communities or create your own below!"
+            noResultsText.setTextColor(Color.WHITE)
+            noResultsText.gravity = Gravity.CENTER
+            noResultsText.setPadding(0, 250, 0, 0)
+            noResultsText.textSize = 15F
+            noResultsText.typeface = ResourcesCompat.getFont(context, R.font.montserratextrabold)
+            communitiesLayout.addView(noResultsText)
+            return
+        }
 
         communitiesLayout.removeAllViews()
 
@@ -174,5 +195,20 @@ class HomePage : AppCompatActivity() {
 
             addCommunityToScrollView(communityResults.getJSONObject(i))
         }
+    }
+    private fun connectionDropped(){
+
+        communitiesLayout.removeAllViews()
+
+        val context = findViewById<TextView>(R.id.noCommunitiesText).context
+        val noResultsText = TextView(context)
+        noResultsText.text = "There was an error fetching your communities.\n\nMake sure you have an active internet connection."
+        noResultsText.setTextColor(Color.WHITE)
+        noResultsText.gravity = Gravity.CENTER
+        noResultsText.setPadding(0, 250, 0, 0)
+        noResultsText.textSize = 15F
+        noResultsText.typeface = ResourcesCompat.getFont(context, R.font.montserratextrabold)
+        communitiesLayout.addView(noResultsText)
+        return
     }
 }
