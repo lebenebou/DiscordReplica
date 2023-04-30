@@ -193,7 +193,6 @@ class SignUp : AppCompatActivity() {
         findViewById<TextView>(R.id.loginText).isEnabled = true
 
         // change colors back to normal
-        findViewById<TextView>(R.id.loginText).setTextColor(ContextCompat.getColor(this, R.color.purple_700))
         signUpButton.setBackgroundResource(R.drawable.normal_btn_bg)
     }
 }

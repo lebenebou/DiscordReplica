@@ -164,7 +164,6 @@ class Login : AppCompatActivity() {
 
         // change colors back to normal
         loginButton.setBackgroundResource(R.drawable.normal_btn_bg)
-        signUpText.setTextColor(ContextCompat.getColor(this, R.color.purple_700))
     }
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
