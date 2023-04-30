@@ -31,6 +31,7 @@ class SearchCommunity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search_community)
+
         searchView = findViewById(R.id.searchView)
         searchResultsLayout = findViewById(R.id.search_results_layout)
         nocomm = findViewById(R.id.nocomm)
@@ -159,7 +160,6 @@ class SearchCommunity : AppCompatActivity() {
                     return@setOnClickListener
                 }
             }
-
             askToJoin(community)
         }
 
@@ -167,9 +167,8 @@ class SearchCommunity : AppCompatActivity() {
         communityName.text = community.getString("name")
         communityName.setTextColor(Color.WHITE)
         communityName.typeface = ResourcesCompat.getFont(context, R.font.montserratextrabold)
-//        communityName.setTypeface(null, Typeface.BOLD)
         communityName.gravity = Gravity.CENTER
-        communityName.textSize = 16f
+        communityName.textSize = 20f
         communityName.setPadding(20, 10, 0, 0)
 
         linearLayout.addView(communityName)

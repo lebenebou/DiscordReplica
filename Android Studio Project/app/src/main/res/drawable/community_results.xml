@@ -11,7 +11,7 @@
                 android:topRightRadius="10dp"/>
             <stroke
                 android:width="3dp"
-                android:color="#fff"
+                android:color="#B689BD"
                 android:dashWidth="100dp"
                 android:dashGap="5dp"/>
 
