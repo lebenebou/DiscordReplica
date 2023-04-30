@@ -5,13 +5,14 @@ import android.graphics.Color
 import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.Gravity
-import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.res.ResourcesCompat
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.json.JSONArray
@@ -40,6 +41,7 @@ class SearchCommunity : AppCompatActivity() {
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
             override fun onQueryTextSubmit(query: String?): Boolean {
+
                 if (query==null || query.isBlank()){
                     showMessageBox("empty Query","cannot be empty")
                     return true ;
@@ -48,6 +50,7 @@ class SearchCommunity : AppCompatActivity() {
                 GlobalScope.launch {
                     runOnUiThread{
                         searchResultsLayout.removeAllViews()
+                        startLoadingMode()
                     }
                     val searchResults = databaseClient.getSearchResults("Communities", "name", query)
                     runOnUiThread{
@@ -70,18 +73,38 @@ class SearchCommunity : AppCompatActivity() {
     override fun onBackPressed() {
         finish()
     }
+    private fun startLoadingMode(){
+
+        val context = nocomm.context
+        val noResultsText = TextView(context)
+        noResultsText.text = "Fetching..."
+        noResultsText.setTextColor(Color.WHITE)
+        noResultsText.gravity = Gravity.CENTER
+        noResultsText.setPadding(0, 250, 0, 0)
+        noResultsText.textSize = 15F
+        noResultsText.typeface = ResourcesCompat.getFont(context, R.font.montserratextrabold)
+
+        searchResultsLayout.addView(noResultsText)
+    }
+
     private fun displaySearchResults(searchResults: JSONArray) {
 
+        searchResultsLayout.removeAllViews()
+
         if (searchResults.length() == 0) {
+
             val context = nocomm.context
-            val nocomm = TextView(context)
-            nocomm.text = "No results found."
-            nocomm.setTextColor(Color.WHITE)
-            nocomm.gravity = Gravity.CENTER
-            nocomm.setPadding(0, 250, 0, 0)
-            searchResultsLayout.addView(nocomm)
-            return;
+            val noResultsText = TextView(context)
+            noResultsText.text = "Your search did not match any communities."
+            noResultsText.setTextColor(Color.WHITE)
+            noResultsText.gravity = Gravity.CENTER
+            noResultsText.setPadding(0, 250, 0, 0)
+            noResultsText.textSize = 15F
+            noResultsText.typeface = ResourcesCompat.getFont(context, R.font.montserratextrabold)
+            searchResultsLayout.addView(noResultsText)
+            return
         }
+
         for (i in 0 until searchResults.length()) {
             addCommunityToScrollView(searchResults.getJSONObject(i))
         }
@@ -119,7 +142,6 @@ class SearchCommunity : AppCompatActivity() {
 
         val description = TextView(context)
         description.text = "Description:" + community.getString("description")
-//        creatorName.setTextColor(getRandomColor(community.getString("creator")))
         description.setTextColor(Color.WHITE)
         description.textSize = 14f
         description.setPadding(20, 10, 0, 0)

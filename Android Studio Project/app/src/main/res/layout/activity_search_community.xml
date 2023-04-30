@@ -41,6 +41,7 @@
                 android:gravity="center"
                 android:paddingTop="140dp"
                 android:text="Search for communities by name or interests."
+                android:fontFamily="@font/montserratextrabold"
                 android:textColor="@color/white" />
             <TextView
                 android:id="@+id/nocomm"

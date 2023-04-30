@@ -99,8 +99,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:paddingTop="140dp"
-                android:text="Looks like you haven't joined any communities yet.\nSearch for communities or create your own below!"
+                android:paddingTop="120dp"
+                android:text="Looks like you haven't joined any\ncommunities yet.\n\nSearch for communities or create your own below!"
+                android:fontFamily="@font/montserratextrabold"
                 android:textColor="@color/white" />
         </LinearLayout>
     </ScrollView>
