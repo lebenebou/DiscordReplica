@@ -80,17 +80,7 @@ class Login : AppCompatActivity() {
             }
         }
 
-
-        loginButton.setOnClickListener{
-            startActivity(Intent(this, HomePage::class.java))
-        }
-
-
-
         imgShowHidePassword = findViewById(R.id.imgShowHidePassword)
-
-
-
 
         imgShowHidePassword.setOnClickListener {
             isPasswordShown = !isPasswordShown
