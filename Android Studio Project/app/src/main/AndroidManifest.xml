@@ -16,10 +16,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AndroidStudioProject"
         tools:targetApi="31">
-        <service
-            android:name=".pushNotification"
-            android:enabled="true"
-            android:exported="false"/>
 
         <activity
             android:name=".IntroStepper"

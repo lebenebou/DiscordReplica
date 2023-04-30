@@ -44,9 +44,6 @@ class ChatRoom : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_room)
 
-        val notificationIntent = Intent(this, pushNotification::class.java)
-//        startService(notificationIntent)
-
         // this scope runs every 2 seconds
         val scope = CoroutineScope(Dispatchers.Default)
         scope.launch {
@@ -150,9 +147,6 @@ class ChatRoom : AppCompatActivity() {
         builder.setMessage("Are you sure you want to leave this room?")
 
         builder.setPositiveButton("Yes") { _, _ ->
-
-            val notificationIntent = Intent(this, pushNotification::class.java)
-//            stopService(notificationIntent)
 
             GlobalScope.launch {
 
