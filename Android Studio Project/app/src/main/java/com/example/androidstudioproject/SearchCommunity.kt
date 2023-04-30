@@ -149,8 +149,18 @@ class SearchCommunity : AppCompatActivity() {
         linearLayout.isClickable = true
 
         linearLayout.setOnClickListener {
-            GlobalVars.currentCommunityCode = community.getString("code")
-            startActivity(Intent(this, Community::class.java))
+
+            val joinedUsers = community.getJSONArray("users")
+            for(i in 0 until joinedUsers.length()){
+
+                if(joinedUsers.getString(i) == GlobalVars.currentUser){
+
+                    askToRedirect(community)
+                    return@setOnClickListener
+                }
+            }
+
+            askToJoin(community)
         }
 
         val communityName = TextView(context)
@@ -193,4 +203,64 @@ class SearchCommunity : AppCompatActivity() {
         }
         builder.show()
     }
+    private fun askToJoin(community: JSONObject){
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Join " + community.getString("name"))
+
+        var message = ""
+        message += "Do you wish to join this community?\n\n"
+        message += "This community was created by " + community.getString("creator") + "\n\n"
+        message += "Members: " + community.getJSONArray("users").length() + "\n\n"
+        message += "Description: " + community.getString("description")
+
+        builder.setMessage(message)
+
+        builder.setPositiveButton("Yes") { _, _ ->
+
+            GlobalScope.launch {
+
+                try {
+                    join(community)
+                    finish()
+
+                    GlobalVars.currentCommunityCode = community.getString("code")
+                    startActivity(Intent(this@SearchCommunity, Community::class.java))
+                }
+                catch(e: Exception){
+                    connectionDropped()
+                }
+            }
+        }
+
+        builder.setNegativeButton("No") { dialog, _ ->
+            dialog.dismiss()
+        }
+        builder.show()
+    }
+    private suspend fun join(community: JSONObject){
+
+        databaseClient.addToArray("Users", JSONObject().put("username", GlobalVars.currentUser), "communities", community.getString("code"))
+        databaseClient.addToArray("Communities", JSONObject().put("code", community.getString("code")), "users", GlobalVars.currentUser)
+    }
+
+    private fun askToRedirect(community: JSONObject){
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Go to " + community.getString("name"))
+        builder.setMessage("You are already a member in ${community.getString("name")}.\n\nDo you wish to browse its open rooms?")
+
+        builder.setPositiveButton("Yes") { _, _ ->
+
+            GlobalVars.currentCommunityCode = community.getString("code")
+            startActivity(Intent(this@SearchCommunity, Community::class.java))
+        }
+        builder.setNegativeButton("No") { dialog, _ ->
+            dialog.dismiss()
+        }
+
+        builder.show()
+    }
+
+
 }
