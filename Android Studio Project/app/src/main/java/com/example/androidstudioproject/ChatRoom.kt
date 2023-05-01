@@ -58,11 +58,11 @@ class ChatRoom : AppCompatActivity() {
                     runOnUiThread{ connectionDropped() }
                 }
 
+                if(currentRoom.length() == 0) continue
+
                 runOnUiThread{ // sync messages from currentRoom to the UI
                     syncMessages(currentRoom.getJSONArray("messages"))
                     endSendingMode()
-
-
                 }
             }
         }
@@ -84,7 +84,6 @@ class ChatRoom : AppCompatActivity() {
                 sendButton.setBackgroundResource(R.drawable.normal_btn_bg)
 
                 showRoomInfo()
-//                syncMessages(currentRoom.getJSONArray("messages"))
             }
         }
 
