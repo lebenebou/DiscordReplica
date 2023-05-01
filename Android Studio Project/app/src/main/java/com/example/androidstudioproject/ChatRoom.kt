@@ -32,6 +32,7 @@ class ChatRoom : AppCompatActivity() {
     private lateinit var messageInput: EditText
     private lateinit var scrollView: ScrollView
     private lateinit var titleText: TextView
+    private lateinit var micIcon: ImageView
 
     private val roomColor = getRandomColor()
 
@@ -71,6 +72,7 @@ class ChatRoom : AppCompatActivity() {
         }
 
         titleText = findViewById(R.id.titleText)
+        micIcon = findViewById(R.id.micIcon)
 
         GlobalScope.launch {
 
@@ -157,10 +159,16 @@ class ChatRoom : AppCompatActivity() {
 
                     sendButton.isVisible = false
                     sendButton.isEnabled = false
+
+                    micIcon.isVisible = true
+                    micIcon.isEnabled = true
                 }
                 else{
                     sendButton.isVisible = true
                     sendButton.isEnabled = true
+
+                    micIcon.isVisible = false
+                    micIcon.isEnabled = false
                 }
             }
 
