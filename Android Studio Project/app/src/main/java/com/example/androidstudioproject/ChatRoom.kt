@@ -200,6 +200,7 @@ class ChatRoom : AppCompatActivity() {
 
             if(!isRecording){
 
+                micIcon.setBackgroundResource(R.drawable.red_square)
                 GlobalScope.launch {
 
                     isRecording = true
@@ -209,6 +210,7 @@ class ChatRoom : AppCompatActivity() {
             }
             else{ // is already recording
 
+                micIcon.setBackgroundResource(R.drawable.baseline_mic_24)
                 isRecording = false
                 playRecording(recordedShorts)
 //                recordedShorts.clear()
