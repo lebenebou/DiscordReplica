@@ -9,12 +9,15 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
+import androidx.core.view.isVisible
 import kotlinx.coroutines.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -128,7 +131,7 @@ class ChatRoom : AppCompatActivity() {
                 runOnUiThread{ startSendingMode() }
 
                 try {
-                    handleSend(newMessage)
+                    addMessageToDB(newMessage)
                 }
                 catch (e: Exception){
                     runOnUiThread { connectionDropped() }
@@ -137,6 +140,34 @@ class ChatRoom : AppCompatActivity() {
             messageInput.text.clear()
             messageInput.requestFocus()
         }
+        sendButton.isVisible = false
+        sendButton.isEnabled = false
+
+        messageInput.addTextChangedListener(object : TextWatcher {
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // This method is called before the text is changed.
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // This method is called when the text is changed.
+                // You can add your code to be executed here.
+
+                if(messageInput.text.toString().trim().isEmpty()){
+
+                    sendButton.isVisible = false
+                    sendButton.isEnabled = false
+                }
+                else{
+                    sendButton.isVisible = true
+                    sendButton.isEnabled = true
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                // This method is called after the text is changed.
+            }
+        })
     }
     @Deprecated("Deprecated in Java")
     override fun onBackPressed(){
@@ -269,7 +300,7 @@ class ChatRoom : AppCompatActivity() {
 
         messageList.addView(messageLayout)
     }
-    private suspend fun handleSend(newMessage: JSONObject){
+    private suspend fun addMessageToDB(newMessage: JSONObject){
 
         databaseClient.addToMessages(currentRoom.getString("code"), newMessage)
     }
