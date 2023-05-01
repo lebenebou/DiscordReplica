@@ -230,8 +230,8 @@ class Community : AppCompatActivity() {
         openRoomButton.isEnabled = true
         refreshButton.text = "Refresh"
 
-        refreshButton.setBackgroundResource(R.drawable.green_btn_bg)
-        openRoomButton.setBackgroundResource(R.drawable.normal_btn_bg)
+        refreshButton.setBackgroundResource(R.drawable.normal_btn_bg)
+        openRoomButton.setBackgroundResource(R.drawable.green_btn_bg)
     }
     private fun getRandomColor(username: String): Int {
 
