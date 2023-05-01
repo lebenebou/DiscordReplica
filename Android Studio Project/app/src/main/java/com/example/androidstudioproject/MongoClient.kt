@@ -228,6 +228,7 @@ class MongoClient {
 
     // Voice record encoding
     fun compressList(list: MutableList<Short>): String {
+
         // Convert the list to a delta-encoded byte array
         val deltaEncoded = deltaEncode(list)
         // Compress the byte array using GZIP

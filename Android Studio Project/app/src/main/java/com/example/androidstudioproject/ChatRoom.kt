@@ -200,19 +200,43 @@ class ChatRoom : AppCompatActivity() {
 
             if(!isRecording){
 
+                println("Started Recording...")
                 micIcon.setBackgroundResource(R.drawable.red_square)
                 GlobalScope.launch {
 
                     isRecording = true
                     recordedShorts = recordAndSave()
-                    println("Result length: " + recordedShorts.size)
+                    println("Recorded a buffer of size ${recordedShorts.size}")
                 }
             }
             else{ // is already recording
 
                 micIcon.setBackgroundResource(R.drawable.baseline_mic_24)
                 isRecording = false
-                playRecording(recordedShorts)
+                GlobalScope.launch {
+
+                    delay(100)
+
+                    runOnUiThread {
+                        sendButton.isVisible = true
+                        sendButton.isEnabled = true
+
+                        micIcon.isVisible = false
+                        micIcon.isEnabled = false
+
+                        startSendingMode()
+                    }
+
+                    val newVoiceMessage = JSONObject().apply {
+                        put("username", GlobalVars.currentUser)
+                        put("content", databaseClient.compressList(recordedShorts))
+                        put("timestamp", currentTimestamp())
+                        put("is_text", false)
+                    }
+
+                    addVoiceMessageToDB(newVoiceMessage)
+                    recordedShorts.clear()
+                }
 //                recordedShorts.clear()
                 // send To DB
             }
@@ -336,7 +360,10 @@ class ChatRoom : AppCompatActivity() {
 
         // Content
         val contentTextView = TextView(this)
-        contentTextView.text = message.getString("content")
+
+        if(message.getBoolean("is_text")) contentTextView.text = message.getString("content")
+        else contentTextView.text = "VOICE MESSAGE - CLICK TO PLAY"
+
         contentTextView.setTypeface(null, Typeface.BOLD)
         contentTextView.setTextColor(Color.WHITE)
         messageLayout.addView(contentTextView)
@@ -347,11 +374,25 @@ class ChatRoom : AppCompatActivity() {
         timestampTextView.setTextColor(Color.GRAY)
         messageLayout.addView(timestampTextView)
 
+        // Stop here if just text
+        if(message.getBoolean("is_text")) return messageList.addView(messageLayout)
+
+        // Modify message for voice
+        messageLayout.isClickable = true
+        messageLayout.setOnClickListener{
+
+            playRecording(databaseClient.decompressString(message.getString("content")))
+        }
+
         messageList.addView(messageLayout)
     }
     private suspend fun addMessageToDB(newMessage: JSONObject){
 
         databaseClient.addToMessages(currentRoom.getString("code"), newMessage)
+    }
+    private suspend fun addVoiceMessageToDB(newVoiceMessage: JSONObject){
+
+        databaseClient.addToMessages(currentRoom.getString("code"), newVoiceMessage)
     }
     private suspend fun updateCurrentRoom(){
 
@@ -517,7 +558,6 @@ class ChatRoom : AppCompatActivity() {
 
         val buffer: MutableList<Short> = mutableListOf()
 
-        println("Buffer size: $intBufferSize")
         val shortAudioArray = ShortArray(intBufferSize)
 
         // Ask for permission
@@ -544,7 +584,6 @@ class ChatRoom : AppCompatActivity() {
         audioRecord.stop()
         audioRecord.release()
 
-        println("returning buffer of size ${buffer.size}")
         return buffer
     }
     private fun playRecording(shorts: MutableList<Short>){
@@ -574,7 +613,7 @@ class ChatRoom : AppCompatActivity() {
 
         if (audioTrack.playState == AudioTrack.PLAYSTATE_PLAYING) {
 
-            println("Attempting to play...")
+            println("Attempting to play recording...")
             audioTrack.write(array, 0, array.size)
         }
     }
