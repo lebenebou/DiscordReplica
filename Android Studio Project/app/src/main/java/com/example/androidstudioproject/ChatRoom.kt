@@ -121,6 +121,7 @@ class ChatRoom : AppCompatActivity() {
                 put("username", GlobalVars.currentUser)
                 put("content", messageInput.text.toString().trim())
                 put("timestamp", currentTimestamp())
+                put("text", true)
             }
             GlobalScope.launch {
 
