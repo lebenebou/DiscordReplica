@@ -234,11 +234,11 @@ class ChatRoom : AppCompatActivity() {
                         put("is_text", false)
                     }
 
-                    addVoiceMessageToDB(newVoiceMessage)
+                    try{ addVoiceMessageToDB(newVoiceMessage) }
+                    catch(e: Exception){ connectionDropped() }
+
                     recordedShorts.clear()
                 }
-//                recordedShorts.clear()
-                // send To DB
             }
         }
     }
