@@ -1,12 +1,15 @@
 package com.example.androidstudioproject
 
+import android.Manifest
 import android.app.ActivityManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.*
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Typeface
+import android.media.*
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
@@ -16,6 +19,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.view.isVisible
 import kotlinx.coroutines.*
@@ -41,6 +45,21 @@ class ChatRoom : AppCompatActivity() {
     private var localMessages = JSONArray()
 
     var disconnected = false
+
+    // Objects for Recording
+    private var isRecording = false
+
+    private val deferred = CompletableDeferred<Boolean>()
+
+    private val audioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION
+    private val sampleRate = 44100
+    private val channelConfig = AudioFormat.CHANNEL_IN_MONO
+    private val audioFormat = AudioFormat.ENCODING_PCM_16BIT
+    private val intRecordSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL)
+
+    private val intBufferSize = AudioRecord.getMinBufferSize(intRecordSampleRate, channelConfig, audioFormat)
+
+    var recordedShorts: MutableList<Short> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -176,6 +195,26 @@ class ChatRoom : AppCompatActivity() {
                 // This method is called after the text is changed.
             }
         })
+
+        micIcon.setOnClickListener{
+
+            if(!isRecording){
+
+                GlobalScope.launch {
+
+                    isRecording = true
+                    recordedShorts = recordAndSave()
+                    println("Result length: " + recordedShorts.size)
+                }
+            }
+            else{ // is already recording
+
+                isRecording = false
+                playRecording(recordedShorts)
+//                recordedShorts.clear()
+                // send To DB
+            }
+        }
     }
     @Deprecated("Deprecated in Java")
     override fun onBackPressed(){
@@ -471,5 +510,87 @@ class ChatRoom : AppCompatActivity() {
         val saturation = random.nextInt(41) + 60
         val brightness = random.nextInt(41) + 20
         return Color.HSVToColor(floatArrayOf(hue.toFloat(), saturation.toFloat() / 100, brightness.toFloat() / 100))
+    }
+    private suspend fun recordAndSave() : MutableList<Short> {
+
+        val buffer: MutableList<Short> = mutableListOf()
+
+        println("Buffer size: $intBufferSize")
+        val shortAudioArray = ShortArray(intBufferSize)
+
+        // Ask for permission
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 0)
+            deferred.await() // we suspend the activity till the user answer
+        }
+
+        val audioRecord = AudioRecord(audioSource, sampleRate, channelConfig, audioFormat, intBufferSize)
+        audioRecord.startRecording()
+
+        while (isRecording) {
+
+            // we read the bytes captured by audioRecord and save them in SHORT FORMAT inside shortAudioData (not bytes)
+            audioRecord.read(shortAudioArray, 0, shortAudioArray.size)
+
+            // we add all shortAudioData inside a buffer
+            for (element in shortAudioArray) {
+                buffer.add(element)
+            }
+        }
+
+        audioRecord.stop()
+        audioRecord.release()
+
+        println("returning buffer of size ${buffer.size}")
+        return buffer
+    }
+    private fun playRecording(shorts: MutableList<Short>){
+
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+            .build()
+
+        val audioTrack = AudioTrack.Builder()
+            .setAudioAttributes(audioAttributes)
+            .setAudioFormat(
+                AudioFormat.Builder()
+                    .setEncoding(audioFormat)
+                    .setSampleRate(intRecordSampleRate)
+                    .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
+                    .build()
+            )
+            .setBufferSizeInBytes(intBufferSize)
+            .build()
+
+        audioTrack.playbackRate = intRecordSampleRate
+        audioTrack.play()
+
+        val array = shorts.toShortArray()
+
+
+        if (audioTrack.playState == AudioTrack.PLAYSTATE_PLAYING) {
+
+            println("Attempting to play...")
+            audioTrack.write(array, 0, array.size)
+        }
+    }
+    @Override
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            0 -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //to continue the code when the user check permission
+                    deferred.complete(true)
+
+                } else {
+//                    buttonStop()
+                    showMessageBox("Access Denied", "You denied access to the microphone")
+                }
+            }
+        }
     }
 }

@@ -11,18 +11,17 @@ import androidx.core.app.ActivityCompat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import org.json.JSONObject
-
 
 class RecordActivity : AppCompatActivity() {
+
     private lateinit var playButton: Button
     private lateinit var recordButton: Button
 
     private var audioRecord: AudioRecord? = null
     private var audioTrack: AudioTrack? = null
     private var intBufferSize = 0
-    private lateinit var shortAudioData: ShortArray
-    private var isActive = false
+    private lateinit var shortAudioArray: ShortArray
+    private var isRecording = false
     private var audioThread: Thread? = null
     private val deferred = CompletableDeferred<Boolean>()
 
@@ -33,20 +32,19 @@ class RecordActivity : AppCompatActivity() {
 
     private val intRecordSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL)
     private var compressedByteArray: String = ""
-    var theRecord: MutableList<Short> = mutableListOf()
-
-
+    var recordedShorts: MutableList<Short> = mutableListOf()
 
     @SuppressLint("MissingInflatedId", "ResourceType")
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_record)
 
         playButton = findViewById(R.id.playbutton)
         recordButton = findViewById(R.id.recordbutton)
-        var isRecording = false
 
         recordButton.setOnClickListener {
+
             if (!isRecording) {
                 buttonStart()
                 isRecording = true
@@ -66,39 +64,38 @@ class RecordActivity : AppCompatActivity() {
         }
     }
 
-
-
     private fun buttonStart() {
         GlobalScope.launch {
-            theRecord = StartTheRecording()
+            recordedShorts = getRecording()
         }
     }
 
-    private fun  buttonStop() {
-        isActive= false
+    private fun buttonStop() {
+
+        isRecording = false
         audioTrack?.stop()
         audioRecord?.stop()
         audioRecord?.release()
         audioTrack?.release()
-        /*
-        GlobalScope.launch(Dispatchers.IO){
-            sendToServer(theRecord)
-        }
-        */
+
+//        GlobalScope.launch(Dispatchers.IO){
+//            sendToServer(theRecord)
+//        }
+
 
         //we clear the buffer after sending it
-        theRecord.clear()
+        recordedShorts.clear()
     }
 
 
     private suspend fun buttonPlayAudio(){
-        /*
-       val mongodbClient = MongoClient()
 
-       val result = mongodbClient.findOne("Records", JSONObject().put("name", "record1"))
-        */
+//       val mongodbClient = MongoClient()
+//
+//       val result = mongodbClient.findOne("Records", JSONObject().put("name", "record1"))
+//
 //       val theVoiceToPlay = receivedFromServer(result.getString("data"))
-
+//
 //       playRecording(theVoiceToPlay)
    }
 
@@ -106,6 +103,7 @@ class RecordActivity : AppCompatActivity() {
 
    @Override
    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+
        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
        when (requestCode) {
            0 -> {
@@ -122,8 +120,9 @@ class RecordActivity : AppCompatActivity() {
    }
 
 
-   private suspend fun StartTheRecording(): MutableList<Short> {
-       val theRecording: MutableList<Short> = mutableListOf()
+   private suspend fun getRecording(): MutableList<Short> {
+
+       val buffer: MutableList<Short> = mutableListOf()
        //we calculate the optimal size of the buffer (7680 bytes)
        intBufferSize = AudioRecord.getMinBufferSize(
            intRecordSampleRate,
@@ -132,7 +131,7 @@ class RecordActivity : AppCompatActivity() {
        )
 
        //create an array containing intBufferSize values initialized with 0
-       shortAudioData = ShortArray(intBufferSize)
+       shortAudioArray = ShortArray(intBufferSize)
 
 
        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
@@ -140,33 +139,27 @@ class RecordActivity : AppCompatActivity() {
            deferred.await() //we suspend the activity till the user answer
        }
 
-       audioRecord = AudioRecord(
-           audioSource,
-           sampleRate,
-           channelConfig,
-           audioFormat,
-           intBufferSize
-       )
+       audioRecord = AudioRecord(audioSource, sampleRate, channelConfig, audioFormat, intBufferSize)
 
        audioRecord!!.startRecording()
 
-       isActive = true
+       isRecording = true
        audioThread = Thread {//The thread prevents the code from blocking on the while loop and thus allows accessing the stop button
-           while (isActive) {
+           while (isRecording) {
                //we read the bytes captured by audioRecord and save them in SHORT FORMAT inside shortAudioData (not bytes)
-               audioRecord!!.read(shortAudioData, 0, shortAudioData.size)
+               audioRecord!!.read(shortAudioArray, 0, shortAudioArray.size)
 
 
                //we add all shortAudioData inside a buffer
-               for (element in shortAudioData) {
-                   theRecording.add(element)
+               for (element in shortAudioArray) {
+                   buffer.add(element)
                }
            }
        }
 
        audioThread!!.start()
 
-       return theRecording
+       return buffer
    }
 
 /*
