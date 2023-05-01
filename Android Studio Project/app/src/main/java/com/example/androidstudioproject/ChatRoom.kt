@@ -48,6 +48,7 @@ class ChatRoom : AppCompatActivity() {
 
     // Objects for Recording
     private var isRecording = false
+    private var isPlaying = false
 
     private val deferred = CompletableDeferred<Boolean>()
 
@@ -362,7 +363,7 @@ class ChatRoom : AppCompatActivity() {
         val contentTextView = TextView(this)
 
         if(message.getBoolean("is_text")) contentTextView.text = message.getString("content")
-        else contentTextView.text = "VOICE MESSAGE - CLICK TO PLAY"
+        else contentTextView.text = "VOICE MESSAGE (${databaseClient.estimateSize(message.getString("content"))} KB)- CLICK TO PLAY"
 
         contentTextView.setTypeface(null, Typeface.BOLD)
         contentTextView.setTextColor(Color.WHITE)
@@ -381,7 +382,16 @@ class ChatRoom : AppCompatActivity() {
         messageLayout.isClickable = true
         messageLayout.setOnClickListener{
 
-            playRecording(databaseClient.decompressString(message.getString("content")))
+            GlobalScope.launch {
+
+                if(isPlaying){
+                    runOnUiThread { showMessageBox("Already Listening", "Please finish listening to the current voice message") }
+                    return@launch
+                }
+
+                isPlaying = true
+                playRecording(databaseClient.decompressString(message.getString("content")))
+            }
         }
 
         messageList.addView(messageLayout)
@@ -586,7 +596,7 @@ class ChatRoom : AppCompatActivity() {
 
         return buffer
     }
-    private fun playRecording(shorts: MutableList<Short>){
+    private suspend fun playRecording(shorts: MutableList<Short>){
 
         val audioAttributes = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
@@ -610,12 +620,13 @@ class ChatRoom : AppCompatActivity() {
 
         val array = shorts.toShortArray()
 
-
         if (audioTrack.playState == AudioTrack.PLAYSTATE_PLAYING) {
 
             println("Attempting to play recording...")
             audioTrack.write(array, 0, array.size)
         }
+
+        isPlaying = false
     }
     @Override
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

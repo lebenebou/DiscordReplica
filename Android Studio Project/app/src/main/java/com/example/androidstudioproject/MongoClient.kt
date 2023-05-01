@@ -282,4 +282,10 @@ class MongoClient {
         }
         return result
     }
+
+    fun estimateSize(sequence: String): Int {
+
+        val stringLengthInBytes = sequence.toByteArray(Charsets.UTF_8).size
+        return stringLengthInBytes / 1024
+    }
 }
