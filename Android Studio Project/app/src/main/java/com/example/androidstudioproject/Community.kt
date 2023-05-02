@@ -1,5 +1,6 @@
 package com.example.androidstudioproject
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
@@ -14,6 +15,9 @@ import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
+import android.content.SharedPreferences
+
+
 
 class Community : AppCompatActivity() {
 
@@ -26,6 +30,8 @@ class Community : AppCompatActivity() {
     private lateinit var availableRoomsText: TextView
     private lateinit var roomsLayout: LinearLayout
 
+    private lateinit var sharedPrefs: SharedPreferences
+
     private val databaseClient = MongoClient()
     private var currentCommunity = JSONObject()
     private var localAvailableRooms = JSONArray()
@@ -33,6 +39,7 @@ class Community : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
+        sharedPrefs = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         setContentView(R.layout.activity_community)
 
         titleText = findViewById(R.id.welcomeText)
@@ -85,6 +92,8 @@ class Community : AppCompatActivity() {
                     endLoadingMode()
                     availableRoomsText.text = "Available Rooms (${currentCommunity.getJSONArray("rooms").length()})"
                     Toast.makeText(this@Community, "Refreshed", Toast.LENGTH_SHORT).show()
+
+                    showCommunityInfo() // Call the showCommunityInfo function here
                 }
             }
         }
@@ -210,15 +219,22 @@ class Community : AppCompatActivity() {
         }
         builder.show()
     }
-    private fun showCommunityInfo(){
+    private fun showCommunityInfo() {
+        val isFirstTimeUser = sharedPrefs.getBoolean("IsFirstTimeUser", true)
+        val isFirstTimeJoining = sharedPrefs.getBoolean("IsFirstTimeJoining_${GlobalVars.currentCommunityCode}", true)
 
-        showMessageBox("Welcome to " + currentCommunity.getString("name") + ".",
-            "This community was created by " + currentCommunity.getString("creator") + ".\n\n" +
-                    "Description: " + currentCommunity.getString("description") + "\n\n" +
-                    "People in this community: " + currentCommunity.getJSONArray("users").length() + "\n\n" +
-                    "Open rooms: " + localAvailableRooms.length() + "\n\n" +
-                    "Join an available room or open a new one to start chatting!")
+        if (isFirstTimeUser || isFirstTimeJoining) {
+            // Show the pop-up message
+            showMessageBox("Welcome to " + currentCommunity.getString("name") + ".", "This community was created by " + currentCommunity.getString("creator") + ".\n\n" + "Description: " + currentCommunity.getString("description") + "\n\n" + "People in this community: " + currentCommunity.getJSONArray("users").length() + "\n\n" + "Open rooms: " + localAvailableRooms.length() + "\n\n" + "Join an available room or open a new one to start chatting!")
+
+            // Update the shared preferences to indicate that the message has been shown
+            val editor = sharedPrefs.edit()
+            editor.putBoolean("IsFirstTimeUser", false)
+            editor.putBoolean("IsFirstTimeJoining_${GlobalVars.currentCommunityCode}", false)
+            editor.apply()
+        }
     }
+
     private fun startLoadingMode(){
 
         refreshButton.isEnabled = false
