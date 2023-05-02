@@ -27,6 +27,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
+import android.content.SharedPreferences
 
 class ChatRoom : AppCompatActivity() {
 
@@ -42,6 +43,7 @@ class ChatRoom : AppCompatActivity() {
     private val databaseClient = MongoClient()
     private var currentRoom = JSONObject()
     private var localMessages = JSONArray()
+    private lateinit var sharedPrefs: SharedPreferences
 
     var disconnected = false
 
@@ -64,6 +66,7 @@ class ChatRoom : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
+        sharedPrefs = getSharedPreferences("MyApp", Context.MODE_PRIVATE)
         setContentView(R.layout.activity_chat_room)
 
         // this scope runs every 2 seconds
@@ -331,36 +334,44 @@ class ChatRoom : AppCompatActivity() {
 
         showMessageBox("Users in This Room", popupText)
     }
-    private fun showRoomInfo(){
+    private fun showRoomInfo() {
+        val sharedPreferences = getSharedPreferences("MyApp", Context.MODE_PRIVATE)
+        val roomCode = GlobalVars.currentRoomCode
+        val welcomeMessageShown = sharedPreferences.getBoolean(roomCode, false)
 
-        // Build the alert dialog
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Welcome to ${currentRoom.getString("name")}!")
+        if (!welcomeMessageShown) {
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Welcome to ${currentRoom.getString("name")}!")
 
-        var messageText = "Creator: ${currentRoom.getString("creator")}"
-        if(currentRoom.getString("creator") == GlobalVars.currentUser){
+            var messageText = "Creator: ${currentRoom.getString("creator")}"
+            if (currentRoom.getString("creator") == GlobalVars.currentUser) {
+                messageText += "\n\nThis room's code is $roomCode.\n" +
+                        "This code is only shown to you.\n" +
+                        "\nShare it with friends who wish to join this room."
+            }
 
-            messageText += "\n" +
-                    "\nThis room's code is ${GlobalVars.currentRoomCode}.\n" +
-                    "This code is only shown to you.\n" +
-                    "\nShare it with friends who wish to join this room."
+            builder.setMessage(messageText)
+            if (currentRoom.getString("creator") == GlobalVars.currentUser) {
+                builder.setPositiveButton("Copy Code") { _, _ ->
+                    val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    val clipData = ClipData.newPlainText("text", roomCode)
+                    clipboardManager.setPrimaryClip(clipData)
+                    Toast.makeText(this, "Code copied!", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            builder.setNegativeButton("Dismiss") { dialog, _ -> dialog.dismiss() }
+
+            val alertDialog = builder.create()
+            alertDialog.show()
+
+            // Set the flag to indicate that the welcome message has been shown for this room code
+            val editor = sharedPreferences.edit()
+            editor.putBoolean(roomCode, true)
+            editor.apply()
         }
-        builder.setMessage(messageText)
-        if(currentRoom.getString("creator") == GlobalVars.currentUser) builder.setPositiveButton("Copy Code") { _, _ ->
-
-            // Copy the code to clipboard
-            val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clipData = ClipData.newPlainText("text", GlobalVars.currentRoomCode)
-            clipboardManager.setPrimaryClip(clipData)
-            showRoomInfo()
-
-            Toast.makeText(this, "Code copied!", Toast.LENGTH_SHORT).show()
-        }
-        builder.setNegativeButton("Dismiss") { dialog, _ -> dialog.dismiss() }
-
-        val alertDialog = builder.create()
-        alertDialog.show()
     }
+
     private fun addMessageToScrollView(message: JSONObject){
 
         val messageLayout = LinearLayout(this)
