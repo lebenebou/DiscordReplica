@@ -23,6 +23,7 @@ class Community : AppCompatActivity() {
     private lateinit var refreshButton: Button
     private lateinit var descriptionText: TextView
     private lateinit var noroom: TextView
+    private lateinit var availableRoomsText: TextView
     private lateinit var roomsLayout: LinearLayout
 
     private val databaseClient = MongoClient()
@@ -36,6 +37,7 @@ class Community : AppCompatActivity() {
 
         titleText = findViewById(R.id.welcomeText)
         descriptionText = findViewById(R.id.descriptionText)
+        availableRoomsText = findViewById(R.id.mainText2)
 
         openRoomButton = findViewById(R.id.openRoomButton)
         refreshButton = findViewById(R.id.refreshButton)
@@ -57,6 +59,7 @@ class Community : AppCompatActivity() {
                 endLoadingMode()
                 titleText.text = currentCommunity.getString("name") + "."
                 descriptionText.text = currentCommunity.getString("description")
+                availableRoomsText.text = "Available Rooms (${currentCommunity.getJSONArray("rooms").length()})"
 
                 showCommunityInfo()
                 syncScrollView()
@@ -80,6 +83,7 @@ class Community : AppCompatActivity() {
                 runOnUiThread {
                     syncScrollView()
                     endLoadingMode()
+                    availableRoomsText.text = "Available Rooms (${currentCommunity.getJSONArray("rooms").length()})"
                     Toast.makeText(this@Community, "Refreshed", Toast.LENGTH_SHORT).show()
                 }
             }
