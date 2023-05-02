@@ -28,7 +28,6 @@ import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
 
-
 class ChatRoom : AppCompatActivity() {
 
     private lateinit var messageList: LinearLayout
@@ -162,8 +161,7 @@ class ChatRoom : AppCompatActivity() {
             messageInput.text.clear()
             messageInput.requestFocus()
         }
-        sendButton.isVisible = false
-        sendButton.isEnabled = false
+        hideSendButton()
 
         messageInput.addTextChangedListener(object : TextWatcher {
 
@@ -172,28 +170,16 @@ class ChatRoom : AppCompatActivity() {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
                 // This method is called when the text is changed.
                 // You can add your code to be executed here.
 
-                if(messageInput.text.toString().trim().isEmpty()){
-
-                    sendButton.isVisible = false
-                    sendButton.isEnabled = false
-
-                    micIcon.isVisible = true
-                    micIcon.isEnabled = true
-                }
-                else{
-                    sendButton.isVisible = true
-                    sendButton.isEnabled = true
-
-                    micIcon.isVisible = false
-                    micIcon.isEnabled = false
-                }
             }
 
             override fun afterTextChanged(s: Editable?) {
                 // This method is called after the text is changed.
+                if(messageInput.text.isEmpty()) hideSendButton()
+                else showSendButton()
             }
         })
 
@@ -201,30 +187,21 @@ class ChatRoom : AppCompatActivity() {
 
             if(!isRecording){
 
-                println("Started Recording...")
-                micIcon.setBackgroundResource(R.drawable.red_square)
+                startRecordingMode()
                 GlobalScope.launch {
 
-                    isRecording = true
                     recordedShorts = recordAndSave()
                     println("Recorded a buffer of size ${recordedShorts.size}")
                 }
             }
             else{ // is already recording
 
-                micIcon.setBackgroundResource(R.drawable.baseline_mic_24)
-                isRecording = false
+                endRecordingMode()
                 GlobalScope.launch {
 
                     delay(100)
 
                     runOnUiThread {
-                        sendButton.isVisible = true
-                        sendButton.isEnabled = true
-
-                        micIcon.isVisible = false
-                        micIcon.isEnabled = false
-
                         startSendingMode()
                     }
 
@@ -299,8 +276,46 @@ class ChatRoom : AppCompatActivity() {
                 this.onBackPressed()
                 return true
             }
+            R.id.clear_chat -> {
+
+                attemptToClearChat()
+            }
         }
         return super.onOptionsItemSelected(item)
+    }
+    private fun attemptToClearChat(){
+
+        if(currentRoom.getString("creator") != GlobalVars.currentUser) return showMessageBox("Access Denied", "Sorry, only the room creator can clear a rooms chat.")
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Clear Chat")
+        builder.setMessage("Are you sure you want to clear this room's chat?\n\nThis operation might take a while to take effect for other users.\n\nYou will also have to rejoin the room.")
+
+        builder.setPositiveButton("Yes") { _, _ ->
+
+            GlobalScope.launch {
+
+                try {
+                    clearMessages()
+                    databaseClient.removeFromActiveUsers(GlobalVars.currentRoomCode, GlobalVars.currentUser)
+                }
+                catch(e: Exception){
+                    connectionDropped()
+                }
+            }
+            finish()
+            if(GlobalVars.currentCommunityCode=="000000"){
+                startActivity(Intent(this, HomePage::class.java))
+            }
+            else{
+                startActivity(Intent(this, Community::class.java))
+            }
+        }
+        builder.setNegativeButton("No") { dialog, _ ->
+            dialog.dismiss()
+        }
+
+        builder.show()
     }
     private fun showOnlineUsers(){
 
@@ -363,7 +378,7 @@ class ChatRoom : AppCompatActivity() {
         val contentTextView = TextView(this)
 
         if(message.getBoolean("is_text")) contentTextView.text = message.getString("content")
-        else contentTextView.text = "VOICE MESSAGE (${databaseClient.estimateSize(message.getString("content"))} KB)- CLICK TO PLAY"
+        else contentTextView.text = "VOICE MESSAGE (${databaseClient.estimateSize(message.getString("content"))} KB) - CLICK TO PLAY"
 
         contentTextView.setTypeface(null, Typeface.BOLD)
         contentTextView.setTextColor(Color.WHITE)
@@ -404,6 +419,10 @@ class ChatRoom : AppCompatActivity() {
 
         databaseClient.addToMessages(currentRoom.getString("code"), newVoiceMessage)
     }
+    private suspend fun clearMessages(){
+
+        databaseClient.updateOne("Rooms", JSONObject().put("code", GlobalVars.currentRoomCode), JSONObject().put("messages", JSONArray()))
+    }
     private suspend fun updateCurrentRoom(){
 
         currentRoom = databaseClient
@@ -414,9 +433,12 @@ class ChatRoom : AppCompatActivity() {
 
         for(i in localMessages.length() until newMessages.length()){
 
-            if(appInBackground()) sendNotification("New Message", newMessages.getJSONObject(i).getString("username") + ": " + newMessages.getJSONObject(i).getString("content"))
+            val newMessage = newMessages.getJSONObject(i)
+            val messageText = if(newMessage.getBoolean("is_text")) newMessage.getString("content") else "VOICE MESSAGE"
 
-            addMessageToScrollView(newMessages.getJSONObject(i))
+            if(appInBackground()) sendNotification(newMessage.getString("username"), messageText)
+
+            addMessageToScrollView(newMessage)
             scrollToBottom()
         }
 
@@ -535,7 +557,21 @@ class ChatRoom : AppCompatActivity() {
             scrollView.fullScroll(ScrollView.FOCUS_DOWN)
         }
     }
+    private fun startRecordingMode(){
+
+        isRecording = true
+        messageInput.isEnabled = false
+        micIcon.setBackgroundResource(R.drawable.red_square)
+    }
+    private fun endRecordingMode(){
+
+        isRecording = false
+        messageInput.isEnabled = true
+        micIcon.setBackgroundResource(R.drawable.baseline_mic_24)
+    }
     private fun startSendingMode(){
+
+        showSendButton()
 
         sendButton.isEnabled = false
         sendButton.text = "Sending..."
@@ -543,9 +579,26 @@ class ChatRoom : AppCompatActivity() {
     }
     private fun endSendingMode(){
 
-        sendButton.isEnabled = true
         sendButton.text = "Send"
         sendButton.setBackgroundResource(R.drawable.normal_btn_bg)
+
+        if(messageInput.text.isEmpty()) hideSendButton()
+    }
+    private fun hideSendButton(){
+
+        sendButton.isVisible = false
+        sendButton.isEnabled = false
+
+        micIcon.isVisible = true
+        micIcon.isEnabled = true
+    }
+    private fun showSendButton(){
+
+        sendButton.isVisible = true
+        sendButton.isEnabled = true
+
+        micIcon.isVisible = false
+        micIcon.isEnabled = false
     }
     private fun getRandomColor(username: String): Int {
 
