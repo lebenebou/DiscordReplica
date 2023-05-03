@@ -678,7 +678,7 @@ class ChatRoom : AppCompatActivity() {
 
         return buffer
     }
-    private suspend fun playRecording(shorts: MutableList<Short>){
+    private fun playRecording(shorts: MutableList<Short>){
 
         val audioAttributes = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
