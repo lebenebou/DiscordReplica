@@ -67,11 +67,13 @@ class Community : AppCompatActivity() {
                 descriptionText.text = currentCommunity.getString("description")
                 availableRoomsText.text = "Available Rooms (${currentCommunity.getJSONArray("rooms").length()})"
 
-                if(firstTimeEntering()) {
-                showCommunityInfo()
-                }
-            }
+                if(firstTimeEntering()) showCommunityInfo()
+
                 syncScrollView()
+
+
+            }
+
 
         }
 
