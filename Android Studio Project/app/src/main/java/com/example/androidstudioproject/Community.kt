@@ -39,7 +39,6 @@ class Community : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
-        sharedPrefs = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         setContentView(R.layout.activity_community)
 
         titleText = findViewById(R.id.welcomeText)
@@ -68,9 +67,12 @@ class Community : AppCompatActivity() {
                 descriptionText.text = currentCommunity.getString("description")
                 availableRoomsText.text = "Available Rooms (${currentCommunity.getJSONArray("rooms").length()})"
 
+                if(firstTimeEntering()) {
                 showCommunityInfo()
-                syncScrollView()
+                }
             }
+                syncScrollView()
+
         }
 
         refreshButton.setOnClickListener{
@@ -93,7 +95,9 @@ class Community : AppCompatActivity() {
                     availableRoomsText.text = "Available Rooms (${currentCommunity.getJSONArray("rooms").length()})"
                     Toast.makeText(this@Community, "Refreshed", Toast.LENGTH_SHORT).show()
 
-                    showCommunityInfo() // Call the showCommunityInfo function here
+                    if(firstTimeEntering()) {
+                        showCommunityInfo()
+                    } // Call the showCommunityInfo function here
                 }
             }
         }
@@ -219,20 +223,32 @@ class Community : AppCompatActivity() {
         }
         builder.show()
     }
-    private fun showCommunityInfo() {
-        val isFirstTimeUser = sharedPrefs.getBoolean("IsFirstTimeUser", true)
-        val isFirstTimeJoining = sharedPrefs.getBoolean("IsFirstTimeJoining_${GlobalVars.currentCommunityCode}", true)
 
-        if (isFirstTimeUser || isFirstTimeJoining) {
-            // Show the pop-up message
-            showMessageBox("Welcome to " + currentCommunity.getString("name") + ".", "This community was created by " + currentCommunity.getString("creator") + ".\n\n" + "Description: " + currentCommunity.getString("description") + "\n\n" + "People in this community: " + currentCommunity.getJSONArray("users").length() + "\n\n" + "Open rooms: " + localAvailableRooms.length() + "\n\n" + "Join an available room or open a new one to start chatting!")
+    private fun firstTimeEntering(): Boolean {
+        sharedPrefs = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        val communityCode = GlobalVars.currentCommunityCode
+        val welcomeMessageShown = sharedPrefs.getBoolean(communityCode, false)
 
-            // Update the shared preferences to indicate that the message has been shown
+        if (!welcomeMessageShown) {
+            // Set the flag to indicate that the welcome message has been shown for this room code
             val editor = sharedPrefs.edit()
-            editor.putBoolean("IsFirstTimeUser", false)
-            editor.putBoolean("IsFirstTimeJoining_${GlobalVars.currentCommunityCode}", false)
+            editor.putBoolean(communityCode, true)
             editor.apply()
+
+            return true
         }
+
+        return false
+    }
+
+    private fun showCommunityInfo(){
+
+        showMessageBox("Welcome to " + currentCommunity.getString("name") + ".",
+            "This community was created by " + currentCommunity.getString("creator") + ".\n\n" +
+                    "Description: " + currentCommunity.getString("description") + "\n\n" +
+                    "People in this community: " + currentCommunity.getJSONArray("users").length() + "\n\n" +
+                    "Open rooms: " + localAvailableRooms.length() + "\n\n" +
+                    "Join an available room or open a new one to start chatting!")
     }
 
     private fun startLoadingMode(){
