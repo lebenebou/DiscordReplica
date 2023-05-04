@@ -59,6 +59,7 @@ class Community : AppCompatActivity() {
             }
             catch (e: Exception){
                 runOnUiThread{ connectionDropped() }
+                return@launch
             }
 
             runOnUiThread {
