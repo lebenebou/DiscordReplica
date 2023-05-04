@@ -203,15 +203,13 @@ class HomePage : AppCompatActivity() {
 
 //        communitiesLayout.removeAllViews()
 
-        val context = findViewById<TextView>(R.id.noCommunitiesText).context
-        val noResultsText = TextView(context)
-        noResultsText.text = "There was an error fetching your communities.\n\nMake sure you have an active internet connection."
+        val noResultsText = findViewById<TextView>(R.id.noCommunitiesText)
+        noResultsText.text = "There was an error fetching\nyour communities.\n\nMake sure you have an active\ninternet connection."
         noResultsText.setTextColor(Color.WHITE)
         noResultsText.gravity = Gravity.CENTER
         noResultsText.setPadding(0, 250, 0, 0)
         noResultsText.textSize = 15F
-        noResultsText.typeface = ResourcesCompat.getFont(context, R.font.montserratextrabold)
-        communitiesLayout.addView(noResultsText)
+        noResultsText.typeface = ResourcesCompat.getFont(this, R.font.montserratextrabold)
         return
     }
 }
