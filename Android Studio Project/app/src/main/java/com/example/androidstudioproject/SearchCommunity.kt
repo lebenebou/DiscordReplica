@@ -227,7 +227,7 @@ class SearchCommunity : AppCompatActivity() {
                     startActivity(Intent(this@SearchCommunity, Community::class.java))
                 }
                 catch(e: Exception){
-                    connectionDropped()
+                    runOnUiThread { connectionDropped() }
                 }
             }
         }

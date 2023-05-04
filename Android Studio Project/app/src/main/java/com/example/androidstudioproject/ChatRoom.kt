@@ -232,7 +232,7 @@ class ChatRoom : AppCompatActivity() {
                         addVoiceMessageToDB(newVoiceMessage)
                     }
                     catch(e: Exception){
-                        connectionDropped()
+                        runOnUiThread { connectionDropped() }
                     }
 
                     recordedShorts.clear()

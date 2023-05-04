@@ -60,7 +60,7 @@ class HomePage : AppCompatActivity() {
                 userInfo = databaseClient.findOne("Users", JSONObject().put("username", GlobalVars.currentUser))
             }
             catch (e : Exception){
-                connectionDropped()
+                 runOnUiThread { connectionDropped() }
             }
 
             val communityCodes = userInfo.getJSONArray("communities")
@@ -72,7 +72,7 @@ class HomePage : AppCompatActivity() {
                         .put("\$in", communityCodes)))
             }
             catch (e : java.lang.Exception){
-                connectionDropped()
+                 runOnUiThread { connectionDropped() }
             }
             runOnUiThread{ syncScrollView(joinedCommunities) }
         }
