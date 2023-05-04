@@ -686,7 +686,7 @@ class ChatRoom : AppCompatActivity() {
 
         return buffer
     }
-    private fun playRecording(shorts: MutableList<Short>){
+    private suspend fun playRecording(shorts: MutableList<Short>){
 
         val audioAttributes = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_MEDIA) //to be on speaker
