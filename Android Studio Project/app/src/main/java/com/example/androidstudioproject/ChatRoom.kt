@@ -228,8 +228,12 @@ class ChatRoom : AppCompatActivity() {
                         put("is_text", false)
                     }
 
-                    try{ addVoiceMessageToDB(newVoiceMessage) }
-                    catch(e: Exception){ connectionDropped() }
+                    try{
+                        addVoiceMessageToDB(newVoiceMessage)
+                    }
+                    catch(e: Exception){
+                        connectionDropped()
+                    }
 
                     recordedShorts.clear()
                 }
@@ -312,7 +316,7 @@ class ChatRoom : AppCompatActivity() {
             GlobalScope.launch {
 
                 try {
-                    clearMessages()
+                    clearRoomMessages()
                     databaseClient.removeFromActiveUsers(GlobalVars.currentRoomCode, GlobalVars.currentUser)
                 }
                 catch(e: Exception){
@@ -452,7 +456,7 @@ class ChatRoom : AppCompatActivity() {
 
         databaseClient.addToMessages(currentRoom.getString("code"), newVoiceMessage)
     }
-    private suspend fun clearMessages(){
+    private suspend fun clearRoomMessages(){
 
         databaseClient.updateOne("Rooms", JSONObject().put("code", GlobalVars.currentRoomCode), JSONObject().put("messages", JSONArray()))
     }

@@ -62,19 +62,15 @@ class Community : AppCompatActivity() {
             }
 
             runOnUiThread {
+
                 endLoadingMode()
                 titleText.text = currentCommunity.getString("name") + "."
                 descriptionText.text = currentCommunity.getString("description")
                 availableRoomsText.text = "Available Rooms (${currentCommunity.getJSONArray("rooms").length()})"
 
-                if(firstTimeEntering()) showCommunityInfo()
-
                 syncScrollView()
-
-
+                if(firstTimeEntering()) showCommunityInfo()
             }
-
-
         }
 
         refreshButton.setOnClickListener{
@@ -96,10 +92,6 @@ class Community : AppCompatActivity() {
                     endLoadingMode()
                     availableRoomsText.text = "Available Rooms (${currentCommunity.getJSONArray("rooms").length()})"
                     Toast.makeText(this@Community, "Refreshed", Toast.LENGTH_SHORT).show()
-
-                    if(firstTimeEntering()) {
-                        showCommunityInfo()
-                    } // Call the showCommunityInfo function here
                 }
             }
         }
