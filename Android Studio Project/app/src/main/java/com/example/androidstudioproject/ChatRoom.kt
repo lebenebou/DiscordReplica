@@ -107,8 +107,14 @@ class ChatRoom : AppCompatActivity() {
 
             // the following code assumes the Global Var Room Code is of an existing room code
 
-            databaseClient.addToActiveUsers(GlobalVars.currentRoomCode, GlobalVars.currentUser)
-            updateCurrentRoom()
+            try{
+                databaseClient.addToActiveUsers(GlobalVars.currentRoomCode, GlobalVars.currentUser)
+                updateCurrentRoom()
+            }
+            catch (e: Exception){
+                connectionDropped()
+            }
+
             runOnUiThread {
 
                 titleText.text = currentRoom.getString("name")
@@ -117,9 +123,7 @@ class ChatRoom : AppCompatActivity() {
                 sendButton.isEnabled = true
                 sendButton.setBackgroundResource(R.drawable.normal_btn_bg)
 
-                if (firstTimeEntering()) {
-                    showRoomInfo()
-                }
+                if (firstTimeEntering()) showRoomInfo()
             }
         }
 
