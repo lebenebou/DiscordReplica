@@ -689,7 +689,7 @@ class ChatRoom : AppCompatActivity() {
     private fun playRecording(shorts: MutableList<Short>){
 
         val audioAttributes = AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+            .setUsage(AudioAttributes.USAGE_MEDIA) //to be on speaker
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
             .build()
 
