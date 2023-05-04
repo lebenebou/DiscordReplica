@@ -61,7 +61,7 @@ class SearchCommunity : AppCompatActivity() {
                         searchResults = databaseClient.getSearchResults("Communities", "name", query)
                     }
                     catch(e : Exception){
-                        connectionDropped()
+                        runOnUiThread { connectionDropped() }
                     }
 
 
