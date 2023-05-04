@@ -112,7 +112,7 @@ class ChatRoom : AppCompatActivity() {
                 updateCurrentRoom()
             }
             catch (e: Exception){
-                connectionDropped()
+                runOnUiThread { connectionDropped() }
             }
 
             runOnUiThread {
@@ -255,7 +255,7 @@ class ChatRoom : AppCompatActivity() {
                     databaseClient.removeFromActiveUsers(GlobalVars.currentRoomCode, GlobalVars.currentUser)
                 }
                 catch(e: Exception){
-                    connectionDropped()
+                    runOnUiThread { connectionDropped() }
                 }
             }
             finish()
@@ -320,7 +320,7 @@ class ChatRoom : AppCompatActivity() {
                     databaseClient.removeFromActiveUsers(GlobalVars.currentRoomCode, GlobalVars.currentUser)
                 }
                 catch(e: Exception){
-                    connectionDropped()
+                    runOnUiThread { connectionDropped() }
                 }
             }
             finish()
@@ -370,6 +370,7 @@ class ChatRoom : AppCompatActivity() {
     }
 
     private fun showRoomInfo() {
+        
         val roomCode = GlobalVars.currentRoomCode
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Welcome to ${currentRoom.getString("name")}!")
@@ -388,6 +389,7 @@ class ChatRoom : AppCompatActivity() {
                 val clipData = ClipData.newPlainText("text", roomCode)
                 clipboardManager.setPrimaryClip(clipData)
                 Toast.makeText(this, "Code copied!", Toast.LENGTH_SHORT).show()
+                showRoomInfo()
             }
         }
 
