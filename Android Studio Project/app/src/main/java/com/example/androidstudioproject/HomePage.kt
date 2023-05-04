@@ -60,7 +60,8 @@ class HomePage : AppCompatActivity() {
                 userInfo = databaseClient.findOne("Users", JSONObject().put("username", GlobalVars.currentUser))
             }
             catch (e : Exception){
-                 runOnUiThread { connectionDropped() }
+                runOnUiThread { connectionDropped() }
+                return@launch
             }
 
             val communityCodes = userInfo.getJSONArray("communities")
@@ -72,7 +73,8 @@ class HomePage : AppCompatActivity() {
                         .put("\$in", communityCodes)))
             }
             catch (e : java.lang.Exception){
-                 runOnUiThread { connectionDropped() }
+                runOnUiThread { connectionDropped() }
+                return@launch
             }
             runOnUiThread{ syncScrollView(joinedCommunities) }
         }
@@ -199,7 +201,7 @@ class HomePage : AppCompatActivity() {
     }
     private fun connectionDropped(){
 
-        communitiesLayout.removeAllViews()
+//        communitiesLayout.removeAllViews()
 
         val context = findViewById<TextView>(R.id.noCommunitiesText).context
         val noResultsText = TextView(context)

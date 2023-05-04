@@ -370,7 +370,7 @@ class ChatRoom : AppCompatActivity() {
     }
 
     private fun showRoomInfo() {
-        
+
         val roomCode = GlobalVars.currentRoomCode
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Welcome to ${currentRoom.getString("name")}!")
